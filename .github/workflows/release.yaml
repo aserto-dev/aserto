@@ -31,8 +31,6 @@ jobs:
           secrets: |
             kv/data/github  "SSH_PRIVATE_KEY"   | SSH_PRIVATE_KEY;
             kv/data/github  "HOMEBREW_TAP"      | HOMEBREW_TAP;
-            kv/data/github  "GCP_PROJECT_ID"    | GCP_PROJECT_ID;
-            kv/data/github  "GCP_SA_EMAIL"      | GCP_SA_EMAIL;
             kv/data/github  "GCP_SA_KEY"        | GCP_SA_KEY;
       - 
         name: Install Vault CLI
@@ -54,14 +52,13 @@ jobs:
         name: Setup Google Cloud SDK
         uses: google-github-actions/setup-gcloud@master
         with:
-          project_id: ${{ steps.vault.outputs.GCP_PROJECT_ID }}
-          service_account_email: ${{ steps.output.vault.GCP_SA_EMAIL }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
       - 
-        name: set gcp credentials
+        name: Setup Google Cloud Credentials
         run:  gcloud info
       - 
-        name: Setup caching
+        name: Setup Caching
         uses: actions/cache@v1
         with:
           path: ~/go/pkg/mod
