@@ -22,6 +22,15 @@ jobs:
     runs-on: macos-10.15
     steps:
       - 
+        name: Setup Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+      - 
+        name: Setup Google Cloud Credentials
+        run:  gcloud info
+s      - 
         name: Read Configuration
         uses: hashicorp/vault-action@v2.1.0
         id: vault
@@ -48,15 +57,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - 
-        name: Setup Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@master
-        with:
-          service_account_key: ${{ steps.vault.outputs.GCP_SA_KEY }}
-          export_default_credentials: true
-      - 
-        name: Setup Google Cloud Credentials
-        run:  gcloud info
       - 
         name: Setup Caching
         uses: actions/cache@v1
