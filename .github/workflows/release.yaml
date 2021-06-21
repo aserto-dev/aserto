@@ -53,8 +53,8 @@ jobs:
         name: Setup Google Cloud SDK
         uses: google-github-actions/setup-gcloud@master
         with:
-          project_id: ${{ steps.vault.outputs..GCP_PROJECT_ID }}
-          service_account_key: ${{ steps.vault.outputs..GCP_SA_KEY }}
+          project_id: ${{ steps.vault.outputs.GCP_PROJECT_ID }}
+          service_account_key: ${{ steps.vault.outputs.GCP_SA_KEY }}
           export_default_credentials: true
       - 
         name: set gcp credentials
