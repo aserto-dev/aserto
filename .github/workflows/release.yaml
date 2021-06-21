@@ -30,7 +30,7 @@ jobs:
           token: ${{ secrets.VAULT_TOKEN }}
           secrets: |
             kv/data/github  "SSH_PRIVATE_KEY"                | SSH_PRIVATE_KEY;
-            kv/data/github  "HOMEBREW_TAP_GITHUB_TOKEN"      | HOMEBREW_TAP_GITHUB_TOKEN;
+            kv/data/github  "HOMEBREW_TAP"                   | HOMEBREW_TAP;
             kv/data/github  "GOOGLE_APPLICATION_CREDENTIALS" | GOOGLE_APPLICATION_CREDENTIALS;
       - 
         name: Install Vault CLI
