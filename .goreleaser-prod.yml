@@ -1,0 +1,85 @@
+before:
+  hooks:
+builds:
+  - id: "aserto"
+    main: ./cmd/aserto
+    binary: aserto
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+    ldflags:
+      - -s 
+      - -w 
+      - -X github.com/aserto-dev/aserto/pkg/version.ver={{.Version}} 
+      - -X github.com/aserto-dev/aserto/pkg/version.commit={{.ShortCommit}} 
+      - -X github.com/aserto-dev/aserto/pkg/version.date={{.Date}} 
+    mod_timestamp: '{{ .CommitTimestamp }}'
+    tags:
+      - prod
+archives:
+  - format: zip
+    replacements:
+      darwin: darwin
+      linux: linux
+      windows: windows
+      amd64: x86_64
+    files:
+      - LICENSE.md
+      - README.md
+    name_template: "aserto_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+
+checksum:
+  name_template: 'checksums.txt'
+
+snapshot:
+  name_template: "{{ .Tag }}"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+
+release:
+  disable: true
+
+blobs:
+  - 
+    provider: gs
+    bucket: aserto-cli
+    folder: "aserto/{{ .Version }}"
+
+brews:
+  -
+    name: aserto
+
+    tap:
+      owner: aserto-dev
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP }}"
+
+    url_template: "https://storage.googleapis.com/aserto-cli/aserto/{{ .Version }}/{{ .ArtifactName }}"
+    
+    download_strategy: CurlDownloadStrategy
+
+    commit_author:
+      name: Aserto Bot
+      email: github-bot@aserto.com
+
+    homepage: "https://docs.aserto.com/"
+
+    description: "Aserto CLI"
+
+    license: "MIT"
+
+    skip_upload: false
+
+    test: |
+      system "#{bin}/aserto version"
+
+    install: |
+      bin.install "aserto"
