@@ -22,15 +22,6 @@ jobs:
     runs-on: macos-10.15
     steps:
       - 
-        name: Setup Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@master
-        with:
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
-          export_default_credentials: true
-      - 
-        name: Setup Google Cloud Credentials
-        run:  gcloud info
-      - 
         name: Read Configuration
         uses: hashicorp/vault-action@v2.1.0
         id: vault
@@ -94,6 +85,15 @@ jobs:
         name: Lint
         run: |
           make lint
+      - 
+        name: Setup Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+      - 
+        name: Setup Google Cloud Credentials
+        run:  gcloud info
       -
         name: Release
         uses: goreleaser/goreleaser-action@v2
