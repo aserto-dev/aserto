@@ -30,7 +30,7 @@ jobs:
       - 
         name: Setup Google Cloud Credentials
         run:  gcloud info
-s      - 
+      - 
         name: Read Configuration
         uses: hashicorp/vault-action@v2.1.0
         id: vault
