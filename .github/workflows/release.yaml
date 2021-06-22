@@ -46,8 +46,6 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
       - 
         name: Setup Caching
         uses: actions/cache@v1
@@ -64,7 +62,7 @@ jobs:
       - 
         name: Setup Deps
         run: |
-          mkdir -p  
+          mkdir -p $HOME/.ssh
           umask 0077 && echo -e "${SSH_PRIVATE_KEY}" > $HOME/.ssh/id_rsa
           ssh-keyscan github.com >> $HOME/.ssh/known_hosts
 
@@ -91,7 +89,6 @@ jobs:
         with:
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
-          credentials_file_path: "${$HOME}/.ssh"
       - 
         name: Setup Google Cloud Credentials
         run:  gcloud info
