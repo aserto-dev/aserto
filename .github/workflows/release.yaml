@@ -65,7 +65,7 @@ jobs:
         name: Setup Deps
         run: |
           mkdir -p $HOME/.ssh
-          mkdir -p /home/.tmp
+          mkdir -p $GITHUB_WORKSPACE/gcp
           umask 0077 && echo -e "${SSH_PRIVATE_KEY}" > $HOME/.ssh/id_rsa
           ssh-keyscan github.com >> $HOME/.ssh/known_hosts
 
@@ -92,7 +92,7 @@ jobs:
         with:
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
-          credentials_file_path: "/home/.tmp"
+          credentials_file_path: "$GITHUB_WORKSPACE/gcp"
       - 
         name: Setup Google Cloud Credentials
         run:  gcloud info
