@@ -43,6 +43,7 @@ jobs:
           VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
         run: |
           vault token renew
+      -
         name: Checkout
         uses: actions/checkout@v2
       - 
@@ -79,7 +80,6 @@ jobs:
       - 
         name: Setup Google Cloud Credentials
         run:  gcloud info
-      -
       # - 
       #   name: Build
       #   run: |
