@@ -10,3 +10,4 @@ cover.out
 bin/
 dist/
 vendor/
+/github/workspace/.tmp/

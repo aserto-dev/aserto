@@ -91,6 +91,7 @@ jobs:
         with:
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
+          credentials_file_path: ${{ env.GITHUB_WORKSPACE }}/.tmp
       - 
         name: Setup Google Cloud Credentials
         run:  gcloud info
