@@ -45,41 +45,10 @@ changelog:
       - '^test:'
 
 release:
-  disable: true
-
-blobs:
-  - 
-    provider: gs
-    bucket: aserto-cli
-    folder: "aserto/{{ .Version }}"
-
-brews:
-  -
+  github:
+    owner: aserto-dev
     name: aserto
 
-    tap:
-      owner: aserto-dev
-      name: homebrew-tap
-      token: "{{ .Env.HOMEBREW_TAP }}"
-
-    url_template: "https://storage.googleapis.com/aserto-cli/aserto/{{ .Version }}/{{ .ArtifactName }}"
-    
-    download_strategy: CurlDownloadStrategy
-
-    commit_author:
-      name: Aserto Bot
-      email: github-bot@aserto.com
-
-    homepage: "https://docs.aserto.com/"
-
-    description: "Aserto CLI"
-
-    license: "MIT"
-
-    skip_upload: false
-
-    test: |
-      system "#{bin}/aserto version"
-
-    install: |
-      bin.install "aserto"
+  draft: false
+  prerelease: false
+  name_template: "Aserto CLI {{.Tag}}"
