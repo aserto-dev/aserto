@@ -1,5 +1,6 @@
 before:
   hooks:
+  
 builds:
   - id: "aserto"
     main: ./cmd/aserto
@@ -19,6 +20,7 @@ builds:
     mod_timestamp: '{{ .CommitTimestamp }}'
     tags:
       - prod
+
 archives:
   - format: zip
     replacements:
