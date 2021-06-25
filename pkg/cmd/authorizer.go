@@ -11,8 +11,9 @@ type AuthorizerCmd struct {
 	ExecQuery    authorizer.ExecQueryCmd    `cmd:"" help:"execute query" group:"authorizer"`
 }
 
-func (cmd *AuthorizerCmd) BeforeApply(c *cc.CommonCtx) error {
-	return c.VerifyLoggedIn()
+func (cmd *AuthorizerCmd) BeforeApply(c *CLI) error {
+	c.RequireLogin()
+	return nil
 }
 
 func (cmd *AuthorizerCmd) Run(c *cc.CommonCtx) error {

@@ -13,7 +13,6 @@ import (
 	"github.com/aserto-dev/aserto/pkg/pb"
 	dir "github.com/aserto-dev/proto/aserto/authorizer/directory"
 
-	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/types/known/structpb"
 )
@@ -23,10 +22,6 @@ type GetUserPropsCmd struct {
 }
 
 func (cmd *GetUserPropsCmd) Run(c *cc.CommonCtx) error {
-	if _, err := uuid.Parse(cmd.UserID); err != nil {
-		return errors.Errorf("argument provided is not a valid user id")
-	}
-
 	conn, err := authorizer.Connection(
 		c.Context,
 		c.AuthorizerService(),
@@ -38,8 +33,14 @@ func (cmd *GetUserPropsCmd) Run(c *cc.CommonCtx) error {
 
 	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
 	dirClient := conn.DirectoryClient()
+	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
+		Identity: cmd.UserID,
+	})
+	if err != nil {
+		return errors.Wrapf(err, "resolve identity")
+	}
 
-	resp, err := dirClient.GetUserProperties(ctx, &dir.GetUserPropertiesRequest{Id: cmd.UserID})
+	resp, err := dirClient.GetUserProperties(ctx, &dir.GetUserPropertiesRequest{Id: idResp.Id})
 	if err != nil {
 		return err
 	}
@@ -52,10 +53,6 @@ type GetUserRolesCmd struct {
 }
 
 func (cmd *GetUserRolesCmd) Run(c *cc.CommonCtx) error {
-	if _, err := uuid.Parse(cmd.UserID); err != nil {
-		return errors.Errorf("argument provided is not a valid user id")
-	}
-
 	conn, err := authorizer.Connection(
 		c.Context,
 		c.AuthorizerService(),
@@ -67,8 +64,14 @@ func (cmd *GetUserRolesCmd) Run(c *cc.CommonCtx) error {
 
 	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
 	dirClient := conn.DirectoryClient()
+	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
+		Identity: cmd.UserID,
+	})
+	if err != nil {
+		return errors.Wrapf(err, "resolve identity")
+	}
 
-	resp, err := dirClient.GetUserRoles(ctx, &dir.GetUserRolesRequest{Id: cmd.UserID})
+	resp, err := dirClient.GetUserRoles(ctx, &dir.GetUserRolesRequest{Id: idResp.Id})
 	if err != nil {
 		return err
 	}
@@ -85,10 +88,6 @@ type GetUserPermsCmd struct {
 }
 
 func (cmd *GetUserPermsCmd) Run(c *cc.CommonCtx) error {
-	if _, err := uuid.Parse(cmd.UserID); err != nil {
-		return errors.Errorf("argument provided is not a valid user id")
-	}
-
 	conn, err := authorizer.Connection(
 		c.Context,
 		c.AuthorizerService(),
@@ -100,8 +99,14 @@ func (cmd *GetUserPermsCmd) Run(c *cc.CommonCtx) error {
 
 	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
 	dirClient := conn.DirectoryClient()
+	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
+		Identity: cmd.UserID,
+	})
+	if err != nil {
+		return errors.Wrapf(err, "resolve identity")
+	}
 
-	resp, err := dirClient.GetUserPermissions(ctx, &dir.GetUserPermissionsRequest{Id: cmd.UserID})
+	resp, err := dirClient.GetUserPermissions(ctx, &dir.GetUserPermissionsRequest{Id: idResp.Id})
 	if err != nil {
 		return err
 	}
@@ -122,10 +127,6 @@ type SetUserPropCmd struct {
 }
 
 func (cmd *SetUserPropCmd) Run(c *cc.CommonCtx) error {
-	if _, err := uuid.Parse(cmd.UserID); err != nil {
-		return errors.Errorf("argument provided is not a valid user id")
-	}
-
 	conn, err := authorizer.Connection(
 		c.Context,
 		c.AuthorizerService(),
@@ -137,6 +138,12 @@ func (cmd *SetUserPropCmd) Run(c *cc.CommonCtx) error {
 
 	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
 	dirClient := conn.DirectoryClient()
+	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
+		Identity: cmd.UserID,
+	})
+	if err != nil {
+		return errors.Wrapf(err, "resolve identity")
+	}
 
 	var (
 		value *structpb.Value
@@ -170,7 +177,7 @@ func (cmd *SetUserPropCmd) Run(c *cc.CommonCtx) error {
 
 	fmt.Fprintf(c.ErrWriter, "set property %s\n", cmd.Key)
 	if _, err := dirClient.SetUserProperty(ctx, &dir.SetUserPropertyRequest{
-		Id:    cmd.UserID,
+		Id:    idResp.Id,
 		Key:   cmd.Key,
 		Value: value,
 	}); err != nil {
@@ -186,10 +193,6 @@ type SetUserRoleCmd struct {
 }
 
 func (cmd *SetUserRoleCmd) Run(c *cc.CommonCtx) error {
-	if _, err := uuid.Parse(cmd.UserID); err != nil {
-		return errors.Errorf("argument provided is not a valid user id")
-	}
-
 	conn, err := authorizer.Connection(
 		c.Context,
 		c.AuthorizerService(),
@@ -201,10 +204,16 @@ func (cmd *SetUserRoleCmd) Run(c *cc.CommonCtx) error {
 
 	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
 	dirClient := conn.DirectoryClient()
+	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
+		Identity: cmd.UserID,
+	})
+	if err != nil {
+		return errors.Wrapf(err, "resolve identity")
+	}
 
 	fmt.Fprintf(c.ErrWriter, "set role %s\n", cmd.Key)
 	if _, err := dirClient.SetUserRole(ctx, &dir.SetUserRoleRequest{
-		Id:   cmd.UserID,
+		Id:   idResp.Id,
 		Role: cmd.Key,
 	}); err != nil {
 		return err
@@ -218,9 +227,6 @@ type SetUserPermCmd struct {
 }
 
 func (cmd *SetUserPermCmd) Run(c *cc.CommonCtx) error {
-	if _, err := uuid.Parse(cmd.UserID); err != nil {
-		return errors.Errorf("argument provided is not a valid user id")
-	}
 	conn, err := authorizer.Connection(
 		c.Context,
 		c.AuthorizerService(),
@@ -232,10 +238,16 @@ func (cmd *SetUserPermCmd) Run(c *cc.CommonCtx) error {
 
 	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
 	dirClient := conn.DirectoryClient()
+	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
+		Identity: cmd.UserID,
+	})
+	if err != nil {
+		return errors.Wrapf(err, "resolve identity")
+	}
 
 	fmt.Fprintf(c.ErrWriter, "set permission %s\n", cmd.Key)
 	if _, err := dirClient.SetUserPermission(ctx, &dir.SetUserPermissionRequest{
-		Id:         cmd.UserID,
+		Id:         idResp.Id,
 		Permission: cmd.Key,
 	}); err != nil {
 		return err
@@ -249,10 +261,6 @@ type DelUserPropCmd struct {
 }
 
 func (cmd *DelUserPropCmd) Run(c *cc.CommonCtx) error {
-	if _, err := uuid.Parse(cmd.UserID); err != nil {
-		return errors.Errorf("argument provided is not a valid user id")
-	}
-
 	conn, err := authorizer.Connection(
 		c.Context,
 		c.AuthorizerService(),
@@ -264,10 +272,16 @@ func (cmd *DelUserPropCmd) Run(c *cc.CommonCtx) error {
 
 	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
 	dirClient := conn.DirectoryClient()
+	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
+		Identity: cmd.UserID,
+	})
+	if err != nil {
+		return errors.Wrapf(err, "resolve identity")
+	}
 
 	fmt.Fprintf(c.ErrWriter, "removing property [%s]\n", cmd.Key)
 	if _, err := dirClient.DeleteUserProperty(ctx, &dir.DeleteUserPropertyRequest{
-		Id:  cmd.UserID,
+		Id:  idResp.Id,
 		Key: cmd.Key,
 	}); err != nil {
 		return err
@@ -282,10 +296,6 @@ type DelUserRoleCmd struct {
 }
 
 func (cmd *DelUserRoleCmd) Run(c *cc.CommonCtx) error {
-	if _, err := uuid.Parse(cmd.UserID); err != nil {
-		return errors.Errorf("argument provided is not a valid user id")
-	}
-
 	conn, err := authorizer.Connection(
 		c.Context,
 		c.AuthorizerService(),
@@ -297,10 +307,16 @@ func (cmd *DelUserRoleCmd) Run(c *cc.CommonCtx) error {
 
 	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
 	dirClient := conn.DirectoryClient()
+	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
+		Identity: cmd.UserID,
+	})
+	if err != nil {
+		return errors.Wrapf(err, "resolve identity")
+	}
 
 	fmt.Fprintf(c.ErrWriter, "removing role [%s]\n", cmd.Key)
 	if _, err := dirClient.DeleteUserRole(ctx, &dir.DeleteUserRoleRequest{
-		Id:   cmd.UserID,
+		Id:   idResp.Id,
 		Role: cmd.Key,
 	}); err != nil {
 		return err
@@ -315,10 +331,6 @@ type DelUserPermCmd struct {
 }
 
 func (cmd *DelUserPermCmd) Run(c *cc.CommonCtx) error {
-	if _, err := uuid.Parse(cmd.UserID); err != nil {
-		return errors.Errorf("argument provided is not a valid user id")
-	}
-
 	conn, err := authorizer.Connection(
 		c.Context,
 		c.AuthorizerService(),
@@ -330,10 +342,16 @@ func (cmd *DelUserPermCmd) Run(c *cc.CommonCtx) error {
 
 	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
 	dirClient := conn.DirectoryClient()
+	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
+		Identity: cmd.UserID,
+	})
+	if err != nil {
+		return errors.Wrapf(err, "resolve identity")
+	}
 
 	fmt.Fprintf(c.ErrWriter, "removing permission [%s]\n", cmd.Key)
 	if _, err := dirClient.DeleteUserPermission(ctx, &dir.DeleteUserPermissionRequest{
-		Id:         cmd.UserID,
+		Id:         idResp.Id,
 		Permission: cmd.Key,
 	}); err != nil {
 		return err

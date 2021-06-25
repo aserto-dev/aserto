@@ -10,8 +10,9 @@ type UserCmd struct {
 	Get  user.GetCmd  `cmd:"" group:"user" help:"get property"`
 }
 
-func (cmd *UserCmd) BeforeApply(c *cc.CommonCtx) error {
-	return c.VerifyLoggedIn()
+func (cmd *UserCmd) BeforeApply(c *CLI) error {
+	c.RequireLogin()
+	return nil
 }
 
 func (cmd *UserCmd) Run(c *cc.CommonCtx) error {

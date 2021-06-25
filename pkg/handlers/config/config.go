@@ -1,111 +1,106 @@
 package config
 
-// import (
-// 	"fmt"
+import (
+	"fmt"
 
-// 	"github.com/aserto-dev/aserto/pkg/app"
-// 	"github.com/aserto-dev/aserto/pkg/flags"
-// 	"github.com/aserto-dev/aserto/pkg/grpcc"
-// 	"github.com/aserto-dev/aserto/pkg/grpcc/tenant"
-// 	"github.com/aserto-dev/aserto/pkg/jsonx"
-// 	"github.com/aserto-dev/aserto/pkg/x"
-// 	"github.com/aserto-dev/go-lib/ids"
-// 	"github.com/aserto-dev/proto/aserto/api"
-// 	"github.com/aserto-dev/proto/aserto/tenant/account"
-// 	"github.com/pkg/errors"
-// 	"github.com/urfave/cli/v2"
-// )
+	"github.com/aserto-dev/aserto/pkg/cc"
+	"github.com/aserto-dev/aserto/pkg/grpcc"
+	"github.com/aserto-dev/aserto/pkg/grpcc/tenant"
+	"github.com/aserto-dev/aserto/pkg/jsonx"
+	"github.com/aserto-dev/go-lib/ids"
+	"github.com/aserto-dev/proto/aserto/api"
+	"github.com/aserto-dev/proto/aserto/tenant/account"
 
-// func GetEnvHandler(c *cli.Context) error {
-// 	services := grpcc.Environment(c.String(flags.FlagEnvironment))
-// 	fmt.Fprintf(c.App.ErrWriter, "%s - default env [%s]\n", x.Target, x.DefaultEnv)
-// 	return jsonx.OutputJSON(c.App.Writer, services)
-// }
+	"github.com/pkg/errors"
+)
 
-// func SetEnvHandler(c *cli.Context) error {
-// 	fmt.Fprintf(c.App.ErrWriter, "set env handler\n")
-// 	return nil
-// }
+type GetEnvCmd struct {
+}
 
-// func GetTenantHandler(c *cli.Context) error {
-// 	appCtx := app.GetAppContext(c.Context)
+func (cmd *GetEnvCmd) Run(c *cc.CommonCtx) error {
+	services, err := grpcc.Environment(c.Environment())
+	if err != nil {
+		return err
+	}
 
-// 	conn, err := tenant.Connection(
-// 		c.Context,
-// 		appCtx.TenantService(),
-// 		grpcc.NewTokenAuth(appCtx.AccessToken()),
-// 	)
-// 	if err != nil {
-// 		return err
-// 	}
+	return jsonx.OutputJSON(c.OutWriter, services)
+}
 
-// 	accntClient := conn.AccountClient()
+type GetTenantCmd struct {
+}
 
-// 	req := &account.GetAccountRequest{}
+func (cmd *GetTenantCmd) Run(c *cc.CommonCtx) error {
 
-// 	resp, err := accntClient.GetAccount(c.Context, req)
-// 	if err != nil {
-// 		return errors.Wrapf(err, "get account")
-// 	}
+	conn, err := tenant.Connection(
+		c.Context,
+		c.TenantService(),
+		grpcc.NewTokenAuth(c.AccessToken()),
+	)
+	if err != nil {
+		return err
+	}
 
-// 	type tenant struct {
-// 		ID      string `json:"id"`
-// 		Name    string `json:"name"`
-// 		Default bool   `json:"default"`
-// 	}
+	accntClient := conn.AccountClient()
 
-// 	tenants := make([]*tenant, len(resp.Result.Tenants))
+	req := &account.GetAccountRequest{}
 
-// 	for i, t := range resp.Result.Tenants {
-// 		isDefault := (t.Id == resp.Result.DefaultTenant)
-// 		tt := tenant{
-// 			ID:      t.Id,
-// 			Name:    t.Name,
-// 			Default: isDefault,
-// 		}
-// 		tenants[i] = &tt
-// 	}
+	resp, err := accntClient.GetAccount(c.Context, req)
+	if err != nil {
+		return errors.Wrapf(err, "get account")
+	}
 
-// 	return jsonx.OutputJSON(c.App.Writer, tenants)
-// }
+	type tenant struct {
+		ID      string `json:"id"`
+		Name    string `json:"name"`
+		Default bool   `json:"default"`
+	}
 
-// func SetTenantHandler(c *cli.Context) error {
-// 	appCtx := app.GetAppContext(c.Context)
+	tenants := make([]*tenant, len(resp.Result.Tenants))
 
-// 	if !c.Args().Present() || !(c.Args().Len() <= 2) {
-// 		return errors.Errorf("invalid number of arguments")
-// 	}
+	for i, t := range resp.Result.Tenants {
+		isDefault := (t.Id == resp.Result.DefaultTenant)
+		tt := tenant{
+			ID:      t.Id,
+			Name:    t.Name,
+			Default: isDefault,
+		}
+		tenants[i] = &tt
+	}
 
-// 	id := c.Args().First()
-// 	if err := ids.CheckTenantID(id); err != nil {
-// 		return errors.Errorf("argument is not a valid tenant id")
-// 	}
+	return jsonx.OutputJSON(c.OutWriter, tenants)
+}
 
-// 	fmt.Fprintf(c.App.ErrWriter, "tenant %s\n", id)
+type SetTenantCmd struct {
+	ID string `arg:"" required:"" name:"tenant-id" help:"tenant id"`
+}
 
-// 	setDefault := flags.GetBoolTailFlag(c, "default")
-// 	if setDefault {
-// 		fmt.Fprintf(c.App.ErrWriter, "set default tenant to [%s]\n", id)
+func (cmd *SetTenantCmd) Run(c *cc.CommonCtx) error {
+	if err := ids.CheckTenantID(cmd.ID); err != nil {
+		return errors.Errorf("argument is not a valid tenant id")
+	}
 
-// 		conn, err := tenant.Connection(
-// 			c.Context,
-// 			appCtx.TenantService(),
-// 			grpcc.NewTokenAuth(appCtx.AccessToken()),
-// 		)
-// 		if err != nil {
-// 			return err
-// 		}
+	fmt.Fprintf(c.ErrWriter, "tenant %s\n", cmd.ID)
 
-// 		accntClient := conn.AccountClient()
+	fmt.Fprintf(c.ErrWriter, "set default tenant to [%s]\n", cmd.ID)
 
-// 		req := &account.UpdateAccountRequest{
-// 			Account: &api.Account{DefaultTenant: id},
-// 		}
+	conn, err := tenant.Connection(
+		c.Context,
+		c.TenantService(),
+		grpcc.NewTokenAuth(c.AccessToken()),
+	)
+	if err != nil {
+		return err
+	}
 
-// 		if _, err := accntClient.UpdateAccount(c.Context, req); err != nil {
-// 			return errors.Wrapf(err, "update account")
-// 		}
-// 	}
+	accntClient := conn.AccountClient()
 
-// 	return nil
-// }
+	req := &account.UpdateAccountRequest{
+		Account: &api.Account{DefaultTenant: cmd.ID},
+	}
+
+	if _, err := accntClient.UpdateAccount(c.Context, req); err != nil {
+		return errors.Wrapf(err, "update account")
+	}
+
+	return nil
+}

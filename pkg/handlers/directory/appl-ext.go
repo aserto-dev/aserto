@@ -36,8 +36,14 @@ func (cmd *ListUserAppsCmd) Run(c *cc.CommonCtx) error {
 
 	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
 	dirClient := conn.DirectoryClient()
+	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
+		Identity: cmd.UserID,
+	})
+	if err != nil {
+		return errors.Wrapf(err, "resolve identity")
+	}
 
-	resp, err := dirClient.ListUserApplications(ctx, &dir.ListUserApplicationsRequest{Id: cmd.UserID})
+	resp, err := dirClient.ListUserApplications(ctx, &dir.ListUserApplicationsRequest{Id: idResp.Id})
 	if err != nil {
 		return err
 	}
@@ -74,9 +80,15 @@ func (cmd *DelUserAppCmd) Run(c *cc.CommonCtx) error {
 
 	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
 	dirClient := conn.DirectoryClient()
+	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
+		Identity: cmd.UserID,
+	})
+	if err != nil {
+		return errors.Wrapf(err, "resolve identity")
+	}
 
 	_, err = dirClient.DeleteUserApplication(ctx, &dir.DeleteUserApplicationRequest{
-		Id:   cmd.UserID,
+		Id:   idResp.Id,
 		Name: cmd.AppName,
 	})
 	if err != nil {
@@ -103,8 +115,14 @@ func (cmd *GetApplPropsCmd) Run(c *cc.CommonCtx) error {
 
 	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
 	dirClient := conn.DirectoryClient()
+	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
+		Identity: cmd.UserID,
+	})
+	if err != nil {
+		return errors.Wrapf(err, "resolve identity")
+	}
 
-	resp, err := dirClient.GetApplProperties(ctx, &dir.GetApplPropertiesRequest{Id: cmd.UserID, Name: cmd.AppName})
+	resp, err := dirClient.GetApplProperties(ctx, &dir.GetApplPropertiesRequest{Id: idResp.Id, Name: cmd.AppName})
 	if err != nil {
 		return err
 	}
@@ -128,8 +146,14 @@ func (cmd *GetApplRolesCmd) Run(c *cc.CommonCtx) error {
 
 	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
 	dirClient := conn.DirectoryClient()
+	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
+		Identity: cmd.UserID,
+	})
+	if err != nil {
+		return errors.Wrapf(err, "resolve identity")
+	}
 
-	resp, err := dirClient.GetApplRoles(ctx, &dir.GetApplRolesRequest{Id: cmd.UserID, Name: cmd.AppName})
+	resp, err := dirClient.GetApplRoles(ctx, &dir.GetApplRolesRequest{Id: idResp.Id, Name: cmd.AppName})
 	if err != nil {
 		return err
 	}
@@ -156,8 +180,14 @@ func (cmd *GetApplPermsCmd) Run(c *cc.CommonCtx) error {
 
 	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
 	dirClient := conn.DirectoryClient()
+	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
+		Identity: cmd.UserID,
+	})
+	if err != nil {
+		return errors.Wrapf(err, "resolve identity")
+	}
 
-	resp, err := dirClient.GetApplPermissions(ctx, &dir.GetApplPermissionsRequest{Id: cmd.UserID, Name: cmd.AppName})
+	resp, err := dirClient.GetApplPermissions(ctx, &dir.GetApplPermissionsRequest{Id: idResp.Id, Name: cmd.AppName})
 	if err != nil {
 		return err
 	}
@@ -192,6 +222,12 @@ func (cmd *SetApplPropCmd) Run(c *cc.CommonCtx) error {
 
 	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
 	dirClient := conn.DirectoryClient()
+	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
+		Identity: cmd.UserID,
+	})
+	if err != nil {
+		return errors.Wrapf(err, "resolve identity")
+	}
 
 	var (
 		value *structpb.Value
@@ -226,7 +262,7 @@ func (cmd *SetApplPropCmd) Run(c *cc.CommonCtx) error {
 
 	fmt.Fprintf(c.ErrWriter, "set property %s\n", cmd.Key)
 	if _, err := dirClient.SetApplProperty(ctx, &dir.SetApplPropertyRequest{
-		Id:    cmd.UserID,
+		Id:    idResp.Id,
 		Name:  cmd.AppName,
 		Key:   cmd.Key,
 		Value: value,
@@ -255,9 +291,15 @@ func (cmd *SetApplRoleCmd) Run(c *cc.CommonCtx) error {
 
 	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
 	dirClient := conn.DirectoryClient()
+	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
+		Identity: cmd.UserID,
+	})
+	if err != nil {
+		return errors.Wrapf(err, "resolve identity")
+	}
 
 	if _, err := dirClient.SetApplRole(ctx, &dir.SetApplRoleRequest{
-		Id:   cmd.UserID,
+		Id:   idResp.Id,
 		Name: cmd.AppName,
 		Role: cmd.Key,
 	}); err != nil {
@@ -284,9 +326,15 @@ func (cmd *SetApplPermCmd) Run(c *cc.CommonCtx) error {
 
 	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
 	dirClient := conn.DirectoryClient()
+	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
+		Identity: cmd.UserID,
+	})
+	if err != nil {
+		return errors.Wrapf(err, "resolve identity")
+	}
 
 	if _, err := dirClient.SetApplPermission(ctx, &dir.SetApplPermissionRequest{
-		Id:         cmd.UserID,
+		Id:         idResp.Id,
 		Name:       cmd.AppName,
 		Permission: cmd.Key,
 	}); err != nil {
@@ -314,10 +362,16 @@ func (cmd *DelApplPropCmd) Run(c *cc.CommonCtx) error {
 
 	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
 	dirClient := conn.DirectoryClient()
+	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
+		Identity: cmd.UserID,
+	})
+	if err != nil {
+		return errors.Wrapf(err, "resolve identity")
+	}
 
 	fmt.Fprintf(c.ErrWriter, "remove property %s\n", cmd.Key)
 	if _, err := dirClient.DeleteApplProperty(ctx, &dir.DeleteApplPropertyRequest{
-		Id:   cmd.UserID,
+		Id:   idResp.Id,
 		Name: cmd.AppName,
 		Key:  cmd.Key,
 	}); err != nil {
@@ -345,10 +399,16 @@ func (cmd *DelApplRoleCmd) Run(c *cc.CommonCtx) error {
 
 	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
 	dirClient := conn.DirectoryClient()
+	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
+		Identity: cmd.UserID,
+	})
+	if err != nil {
+		return errors.Wrapf(err, "resolve identity")
+	}
 
 	fmt.Fprintf(c.ErrWriter, "remove role %s\n", cmd.Key)
 	if _, err := dirClient.DeleteApplRole(ctx, &dir.DeleteApplRoleRequest{
-		Id:   cmd.UserID,
+		Id:   idResp.Id,
 		Name: cmd.AppName,
 		Role: cmd.Key,
 	}); err != nil {
@@ -376,10 +436,16 @@ func (cmd *DelApplPermCmd) Run(c *cc.CommonCtx) error {
 
 	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
 	dirClient := conn.DirectoryClient()
+	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
+		Identity: cmd.UserID,
+	})
+	if err != nil {
+		return errors.Wrapf(err, "resolve identity")
+	}
 
 	fmt.Fprintf(c.ErrWriter, "remove permission %s\n", cmd.Key)
 	if _, err := dirClient.DeleteApplPermission(ctx, &dir.DeleteApplPermissionRequest{
-		Id:         cmd.UserID,
+		Id:         idResp.Id,
 		Name:       cmd.AppName,
 		Permission: cmd.Key,
 	}); err != nil {

@@ -80,7 +80,10 @@ func (d *LoginCmd) Run(c *cc.CommonCtx) error {
 
 	tok.ExpiresAt = time.Now().UTC().Add(time.Second * time.Duration(tok.ExpiresIn))
 
-	svcs := grpcc.Environment(env)
+	svcs, err := grpcc.Environment(env)
+	if err != nil {
+		return err
+	}
 
 	conn, err := tenant.Connection(
 		c.Context,

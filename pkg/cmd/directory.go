@@ -40,8 +40,9 @@ type DirectoryCmd struct {
 	DelRes  directory.DelResCmd  `cmd:"" help:"delete resource" group:"tenant resources"`
 }
 
-func (cmd *DirectoryCmd) BeforeApply(c *cc.CommonCtx) error {
-	return c.VerifyLoggedIn()
+func (cmd *DirectoryCmd) BeforeApply(c *CLI) error {
+	c.RequireLogin()
+	return nil
 }
 
 func (cmd *DirectoryCmd) Run(c *cc.CommonCtx) error {

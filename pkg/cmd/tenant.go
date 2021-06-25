@@ -16,8 +16,9 @@ type TenantCmd struct {
 	GetProvider          tenant.GetProviderCmd          `cmd:"" group:"tenant" help:"get provider info"`
 }
 
-func (cmd *TenantCmd) BeforeApply(c *cc.CommonCtx) error {
-	return c.VerifyLoggedIn()
+func (cmd *TenantCmd) BeforeApply(c *CLI) error {
+	c.RequireLogin()
+	return nil
 }
 
 func (cmd *TenantCmd) Run(c *cc.CommonCtx) error {

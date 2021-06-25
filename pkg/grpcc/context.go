@@ -17,3 +17,7 @@ func SetAsertoAPIKey(ctx context.Context, key string) context.Context {
 func authzBasicHeader(key string) string {
 	return basic + " " + key
 }
+
+func SetAccountContext(ctx context.Context, accountID string) context.Context {
+	return metadata.AppendToOutgoingContext(ctx, asertoAccountID, accountID)
+}
