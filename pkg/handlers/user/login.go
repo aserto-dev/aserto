@@ -98,7 +98,7 @@ func (d *LoginCmd) Run(c *cc.CommonCtx) error {
 		return errors.Wrapf(err, "get tenant id")
 	}
 
-	if err := getConnectionKeys(c.Context, conn, tok); err != nil {
+	if err := GetConnectionKeys(c.Context, conn, tok); err != nil {
 		return errors.Wrapf(err, "get connection keys")
 	}
 
@@ -128,7 +128,7 @@ func getTenantID(ctx context.Context, conn *tenant.Client, tok *auth0api.Token) 
 	return err
 }
 
-func getConnectionKeys(ctx context.Context, conn *tenant.Client, tok *auth0api.Token) error {
+func GetConnectionKeys(ctx context.Context, conn *tenant.Client, tok *auth0api.Token) error {
 	ctx = grpcc.SetTenantContext(ctx, tok.TenantID)
 
 	connClient := conn.ConnectionManagerClient()

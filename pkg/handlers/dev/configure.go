@@ -13,7 +13,6 @@ import (
 	"github.com/aserto-dev/aserto/pkg/grpcc/tenant"
 
 	"github.com/aserto-dev/proto/aserto/api"
-	"github.com/aserto-dev/proto/aserto/tenant/account"
 	"github.com/aserto-dev/proto/aserto/tenant/connection"
 	"github.com/aserto-dev/proto/aserto/tenant/policy"
 
@@ -39,20 +38,9 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	accntClient := conn.AccountClient()
-	accntResp, err := accntClient.GetAccount(
-		c.Context,
-		&account.GetAccountRequest{},
-	)
-	if err != nil {
-		return errors.Wrapf(err, "get tenant account info")
-	}
+	fmt.Fprintf(c.OutWriter, "tenant id: %s\n", c.TenantID())
 
-	params.TenantID = accntResp.Result.Tenants[0].Id
-
-	fmt.Fprintf(c.OutWriter, "tenant id: %s [%s]\n", params.TenantID, accntResp.Result.Tenants[0].Name)
-
-	ctx := grpcc.SetTenantContext(c.Context, params.TenantID)
+	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
 
 	policyClient := conn.PolicyClient()
 	policyRefResp, err := policyClient.ListPolicyRefs(
@@ -79,6 +67,7 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 		return errors.Errorf("policy not found [%s]", cmd.Name)
 	}
 
+	params.TenantID = c.TenantID()
 	params.PolicyName = pack.Name
 	params.PolicyID = pack.Id
 	params.RegistrySvc = c.RegistrySvc()

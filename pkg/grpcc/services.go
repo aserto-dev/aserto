@@ -20,7 +20,7 @@ func Environment(env string) (*Services, error) {
 			Environment:       x.EnvProduction,
 			TenantService:     "tenant.prod.aserto.com:8443",
 			AuthorizerService: "authorizer.prod.aserto.com:8443",
-			RegistryService:   "bundler.prod.aserto.com:8443",
+			RegistryService:   "https://bundler.prod.aserto.com",
 			TasksService:      "tasks.prod.aserto.com:8433",
 		}, nil
 	case x.EnvEngineering:
@@ -28,7 +28,7 @@ func Environment(env string) (*Services, error) {
 			Environment:       x.EnvEngineering,
 			TenantService:     "tenant.eng.aserto.com:8443",
 			AuthorizerService: "authorizer.eng.aserto.com:8443",
-			RegistryService:   "bundler.eng.aserto.com:8443",
+			RegistryService:   "https://bundler.eng.aserto.com",
 			TasksService:      "tasks.eng.aserto.com:8433",
 		}, nil
 	default:

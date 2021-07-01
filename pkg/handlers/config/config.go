@@ -6,7 +6,9 @@ import (
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/grpcc"
 	"github.com/aserto-dev/aserto/pkg/grpcc/tenant"
+	"github.com/aserto-dev/aserto/pkg/handlers/user"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
+	"github.com/aserto-dev/aserto/pkg/keyring"
 	"github.com/aserto-dev/go-lib/ids"
 	"github.com/aserto-dev/proto/aserto/api"
 	"github.com/aserto-dev/proto/aserto/tenant/account"
@@ -71,17 +73,14 @@ func (cmd *GetTenantCmd) Run(c *cc.CommonCtx) error {
 }
 
 type SetTenantCmd struct {
-	ID string `arg:"" required:"" name:"tenant-id" help:"tenant id"`
+	ID      string `arg:"" required:"" name:"tenant-id" help:"tenant id"`
+	Default bool   `name:"default" help:"set default tenant for user"`
 }
 
 func (cmd *SetTenantCmd) Run(c *cc.CommonCtx) error {
 	if err := ids.CheckTenantID(cmd.ID); err != nil {
 		return errors.Errorf("argument is not a valid tenant id")
 	}
-
-	fmt.Fprintf(c.ErrWriter, "tenant %s\n", cmd.ID)
-
-	fmt.Fprintf(c.ErrWriter, "set default tenant to [%s]\n", cmd.ID)
 
 	conn, err := tenant.Connection(
 		c.Context,
@@ -94,12 +93,50 @@ func (cmd *SetTenantCmd) Run(c *cc.CommonCtx) error {
 
 	accntClient := conn.AccountClient()
 
-	req := &account.UpdateAccountRequest{
-		Account: &api.Account{DefaultTenant: cmd.ID},
+	getAccntResp, err := accntClient.GetAccount(c.Context, &account.GetAccountRequest{})
+	if err != nil {
+		return errors.Wrapf(err, "get account")
 	}
 
-	if _, err := accntClient.UpdateAccount(c.Context, req); err != nil {
-		return errors.Wrapf(err, "update account")
+	var tnt *api.Tenant
+	for _, t := range getAccntResp.Result.Tenants {
+		if t.Id == cmd.ID {
+			tnt = t
+			break
+		}
+	}
+
+	if tnt == nil {
+		return errors.Errorf("tenant id does not exist in users tenant collection [%s]", cmd.ID)
+	}
+
+	fmt.Fprintf(c.ErrWriter, "tenant %s - %s\n", tnt.Id, tnt.Name)
+
+	tok := c.Token()
+	tok.TenantID = tnt.Id
+
+	if err := user.GetConnectionKeys(c.Context, conn, tok); err != nil {
+		return errors.Wrapf(err, "get connection keys")
+	}
+
+	kr, err := keyring.NewKeyRing()
+	if err != nil {
+		return err
+	}
+	if err := kr.SetToken(c.Environment(), tok); err != nil {
+		return err
+	}
+
+	if cmd.Default {
+		fmt.Fprintf(c.ErrWriter, "set default tenant to [%s]\n", cmd.ID)
+
+		req := &account.UpdateAccountRequest{
+			Account: &api.Account{DefaultTenant: cmd.ID},
+		}
+
+		if _, err := accntClient.UpdateAccount(c.Context, req); err != nil {
+			return errors.Wrapf(err, "update account")
+		}
 	}
 
 	return nil

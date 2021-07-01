@@ -19,7 +19,6 @@ type CommonCtx struct {
 	Context     context.Context
 	OutWriter   io.Writer
 	ErrWriter   io.Writer
-	logger      *log.Logger
 	environment string
 	services    *grpcc.Services
 	_token      *api.Token
@@ -27,18 +26,20 @@ type CommonCtx struct {
 }
 
 func New() *CommonCtx {
+	log.SetOutput(ioutil.Discard)
+	log.SetPrefix("")
+	log.SetFlags(log.LstdFlags)
 	ctx := CommonCtx{
 		Context:   context.Background(),
 		OutWriter: os.Stdout,
 		ErrWriter: os.Stderr,
-		logger:    log.New(ioutil.Discard, "", log.LstdFlags),
 		overrides: make(map[string]string),
 	}
 	return &ctx
 }
 
 func (ctx *CommonCtx) SetEnv(env string) error {
-	ctx.logger.Printf("set-context-env %s", env)
+	log.Printf("set-context-env %s", env)
 	if env == "" {
 		return errors.Errorf("env is not set")
 	}
@@ -55,12 +56,12 @@ func (ctx *CommonCtx) SetEnv(env string) error {
 }
 
 func (ctx *CommonCtx) Environment() string {
-	ctx.logger.Printf("get-context-env %s", ctx.environment)
+	log.Printf("get-context-env %s", ctx.environment)
 	return ctx.environment
 }
 
 func (ctx *CommonCtx) Override(key, value string) {
-	ctx.logger.Println("override-context-env", key, value)
+	log.Println("override-context-env", key, value)
 	ctx.overrides[key] = value
 }
 
@@ -130,7 +131,7 @@ func (ctx *CommonCtx) token() *api.Token {
 	if ctx._token == nil {
 		kr, err := keyring.NewKeyRing()
 		if err != nil {
-			ctx.logger.Printf("token: instantiating keyring, %s", err.Error())
+			log.Printf("token: instantiating keyring, %s", err.Error())
 			return nil
 		}
 
@@ -143,9 +144,9 @@ func (ctx *CommonCtx) token() *api.Token {
 }
 
 func (ctx *CommonCtx) Logf(format string, v ...interface{}) {
-	ctx.logger.Printf(format, v...)
+	log.Printf(format, v...)
 }
 
 func (ctx *CommonCtx) SetLogger(w io.Writer) {
-	ctx.logger.SetOutput(w)
+	log.SetOutput(w)
 }
