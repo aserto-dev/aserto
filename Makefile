@@ -78,6 +78,17 @@ endif
 	@echo -e "${ATTN_COLOR}==> $@ ${NO_COLOR}"
 	@${RELEASER} release --skip-publish --rm-dist --snapshot --config .goreleaser-prod.yml
 
+.PHONY: publish
+publish
+ifndef GOOGLE_APPLICATION_CREDENTIALS
+	$(error GOOGLE_APPLICATION_CREDENTIALS environment variable is undefined)
+endif
+ifndef HOMEBREW_TAP
+        $(error HOMEBREW_TAP environment variable is undefined)
+endif
+	@echo -e "${ATTN_COLOR}==> $@ ${NO_COLOR}"
+	@${RELEASER} release --config .goreleaser-publish.yml --rm-dist
+
 .PHONY: clean
 clean:
 	@echo -e "${ATTN_COLOR}==> $@ ${NO_COLOR}"
