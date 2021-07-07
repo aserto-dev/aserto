@@ -10,6 +10,8 @@ type DirectoryCmd struct {
 	ListUsers   directory.ListUsersCmd   `cmd:"" help:"list users" group:"identity"`
 	GetUser     directory.GetUserCmd     `cmd:"" help:"retrieve user object" group:"identity"`
 	LoadUsers   directory.LoadUsersCmd   `cmd:"" help:"load users" group:"identity"`
+	SetUser     directory.SetUserCmd     `cmd:"" help:"disable|enable user" group:"identity"`
+	DeleteUsers directory.DeleteUsersCmd `cmd:"" help:"delete users from edge directory" group:"identity"`
 
 	GetUserProps directory.GetUserPropsCmd `cmd:"" help:"get properties" group:"user extensions"`
 	SetUserProp  directory.SetUserPropCmd  `cmd:"" help:"set property" group:"user extensions"`

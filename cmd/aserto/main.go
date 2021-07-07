@@ -50,7 +50,7 @@ func main() {
 
 	if cli.IsLoginRequired() {
 		if err := c.VerifyLoggedIn(); err != nil {
-			fmt.Fprint(c.ErrWriter, err.Error())
+			fmt.Fprintln(c.ErrWriter, err.Error())
 			os.Exit(1)
 		}
 	}
