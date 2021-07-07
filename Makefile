@@ -79,7 +79,7 @@ endif
 	@${RELEASER} release --skip-publish --rm-dist --snapshot --config .goreleaser-prod.yml
 
 .PHONY: publish
-publish
+publish: ${RELEASER}
 ifndef GOOGLE_APPLICATION_CREDENTIALS
 	$(error GOOGLE_APPLICATION_CREDENTIALS environment variable is undefined)
 endif
