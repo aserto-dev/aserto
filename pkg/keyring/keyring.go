@@ -1,6 +1,3 @@
-// +build darwin,cgo linux windows
-// +build amd64
-
 package keyring
 
 import (
