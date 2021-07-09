@@ -2,19 +2,61 @@ before:
   hooks:
   
 builds:
-  - id: "aserto"
+  - 
+    id: build-linux
     main: ./cmd/aserto
     binary: aserto
     goos:
       - linux
-      - windows
-      - darwin
     goarch:
       - amd64
       - arm64
     ignore:
       - goos: windows
-        goarch: arm64
+      - goos: darwin
+    ldflags:
+      - -s 
+      - -w 
+      - -X github.com/aserto-dev/aserto/pkg/version.ver={{.Version}} 
+      - -X github.com/aserto-dev/aserto/pkg/version.commit={{.ShortCommit}} 
+      - -X github.com/aserto-dev/aserto/pkg/version.date={{.Date}} 
+    mod_timestamp: '{{ .CommitTimestamp }}'
+    tags:
+      - prod
+  - 
+    id: build-windows
+    main: ./cmd/aserto
+    binary: aserto
+    goos:
+      - windows
+    goarch:
+      - amd64
+    ignore:
+      - goos: linux
+      - goos: darwin
+    ldflags:
+      - -s 
+      - -w 
+      - -X github.com/aserto-dev/aserto/pkg/version.ver={{.Version}} 
+      - -X github.com/aserto-dev/aserto/pkg/version.commit={{.ShortCommit}} 
+      - -X github.com/aserto-dev/aserto/pkg/version.date={{.Date}} 
+    mod_timestamp: '{{ .CommitTimestamp }}'
+    tags:
+      - prod
+  - 
+    id: build-darwin
+    main: ./cmd/aserto
+    binary: aserto
+    goos:
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: linux
+      - goos: windows
+    env:
+      - CGO_ENABLED=1
     ldflags:
       - -s 
       - -w 
