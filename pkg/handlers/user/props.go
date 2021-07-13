@@ -2,38 +2,40 @@ package user
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
-	"github.com/aserto-dev/aserto/pkg/x"
 	"github.com/pkg/errors"
 )
 
 type GetCmd struct {
-	Name string `arg:"name" name:"name" required:"" help:"property name"`
+	AccessToken         bool `xor:"group" help:"access token" group:"properties"`
+	TenantID            bool `xor:"group" help:"tenant ID" group:"properties"`
+	AuthorizerAPIKey    bool `xor:"group" help:"authorizer API key" group:"properties"`
+	RegistryDownloadKey bool `xor:"group" help:"registry download key" group:"properties"`
+	RegistryUploadKey   bool `xor:"group" help:"registry upload key" group:"properties"`
+	Token               bool `xor:"group" help:"token" hidden:"" group:"properties"`
 }
 
 func (cmd *GetCmd) Run(c *cc.CommonCtx) error {
-
-	propName := strings.ToLower(cmd.Name)
+	if !cmd.AccessToken && !cmd.TenantID && !cmd.AuthorizerAPIKey && !cmd.RegistryDownloadKey && !cmd.RegistryUploadKey && !cmd.Token {
+		return errors.Errorf("no property flag provided")
+	}
 
 	var propValue string
-	switch propName {
-	case x.PropertyAccessToken:
+	switch {
+	case cmd.AccessToken:
 		propValue = c.AccessToken()
-	case x.PropertyTenantID:
+	case cmd.TenantID:
 		propValue = c.TenantID()
-	case x.PropertyAuthorizerAPIKey:
+	case cmd.AuthorizerAPIKey:
 		propValue = c.AuthorizerAPIKey()
-	case x.PropertyRegistryDownloadKey:
+	case cmd.RegistryDownloadKey:
 		propValue = c.RegistryDownloadKey()
-	case x.PropertyRegistryUploadKey:
+	case cmd.RegistryUploadKey:
 		propValue = c.RegistryUploadKey()
-	case x.PropertyToken:
+	case cmd.Token:
 		return jsonx.OutputJSON(c.OutWriter, c.Token())
-	default:
-		return errors.Errorf("unknown property name [%s]", propName)
 	}
 
 	fmt.Fprintf(c.OutWriter, "%s\n", propValue)

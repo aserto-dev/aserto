@@ -26,7 +26,7 @@ func main() {
 			Tree:                false,
 			FlagsLast:           true,
 			Indenter:            kong.SpaceIndenter,
-			NoExpandSubcommands: true,
+			NoExpandSubcommands: false,
 		}),
 		kong.Vars{"defaultEnv": x.DefaultEnv},
 		kong.Bind(&cli),

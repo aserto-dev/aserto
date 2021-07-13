@@ -20,9 +20,10 @@ import (
 
 // TODO : make using IDP connection explicit
 type LoadUsersCmd struct {
-	Provider string `required:"" help:"load users provider (json | auth0)"`
-	Profile  string `optional:"" type:"existingfile" help:"provider profile file (.env)"`
-	File     string `optional:"" type:"existingfile" help:"input file (.json)"`
+	Provider    string `required:"" help:"load users provider (json | auth0)" enum:"json,auth0"`
+	Profile     string `optional:"" type:"existingfile" help:"provider profile file (.env)"`
+	File        string `optional:"" type:"existingfile" help:"input file (.json)"`
+	InclUserExt bool   `optional:"" help:"include user extensions (attributes & applications) in the base user object"`
 }
 
 func (cmd *LoadUsersCmd) Run(c *cc.CommonCtx) error {
@@ -48,15 +49,15 @@ func (cmd *LoadUsersCmd) Run(c *cc.CommonCtx) error {
 		}
 	}()
 
-	go dirx.Subscriber(ctx, dirClient, s, done, errc)
+	go dirx.Subscriber(ctx, dirClient, s, done, errc, cmd.InclUserExt)
 
 	switch cmd.Provider {
-	case "json":
+	case providerJSON:
 		p := jsonproducer.NewProducer(cmd.File)
 		p.Producer(s, errc)
 		fmt.Fprintf(c.ErrWriter, "produced %d instances\n", p.Count())
 
-	case "auth0":
+	case providerAuth0:
 		var cfg *auth0.Config
 
 		if cmd.Profile != "" {

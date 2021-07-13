@@ -11,6 +11,7 @@ import (
 )
 
 type ListUsersCmd struct {
+	Base bool `name:"base" optional:"" help:"return base user object (without extensions)"`
 }
 
 // TODO : add mask
@@ -33,6 +34,7 @@ func (cmd *ListUsersCmd) Run(c *cc.CommonCtx) error {
 		Page: &api.PaginationRequest{
 			Size: -1,
 		},
+		Base: cmd.Base,
 	})
 
 	if err != nil {
@@ -71,7 +73,8 @@ func (cmd *GetIdentityCmd) Run(c *cc.CommonCtx) error {
 }
 
 type GetUserCmd struct {
-	ID string `arg:"id" name:"id" required:"" help:"user id or identity"`
+	ID   string `arg:"id" name:"id" required:"" help:"user id or identity"`
+	Base bool   `name:"base" optional:"" help:"return base user object (without extensions)"`
 }
 
 func (cmd *GetUserCmd) Run(c *cc.CommonCtx) error {
@@ -95,7 +98,8 @@ func (cmd *GetUserCmd) Run(c *cc.CommonCtx) error {
 	}
 
 	resp, err := dirClient.GetUser(ctx, &dir.GetUserRequest{
-		Id: idResp.Id,
+		Id:   idResp.Id,
+		Base: cmd.Base,
 	})
 	if err != nil {
 		return errors.Wrapf(err, "get user")

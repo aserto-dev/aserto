@@ -71,7 +71,7 @@ func (cmd ListProvidersCmd) Run(c *cc.CommonCtx) error {
 }
 
 type GetProviderCmd struct {
-	ID string `help:"provider id"`
+	ID string `arg:"" required:"" help:"provider id"`
 }
 
 func (cmd GetProviderCmd) Run(c *cc.CommonCtx) error {

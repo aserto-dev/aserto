@@ -19,10 +19,9 @@ type CLI struct {
 	Logout             user.LogoutCmd `cmd:"" help:"logout"`
 	Config             ConfigCmd      `cmd:"" aliases:"c" help:"configuration commands"`
 	Version            VersionCmd     `cmd:"" help:"version information"`
-	Help               HelpCmd        `cmd:"" hidden:"" default:"1"`
 	Verbose            bool           `name:"verbose" help:"verbose output"`
 	AuthorizerOverride string         `name:"authorizer" env:"ASERTO_AUTHORIZER" help:"authorizer override"`
-	TenantOverride     string         `name:"tenant-id" env:"ASERTO_TENANT_ID" help:"tenant id override"`
+	TenantOverride     string         `name:"tenant" env:"ASERTO_TENANT_ID" help:"tenant id override"`
 	EnvOverride        string         `name:"env" default:"${defaultEnv}" env:"ASERTO_ENV" hidden:"" help:"environment override"`
 	Debug              bool           `name:"debug" env:"ASERTO_DEBUG" help:"enable debug logging"`
 	requireLogin       bool
@@ -36,7 +35,7 @@ func (cmd *CLI) IsLoginRequired() bool {
 	return cmd.requireLogin
 }
 
-func (cmd *CLI) Run() error {
+func (cmd *CLI) Run(c *cc.CommonCtx) error {
 	return nil
 }
 
@@ -49,12 +48,5 @@ func (cmd *VersionCmd) Run(c *cc.CommonCtx) error {
 		version.GetInfo().String(),
 		x.AppVersionTag,
 	)
-	return nil
-}
-
-type HelpCmd struct{}
-
-func (cmd *HelpCmd) Run(c *cc.CommonCtx) error {
-	fmt.Fprintf(c.OutWriter, "No arguments provided, run \"aserto --help\" for more information.\n")
 	return nil
 }

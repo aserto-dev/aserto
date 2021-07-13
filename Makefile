@@ -36,12 +36,12 @@ ${TESTER}:
 LINTER	   := ${GOPATH}/bin/golangci-lint
 ${LINTER}:
 	@echo -e "${ATTN_COLOR}==> $@  ${NO_COLOR}"
-	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.40.1
+	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.41.1
 
 RELEASER   := ${GOPATH}/bin/goreleaser
 ${RELEASER}:
 	@echo -e "${ATTN_COLOR}==> $@  ${NO_COLOR}"
-	@go install github.com/goreleaser/goreleaser@v0.169.0
+	@go install github.com/goreleaser/goreleaser@v0.173.2
 
 .PHONY: all
 all: deps build test lint
@@ -69,12 +69,6 @@ lint: ${LINTER}
 
 .PHONY: release
 release: ${RELEASER}
-ifndef GITHUB_TOKEN
-	$(error GITHUB_TOKEN environment variable is undefined)
-endif
-ifndef ASERTO_TAP
-	$(error ASERTO_TAP environment variable is undefined)
-endif
 	@echo -e "${ATTN_COLOR}==> $@ ${NO_COLOR}"
 	@${RELEASER} release --skip-publish --rm-dist --snapshot --config .goreleaser-prod.yml
 

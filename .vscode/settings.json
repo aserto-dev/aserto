@@ -6,8 +6,10 @@
         "asertx",
         "authz",
         "deps",
+        "dirx",
         "dockerx",
         "errc",
+        "exts",
         "fatih",
         "filex",
         "gconn",
@@ -30,8 +32,10 @@
         "orasx",
         "pb",
         "pkce",
+        "protobuf",
         "structpb",
         "svcs",
+        "timestamppb",
         "wrapf"
     ]
 }

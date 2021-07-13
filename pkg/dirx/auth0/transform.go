@@ -21,7 +21,6 @@ func Transform(in *management.User) (*api.User, error) {
 
 	user := api.User{
 		Id:          uid,
-		Enabled:     in.GetEmailVerified(),
 		DisplayName: in.GetNickname(),
 		Email:       in.GetEmail(),
 		Picture:     in.GetPicture(),

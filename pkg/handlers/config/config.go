@@ -54,16 +54,19 @@ func (cmd *GetTenantCmd) Run(c *cc.CommonCtx) error {
 	type tenant struct {
 		ID      string `json:"id"`
 		Name    string `json:"name"`
+		Current bool   `json:"current"`
 		Default bool   `json:"default"`
 	}
 
 	tenants := make([]*tenant, len(resp.Result.Tenants))
 
 	for i, t := range resp.Result.Tenants {
+		isCurrent := (t.Id == c.TenantID())
 		isDefault := (t.Id == resp.Result.DefaultTenant)
 		tt := tenant{
 			ID:      t.Id,
 			Name:    t.Name,
+			Current: isCurrent,
 			Default: isDefault,
 		}
 		tenants[i] = &tt

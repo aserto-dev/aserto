@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"time"
 
 	"github.com/aserto-dev/aserto/pkg/auth0/api"
 	"github.com/aserto-dev/aserto/pkg/grpcc"
@@ -66,17 +67,24 @@ func (ctx *CommonCtx) Override(key, value string) {
 }
 
 func (ctx *CommonCtx) VerifyLoggedIn() error {
-	if !ctx.IsLoggedIn() {
+	if !ctx.isLoggedIn() {
 		return errors.Errorf("user is not logged in, please login using '%s login'", x.AppName)
+	}
+	if ctx.isExpired() {
+		return errors.Errorf("the access token has expired, please login using '%s login'", x.AppName)
 	}
 	return nil
 }
 
-func (ctx *CommonCtx) IsLoggedIn() bool {
+func (ctx *CommonCtx) isLoggedIn() bool {
 	if ctx.token() == nil || ctx.token().Access == "" {
 		return false
 	}
 	return true
+}
+
+func (ctx *CommonCtx) isExpired() bool {
+	return time.Now().UTC().After(ctx.token().ExpiresAt)
 }
 
 func (ctx *CommonCtx) AccessToken() string {
@@ -85,6 +93,10 @@ func (ctx *CommonCtx) AccessToken() string {
 
 func (ctx *CommonCtx) Token() *api.Token {
 	return ctx.token()
+}
+
+func (ctx *CommonCtx) ExpiresAt() time.Time {
+	return ctx.token().ExpiresAt
 }
 
 func (ctx *CommonCtx) TenantID() string {

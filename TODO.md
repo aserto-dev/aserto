@@ -2,20 +2,19 @@
 
 ## Todo
 
-- [ ] Config set-env: making env persistent (prod, eng)
 - [ ] Add localhost flag for command which can target a local onebox, like directory load-users --local 
 - [ ] Validate (account) ids using go-lib/ids validation mechanism
 - [ ] Stop using "latest" container image for dev mode; use specific tag and semver mask which ideally matches the hosted authorizer or runtime version to guarantee compatibility of local onebox with hosted authorizer instance (would require discovery of authorizer runtime and proto versions)
 - [ ] Remove database from dev install, use users.json file instead as it has multiple usage scenarios and is less susceptible  for schema changes
 - [ ] Add launch hosted console command
 - [ ] Change keyring dependency to on which does not require CGO, like [github.com/docker/docker-credential-helpers](github.com/docker/docker-credential-helpers)
-- [ ] Store UTC token expiration timestamp (creation timestamp + expires_in) to determine when token is expire before making a call, so that we can provide a better user experience (not having to redo a call because they need to login after token expired failure)
 - [ ] Implement device code flow authentication for headless usage
 - [ ] Authorizer exec-query add flags for metrics and trace
 - [ ] Authorizer exec-query add ability to provide --input from file beside string
-
 ## Done
 
+- [X] Store UTC token expiration timestamp (creation timestamp + expires_in) to determine when token is expire before making a call, so that we can provide a better user experience (not having to redo a call because they need to login after token expired failure)
+- [X] Config set-env: making env persistent (prod, eng)
 - [X] Change get|set|del-user-ext to use positional arguments instead of --id for identifying the user id.
 - [X] Change get|set|del-appl-ext to use positional arguments instead of --id and --name for identifying the user id and application name. 
 - [X] Config set-tenant: allow user to set tenant context within the collection of tenants of the users (tenant.GetAccount)

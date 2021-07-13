@@ -1,6 +1,8 @@
 package tenant
 
 import (
+	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
@@ -10,6 +12,8 @@ import (
 	"github.com/aserto-dev/proto/aserto/api"
 	"github.com/aserto-dev/proto/aserto/tenant/connection"
 	"github.com/pkg/errors"
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
+	"google.golang.org/grpc/status"
 )
 
 type ListConnectionsCmd struct {
@@ -49,7 +53,7 @@ func (cmd ListConnectionsCmd) Run(c *cc.CommonCtx) error {
 }
 
 type GetConnectionCmd struct {
-	ID string `help:"connection id"`
+	ID string `arg:"" required:"" help:"connection id"`
 }
 
 func (cmd GetConnectionCmd) Run(c *cc.CommonCtx) error {
@@ -79,7 +83,7 @@ func (cmd GetConnectionCmd) Run(c *cc.CommonCtx) error {
 }
 
 type VerifyConnectionCmd struct {
-	ID string `help:"connection id"`
+	ID string `arg:"" required:"" help:"connection id"`
 }
 
 func (cmd VerifyConnectionCmd) Run(c *cc.CommonCtx) error {
@@ -100,10 +104,30 @@ func (cmd VerifyConnectionCmd) Run(c *cc.CommonCtx) error {
 		Id: cmd.ID,
 	}
 
-	resp, err := connClient.VerifyConnection(ctx, req)
-	if err != nil {
-		return errors.Wrapf(err, "verify connection [%s]", cmd.ID)
+	if _, err = connClient.VerifyConnection(ctx, req); err != nil {
+		st := status.Convert(err)
+		re := regexp.MustCompile(`\r?\n`)
+
+		fmt.Fprintf(c.ErrWriter, "verification    : failed\n")
+		fmt.Fprintf(c.ErrWriter, "code            : %d\n", st.Code())
+		fmt.Fprintf(c.ErrWriter, "message         : %s\n",
+			re.ReplaceAllString(st.Message(), " | "))
+		fmt.Fprintf(c.ErrWriter, "error           : %s\n",
+			re.ReplaceAllString(st.Err().Error(), " | "))
+
+		for _, detail := range st.Details() {
+			if t, ok := detail.(*errdetails.ErrorInfo); ok {
+				fmt.Fprintf(c.ErrWriter, "domain          : %s\n", t.Domain)
+				fmt.Fprintf(c.ErrWriter, "reason          : %s\n", t.Reason)
+
+				for k, v := range t.Metadata {
+					fmt.Fprintf(c.ErrWriter, "detail          : %s (%s)\n", v, k)
+				}
+			}
+		}
+	} else {
+		fmt.Fprintf(c.ErrWriter, "verification: succeeded\n")
 	}
 
-	return jsonx.OutputJSONPB(c.OutWriter, resp)
+	return nil
 }
