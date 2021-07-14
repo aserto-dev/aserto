@@ -8,6 +8,9 @@ on:
       - main
     tags:
       - 'v*.*.*'
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -19,7 +22,7 @@ env:
 
 jobs:
   release:
-    runs-on: macos-10.15
+    runs-on: ubuntu-latest
     steps:
       - 
         name: Read Configuration
@@ -73,7 +76,7 @@ jobs:
       - 
         name: Build
         run: |
-          make build
+          make release
       - 
         name: Test
         run: |

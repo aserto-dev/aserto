@@ -102,11 +102,11 @@ func (d *LoginCmd) Run(c *cc.CommonCtx) error {
 		return errors.Wrapf(err, "get connection keys")
 	}
 
-	kr, err := keyring.NewKeyRing()
+	kr, err := keyring.NewKeyRing(env)
 	if err != nil {
 		return err
 	}
-	if err := kr.SetToken(env, tok); err != nil {
+	if err := kr.SetToken(tok); err != nil {
 		return err
 	}
 

@@ -122,11 +122,11 @@ func (cmd *SetTenantCmd) Run(c *cc.CommonCtx) error {
 		return errors.Wrapf(err, "get connection keys")
 	}
 
-	kr, err := keyring.NewKeyRing()
+	kr, err := keyring.NewKeyRing(c.Environment())
 	if err != nil {
 		return err
 	}
-	if err := kr.SetToken(c.Environment(), tok); err != nil {
+	if err := kr.SetToken(tok); err != nil {
 		return err
 	}
 

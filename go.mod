@@ -5,7 +5,6 @@ go 1.16
 // replace github.com/aserto-dev/proto => ../proto
 
 require (
-	github.com/99designs/keyring v1.1.6
 	github.com/alecthomas/kong v0.2.17
 	github.com/aserto-dev/aserto-tenant v0.0.149
 	github.com/aserto-dev/go-lib v0.2.64
@@ -17,8 +16,8 @@ require (
 	github.com/joho/godotenv v1.3.0
 	github.com/magefile/mage v1.11.0
 	github.com/pkg/errors v0.9.1
+	github.com/zalando/go-keyring v0.1.1
 	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c // indirect
-	golang.org/x/term v0.0.0-20210615171337-6886f2dfbf5b // indirect
 	google.golang.org/genproto v0.0.0-20210713002101-d411969a0d9a
 	google.golang.org/grpc v1.39.0
 	google.golang.org/protobuf v1.27.1

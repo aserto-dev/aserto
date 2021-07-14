@@ -12,12 +12,12 @@ type LogoutCmd struct {
 func (cmd *LogoutCmd) Run(c *cc.CommonCtx) error {
 	env := c.Environment()
 
-	kr, err := keyring.NewKeyRing()
+	kr, err := keyring.NewKeyRing(env)
 	if err != nil {
 		return errors.Wrapf(err, "instantiate keyring")
 	}
 
-	err = kr.DelToken(env)
+	err = kr.DelToken()
 	if err != nil {
 		return errors.Wrapf(err, "delete token")
 	}

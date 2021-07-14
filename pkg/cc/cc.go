@@ -141,13 +141,13 @@ func (ctx *CommonCtx) TasksService() string {
 
 func (ctx *CommonCtx) token() *api.Token {
 	if ctx._token == nil {
-		kr, err := keyring.NewKeyRing()
+		kr, err := keyring.NewKeyRing(ctx.environment)
 		if err != nil {
 			log.Printf("token: instantiating keyring, %s", err.Error())
 			return nil
 		}
 
-		ctx._token, err = kr.GetToken(ctx.environment)
+		ctx._token, err = kr.GetToken()
 		if err != nil {
 			return nil
 		}
