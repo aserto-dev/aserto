@@ -11,7 +11,7 @@ func SetTenantContext(ctx context.Context, tenantID string) context.Context {
 }
 
 func SetAsertoAPIKey(ctx context.Context, key string) context.Context {
-	return metadata.AppendToOutgoingContext(ctx, asertoAPIKey, authzBasicHeader(key))
+	return metadata.AppendToOutgoingContext(ctx, authorization, authzBasicHeader(key))
 }
 
 func authzBasicHeader(key string) string {

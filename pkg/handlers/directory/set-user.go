@@ -45,18 +45,18 @@ func (cmd *SetUserCmd) Run(c *cc.CommonCtx) error {
 	}
 
 	user := resp.Result
-	if user.Enabled != cmd.Enable {
-		user.Enabled = cmd.Enable // cmd.Enable is XOR of cmd.Disable
-		updResp, err := dirClient.UpdateUser(ctx, &dir.UpdateUserRequest{
-			Id:   idResp.Id,
-			User: user,
-		})
-		if err != nil {
-			return err
-		}
-		if cmd.Output {
-			return jsonx.OutputJSONPB(c.OutWriter, updResp.Result)
-		}
+	user.Enabled = &cmd.Enable
+
+	updResp, err := dirClient.UpdateUser(ctx, &dir.UpdateUserRequest{
+		Id:   idResp.Id,
+		User: user,
+	})
+	if err != nil {
+		return err
+	}
+
+	if cmd.Output {
+		return jsonx.OutputJSONPB(c.OutWriter, updResp.Result)
 	}
 
 	return nil

@@ -2,15 +2,19 @@ package dirx
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/aserto-dev/proto/aserto/api"
 	dir "github.com/aserto-dev/proto/aserto/authorizer/directory"
 	"github.com/pkg/errors"
 )
 
+type Result struct {
+	Counts *dir.LoadUsersResponse
+	Err    error
+}
+
 // Subscriber subscribes to the api.User channel and sends the users instance to the directory using the gRPC LoadUsers API.
-func Subscriber(ctx context.Context, client dir.DirectoryClient, s <-chan *api.User, done chan<- bool, errc chan<- error, inclAttrSets bool) {
+func Subscriber(ctx context.Context, client dir.DirectoryClient, s <-chan *api.User, r chan<- *Result, errc chan<- error, inclAttrSets bool) {
 
 	stream, err := client.LoadUsers(ctx)
 	if err != nil {
@@ -44,15 +48,14 @@ func Subscriber(ctx context.Context, client dir.DirectoryClient, s <-chan *api.U
 		errc <- errors.Wrapf(err, "stream.CloseAndRecv()")
 	}
 
-	if res != nil && res.Received != sendCount {
-		errc <- fmt.Errorf("send != received %d - %d", sendCount, res.Received)
+	r <- &Result{
+		Counts: res,
+		Err:    err,
 	}
-
-	done <- true
 }
 
 // UserExtSubscriber subscribes to the api.User channel and sends user extensions (api.UserExt message) to the directory using the gRPC LoadUser API.
-func UserExtSubscriber(ctx context.Context, client dir.DirectoryClient, s <-chan *api.User, done chan<- bool, errc chan<- error) {
+func UserExtSubscriber(ctx context.Context, client dir.DirectoryClient, s <-chan *api.User, r chan<- *Result, errc chan<- error) {
 
 	stream, err := client.LoadUsers(ctx)
 	if err != nil {
@@ -88,9 +91,8 @@ func UserExtSubscriber(ctx context.Context, client dir.DirectoryClient, s <-chan
 		errc <- errors.Wrapf(err, "stream.CloseAndRecv()")
 	}
 
-	if res != nil && res.Received != sendCount {
-		errc <- fmt.Errorf("send != received %d - %d", sendCount, res.Received)
+	r <- &Result{
+		Counts: res,
+		Err:    err,
 	}
-
-	done <- true
 }

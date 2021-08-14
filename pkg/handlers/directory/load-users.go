@@ -40,7 +40,7 @@ func (cmd *LoadUsersCmd) Run(c *cc.CommonCtx) error {
 	dirClient := conn.DirectoryClient()
 
 	s := make(chan *api.User, 10)
-	done := make(chan bool, 1)
+	r := make(chan *dirx.Result, 1)
 
 	errc := make(chan error, 1)
 	go func() {
@@ -49,13 +49,13 @@ func (cmd *LoadUsersCmd) Run(c *cc.CommonCtx) error {
 		}
 	}()
 
-	go dirx.Subscriber(ctx, dirClient, s, done, errc, cmd.InclUserExt)
+	go dirx.Subscriber(ctx, dirClient, s, r, errc, cmd.InclUserExt)
 
 	switch cmd.Provider {
 	case providerJSON:
 		p := jsonproducer.NewProducer(cmd.File)
 		p.Producer(s, errc)
-		fmt.Fprintf(c.ErrWriter, "produced %d instances\n", p.Count())
+		fmt.Fprintf(c.ErrWriter, "produced %d\n", p.Count())
 
 	case providerAuth0:
 		var cfg *auth0.Config
@@ -78,7 +78,7 @@ func (cmd *LoadUsersCmd) Run(c *cc.CommonCtx) error {
 
 		p := auth0.NewProducer(cfg)
 		p.Producer(s, errc)
-		fmt.Fprintf(c.ErrWriter, "produced %d instances\n", p.Count())
+		fmt.Fprintf(c.ErrWriter, "produced %d\n", p.Count())
 
 	default:
 		return errors.Errorf("unknown load user provider %s", cmd.Provider)
@@ -88,12 +88,18 @@ func (cmd *LoadUsersCmd) Run(c *cc.CommonCtx) error {
 	close(s)
 
 	// wait for done from subscriber, indicating last received messages has been send
-	<-done
+	result := <-r
 
 	// close error channel as the last action before returning
 	close(errc)
 
-	return nil
+	fmt.Fprintf(c.ErrWriter, "received %d\n", result.Counts.Received)
+	fmt.Fprintf(c.ErrWriter, "created  %d\n", result.Counts.Created)
+	fmt.Fprintf(c.ErrWriter, "updated  %d\n", result.Counts.Updated)
+	fmt.Fprintf(c.ErrWriter, "deleted  %d\n", result.Counts.Deleted)
+	fmt.Fprintf(c.ErrWriter, "errors   %d\n", result.Counts.Errors)
+
+	return result.Err
 }
 
 func auth0ConfigFromConnection(c *cc.CommonCtx) (*auth0.Config, error) {

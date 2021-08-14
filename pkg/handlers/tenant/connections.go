@@ -131,3 +131,46 @@ func (cmd VerifyConnectionCmd) Run(c *cc.CommonCtx) error {
 
 	return nil
 }
+
+type SyncConnectionCmd struct {
+	ID string `arg:"" required:"" help:"connection id"`
+}
+
+func (cmd SyncConnectionCmd) Run(c *cc.CommonCtx) error {
+	conn, err := tenant.Connection(
+		c.Context,
+		c.TenantService(),
+		grpcc.NewTokenAuth(c.AccessToken()),
+	)
+	if err != nil {
+		return err
+	}
+
+	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
+
+	connClient := conn.ConnectionManagerClient()
+
+	getReq := &connection.GetConnectionRequest{
+		Id: cmd.ID,
+	}
+
+	curConn, err := connClient.GetConnection(ctx, getReq)
+	if err != nil {
+		return errors.Wrapf(err, "get connection [%s]", cmd.ID)
+	}
+
+	if curConn.Result.Kind != api.ProviderKind_IDP {
+		return errors.Errorf("connection must be of kind IDP (provided %s)", curConn.Result.Kind.Enum().String())
+	}
+
+	updReq := &connection.UpdateConnectionRequest{
+		Connection: curConn.Result,
+		Force:      false,
+	}
+
+	if _, err = connClient.UpdateConnection(ctx, updReq); err != nil {
+		return errors.Wrapf(err, "update connection [%s]", cmd.ID)
+	}
+
+	return nil
+}

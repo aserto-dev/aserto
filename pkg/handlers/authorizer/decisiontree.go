@@ -19,14 +19,13 @@ func (cmd *DecisionTreeCmd) Run(c *cc.CommonCtx) error {
 	conn, err := authorizer.Connection(
 		c.Context,
 		c.AuthorizerService(),
-		grpcc.NewTokenAuth(c.AccessToken()),
+		grpcc.NewAPIKeyAuth(c.AuthorizerAPIKey()),
 	)
 	if err != nil {
 		return err
 	}
 
 	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
-	ctx = grpcc.SetAsertoAPIKey(ctx, c.AuthorizerAPIKey())
 
 	authzClient := conn.AuthorizerClient()
 	resp, err := authzClient.DecisionTree(ctx, &authz.DecisionTreeRequest{
@@ -36,8 +35,8 @@ func (cmd *DecisionTreeCmd) Run(c *cc.CommonCtx) error {
 			Decisions: cmd.Decisions,
 		},
 		IdentityContext: &api.IdentityContext{
-			Mode:     api.IdentityMode_ANONYMOUS,
 			Identity: "",
+			Type:     api.IdentityType_IDENTITY_TYPE_NONE,
 		},
 		Options: &authz.DecisionTreeOptions{
 			Grouping:      authz.Grouping_FLAT,

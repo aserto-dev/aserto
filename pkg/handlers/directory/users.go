@@ -8,15 +8,15 @@ import (
 	"github.com/aserto-dev/proto/aserto/api"
 	dir "github.com/aserto-dev/proto/aserto/authorizer/directory"
 	"github.com/pkg/errors"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
 type ListUsersCmd struct {
-	Base bool `name:"base" optional:"" help:"return base user object (without extensions)"`
+	Base   bool     `name:"base" optional:"" help:"return base user object (without extensions)"`
+	Count  bool     `name:"count" optional:"" help:"only return user count"`
+	Fields []string `name:"fields" optional:"" help:"fields mask, like --fields=id,email"`
 }
 
-// TODO : add mask
-// TODO : add pagination (instead of -1)
-// TODO : add filtering?
 func (cmd *ListUsersCmd) Run(c *cc.CommonCtx) error {
 	conn, err := authorizer.Connection(
 		c.Context,
@@ -29,19 +29,69 @@ func (cmd *ListUsersCmd) Run(c *cc.CommonCtx) error {
 
 	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
 
-	dirClient := conn.DirectoryClient()
-	resp, err := dirClient.ListUsers(ctx, &dir.ListUsersRequest{
-		Page: &api.PaginationRequest{
-			Size: -1,
-		},
-		Base: cmd.Base,
-	})
-
+	mask, err := fieldmaskpb.New(&api.User{}, cmd.Fields...)
 	if err != nil {
 		return err
 	}
 
-	return jsonx.OutputJSONPB(c.OutWriter, resp)
+	pageSize := int32(100)
+	if cmd.Count {
+		pageSize = int32(-2)
+	}
+
+	token := ""
+	first := true
+	count := int32(0)
+
+	dirClient := conn.DirectoryClient()
+
+	opts := jsonx.MaskedMarshalOpts()
+
+	for {
+		resp, err := dirClient.ListUsers(ctx, &dir.ListUsersRequest{
+			Page: &api.PaginationRequest{
+				Size:  pageSize,
+				Token: token,
+			},
+			Fields: &api.Fields{
+				Mask: mask,
+			},
+			Base: cmd.Base,
+		})
+
+		if err != nil {
+			return errors.Wrapf(err, "list users")
+		}
+
+		if cmd.Count {
+			return jsonx.OutputJSONPB(c.OutWriter, resp.Page, opts)
+		}
+
+		if first {
+			_, _ = c.OutWriter.Write([]byte("[\n"))
+			first = false
+		}
+
+		for _, u := range resp.Results {
+			if count > 0 {
+				_, _ = c.OutWriter.Write([]byte(",\n"))
+			}
+
+			_ = jsonx.EncodeJSONPB(c.OutWriter, u, opts)
+
+			count++
+		}
+
+		if resp.Page.NextToken == "" {
+			break
+		}
+
+		token = resp.Page.NextToken
+	}
+
+	_, _ = c.OutWriter.Write([]byte("\n]\n"))
+
+	return nil
 }
 
 type GetIdentityCmd struct {

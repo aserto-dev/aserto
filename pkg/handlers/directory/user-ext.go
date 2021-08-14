@@ -2,15 +2,11 @@ package directory
 
 import (
 	"fmt"
-	"io"
-	"os"
-	"strings"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/grpcc"
 	"github.com/aserto-dev/aserto/pkg/grpcc/authorizer"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
-	"github.com/aserto-dev/aserto/pkg/pb"
 	dir "github.com/aserto-dev/proto/aserto/authorizer/directory"
 
 	"github.com/pkg/errors"
@@ -121,9 +117,7 @@ func (cmd *GetUserPermsCmd) Run(c *cc.CommonCtx) error {
 type SetUserPropCmd struct {
 	UserID string `arg:"id" name:"id" required:"" help:"user id or identifier"`
 	Key    string `arg:"key" name:"key" required:"" help:"property key"`
-	Value  string `optional:"" help:"set property using string value"`
-	Stdin  bool   `optional:"" name:"stdin" help:"set property using from --stdin"`
-	File   string `optional:"" type:"existingfile" help:"set property using file content"`
+	Value  string `required:"" help:"set property using string value"`
 }
 
 func (cmd *SetUserPropCmd) Run(c *cc.CommonCtx) error {
@@ -145,41 +139,11 @@ func (cmd *SetUserPropCmd) Run(c *cc.CommonCtx) error {
 		return errors.Wrapf(err, "resolve identity")
 	}
 
-	var (
-		value *structpb.Value
-		buf   io.Reader
-	)
-
-	switch {
-	case cmd.Stdin:
-		fmt.Fprintf(c.ErrWriter, "reading stdin\n")
-		buf = os.Stdin
-
-	case cmd.File != "":
-		fmt.Fprintf(c.ErrWriter, "reading file [%s]\n", cmd.File)
-		buf, err = os.Open(cmd.File)
-		if err != nil {
-			return errors.Wrapf(err, "opening file [%s]", cmd.File)
-		}
-	case cmd.Value != "":
-		fmt.Fprintf(c.ErrWriter, "reading string value\n")
-		buf = strings.NewReader(cmd.Value)
-
-	default:
-		return errors.Errorf("no input option specified, [--stdin | --file=filepath | --value=string]")
-	}
-
-	if buf == nil {
-		value = &structpb.Value{}
-	} else if err := pb.BufToProto(buf, value); err != nil {
-		return err
-	}
-
-	fmt.Fprintf(c.ErrWriter, "set property %s\n", cmd.Key)
+	fmt.Fprintf(c.ErrWriter, "set property %s=%s\n", cmd.Key, cmd.Value)
 	if _, err := dirClient.SetUserProperty(ctx, &dir.SetUserPropertyRequest{
 		Id:    idResp.Id,
 		Key:   cmd.Key,
-		Value: value,
+		Value: structpb.NewStringValue(cmd.Value),
 	}); err != nil {
 		return err
 	}

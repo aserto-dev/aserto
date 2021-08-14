@@ -31,7 +31,7 @@ ${BIN_DIR}:
 TESTER     := ${GOPATH}/bin/gotestsum
 ${TESTER}:
 	@echo -e "${ATTN_COLOR}==> $@ ${NO_COLOR}"
-	@go install gotest.tools/gotestsum@v1.6.4
+	@go install gotest.tools/gotestsum@v1.7.0
 
 LINTER	   := ${GOPATH}/bin/golangci-lint
 ${LINTER}:
@@ -41,7 +41,7 @@ ${LINTER}:
 RELEASER   := ${GOPATH}/bin/goreleaser
 ${RELEASER}:
 	@echo -e "${ATTN_COLOR}==> $@  ${NO_COLOR}"
-	@go install github.com/goreleaser/goreleaser@v0.173.2
+	@go install github.com/goreleaser/goreleaser@v0.174.2
 
 .PHONY: all
 all: deps build test lint
@@ -49,7 +49,7 @@ all: deps build test lint
 .PHONY: deps
 deps:
 	@echo -e "${ATTN_COLOR}==> $@ ${NO_COLOR}"
-	@go install github.com/caarlos0/svu@v1.3.2
+	@go install github.com/caarlos0/svu@v1.7.0
 
 .PHONY: build
 build: ${RELEASER}
@@ -74,14 +74,14 @@ release: ${RELEASER}
 
 .PHONY: publish
 publish: ${RELEASER}
-ifndef GOOGLE_APPLICATION_CREDENTIALS
-	$(error GOOGLE_APPLICATION_CREDENTIALS environment variable is undefined)
+ifndef GITHUB_TOKEN
+	$(error GITHUB_TOKEN environment variable is undefined)
 endif
-ifndef HOMEBREW_TAP
-        $(error HOMEBREW_TAP environment variable is undefined)
+ifndef ASERTO_TAP
+	$(error ASERTO_TAP environment variable is undefined)
 endif
 	@echo -e "${ATTN_COLOR}==> $@ ${NO_COLOR}"
-	@${RELEASER} release --config .goreleaser-publish.yml --rm-dist
+	@${RELEASER} release --config .goreleaser.yml --rm-dist
 
 .PHONY: clean
 clean:

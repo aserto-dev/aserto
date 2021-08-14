@@ -22,7 +22,9 @@ tenant
   tenant list-connections          list connections
   tenant get-connection            get connection instance info
   tenant verify-connection         verify connection settings
+  tenant sync-connection           trigger sync of IDP connection
   tenant list-policy-references    list policy references
+  tenant create-policy-push-key    create policy upload key
   tenant list-provider-kinds       list provider kinds
   tenant list-providers            list providers
   tenant get-provider              get provider info
@@ -92,4 +94,6 @@ Flags:
       --authorizer=STRING    authorizer override ($ASERTO_AUTHORIZER)
       --tenant=STRING        tenant id override ($ASERTO_TENANT_ID)
       --debug                enable debug logging ($ASERTO_DEBUG)
+
+Run "aserto <command> --help" for more information on a command.
 ```
