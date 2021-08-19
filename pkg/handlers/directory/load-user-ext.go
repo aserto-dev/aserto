@@ -9,7 +9,7 @@ import (
 	jsonproducer "github.com/aserto-dev/aserto/pkg/dirx/json"
 	"github.com/aserto-dev/aserto/pkg/grpcc"
 	"github.com/aserto-dev/aserto/pkg/grpcc/authorizer"
-	"github.com/aserto-dev/proto/aserto/api"
+	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
 	"github.com/pkg/errors"
 )
 

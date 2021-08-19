@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/aserto-dev/aserto/pkg/pb"
-	"github.com/aserto-dev/proto/aserto/api"
+	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
 	"github.com/pkg/errors"
 )
 

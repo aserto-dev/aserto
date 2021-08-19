@@ -12,8 +12,8 @@ import (
 	"github.com/aserto-dev/aserto/pkg/grpcc"
 	"github.com/aserto-dev/aserto/pkg/grpcc/authorizer"
 	"github.com/aserto-dev/aserto/pkg/grpcc/tenant"
-	"github.com/aserto-dev/proto/aserto/api"
-	"github.com/aserto-dev/proto/aserto/tenant/connection"
+	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
+	connection "github.com/aserto-dev/go-grpc/aserto/tenant/connection/v1"
 
 	"github.com/pkg/errors"
 )
@@ -120,7 +120,7 @@ func auth0ConfigFromConnection(c *cc.CommonCtx) (*auth0.Config, error) {
 	listResp, err := connClient.ListConnections(
 		ctx,
 		&connection.ListConnectionsRequest{
-			Kind: api.ProviderKind_IDP,
+			Kind: api.ProviderKind_PROVIDER_KIND_IDP,
 		},
 	)
 	if err != nil {

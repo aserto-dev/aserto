@@ -7,8 +7,9 @@ import (
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/grpcc"
 	"github.com/aserto-dev/aserto/pkg/grpcc/authorizer"
-	"github.com/aserto-dev/proto/aserto/api"
-	dir "github.com/aserto-dev/proto/aserto/authorizer/directory"
+	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
+	dir "github.com/aserto-dev/go-grpc/aserto/authorizer/directory/v1"
+
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 

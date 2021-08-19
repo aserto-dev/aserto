@@ -9,9 +9,9 @@ import (
 	"github.com/aserto-dev/aserto/pkg/handlers/user"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	"github.com/aserto-dev/aserto/pkg/keyring"
+	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
+	account "github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"
 	"github.com/aserto-dev/go-lib/ids"
-	"github.com/aserto-dev/proto/aserto/api"
-	"github.com/aserto-dev/proto/aserto/tenant/account"
 
 	"github.com/pkg/errors"
 )

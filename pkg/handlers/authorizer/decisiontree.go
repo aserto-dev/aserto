@@ -5,8 +5,8 @@ import (
 	"github.com/aserto-dev/aserto/pkg/grpcc"
 	"github.com/aserto-dev/aserto/pkg/grpcc/authorizer"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
-	"github.com/aserto-dev/proto/aserto/api"
-	authz "github.com/aserto-dev/proto/aserto/authorizer/authorizer"
+	authz "github.com/aserto-dev/go-grpc-authz/aserto/authorizer/authorizer/v1"
+	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
 )
 
 type DecisionTreeCmd struct {
@@ -39,8 +39,7 @@ func (cmd *DecisionTreeCmd) Run(c *cc.CommonCtx) error {
 			Type:     api.IdentityType_IDENTITY_TYPE_NONE,
 		},
 		Options: &authz.DecisionTreeOptions{
-			Grouping:      authz.Grouping_FLAT,
-			PathSeparator: authz.PathSeparator_DOT,
+			PathSeparator: authz.PathSeparator_PATH_SEPARATOR_DOT,
 		},
 	})
 
