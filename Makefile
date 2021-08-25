@@ -81,7 +81,7 @@ ifndef ASERTO_TAP
 	$(error ASERTO_TAP environment variable is undefined)
 endif
 	@echo -e "${ATTN_COLOR}==> $@ ${NO_COLOR}"
-	@${RELEASER} release --config .goreleaser.yml --rm-dist
+	@${RELEASER} release --config .goreleaser-publish.yml --rm-dist
 
 .PHONY: clean
 clean:
