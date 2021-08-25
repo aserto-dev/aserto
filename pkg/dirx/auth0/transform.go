@@ -3,7 +3,7 @@ package auth0
 import (
 	"strings"
 
-	"github.com/aserto-dev/proto/aserto/api"
+	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -38,31 +38,31 @@ func Transform(in *management.User) (*api.User, error) {
 	}
 
 	user.Identities[in.GetID()] = &api.IdentitySource{
-		Kind:     api.IdentityKind_PID,
+		Kind:     api.IdentityKind_IDENTITY_KIND_PID,
 		Provider: provider,
 		Verified: true,
 	}
 
 	user.Identities[in.GetEmail()] = &api.IdentitySource{
-		Kind:     api.IdentityKind_EMAIL,
+		Kind:     api.IdentityKind_IDENTITY_KIND_EMAIL,
 		Provider: provider,
 		Verified: in.GetEmailVerified(),
 	}
 
-	phoneProp := strings.ToLower(api.IdentityKind_PHONE.String())
+	phoneProp := strings.ToLower(api.IdentityKind_IDENTITY_KIND_PHONE.String())
 	if in.UserMetadata[phoneProp] != nil {
 		phone := in.UserMetadata[phoneProp].(string)
 		user.Identities[phone] = &api.IdentitySource{
-			Kind:     api.IdentityKind_PHONE,
+			Kind:     api.IdentityKind_IDENTITY_KIND_PHONE,
 			Verified: false,
 		}
 	}
 
-	usernameProp := strings.ToLower(api.IdentityKind_USERNAME.String())
+	usernameProp := strings.ToLower(api.IdentityKind_IDENTITY_KIND_USERNAME.String())
 	if in.UserMetadata[usernameProp] != nil {
 		username := in.UserMetadata[usernameProp].(string)
 		user.Identities[username] = &api.IdentitySource{
-			Kind:     api.IdentityKind_USERNAME,
+			Kind:     api.IdentityKind_IDENTITY_KIND_USERNAME,
 			Verified: false,
 		}
 	}

@@ -14,9 +14,9 @@ import (
 	"github.com/aserto-dev/aserto/pkg/grpcc/tenant"
 	"github.com/aserto-dev/aserto/pkg/keyring"
 
-	"github.com/aserto-dev/proto/aserto/api"
-	"github.com/aserto-dev/proto/aserto/tenant/account"
-	"github.com/aserto-dev/proto/aserto/tenant/connection"
+	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
+	account "github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"
+	connection "github.com/aserto-dev/go-grpc/aserto/tenant/connection/v1"
 
 	"github.com/cli/browser"
 	"github.com/pkg/errors"
@@ -135,7 +135,7 @@ func GetConnectionKeys(ctx context.Context, conn *tenant.Client, tok *auth0api.T
 	resp, err := connClient.ListConnections(
 		ctx,
 		&connection.ListConnectionsRequest{
-			Kind: api.ProviderKind_UNKNOWN_PROVIDER_KIND,
+			Kind: api.ProviderKind_PROVIDER_KIND_UNKNOWN,
 		})
 	if err != nil {
 		return errors.Wrapf(err, "list connections account")
@@ -144,7 +144,7 @@ func GetConnectionKeys(ctx context.Context, conn *tenant.Client, tok *auth0api.T
 	//nolint:exhaustive // we only care about these two provider kinds.
 	for _, cn := range resp.Results {
 		switch cn.Kind {
-		case api.ProviderKind_AUTHORIZER:
+		case api.ProviderKind_PROVIDER_KIND_AUTHORIZER:
 			respX, err := connClient.GetConnection(ctx, &connection.GetConnectionRequest{
 				Id: cn.Id,
 			})
@@ -154,7 +154,7 @@ func GetConnectionKeys(ctx context.Context, conn *tenant.Client, tok *auth0api.T
 
 			tok.AuthorizerAPIKey = respX.Result.Config.Fields["api_key"].GetStringValue()
 
-		case api.ProviderKind_POLICY_REGISTRY:
+		case api.ProviderKind_PROVIDER_KIND_POLICY_REGISTRY:
 			respX, err := connClient.GetConnection(ctx, &connection.GetConnectionRequest{
 				Id: cn.Id,
 			})

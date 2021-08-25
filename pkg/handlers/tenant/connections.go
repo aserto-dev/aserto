@@ -9,8 +9,9 @@ import (
 	"github.com/aserto-dev/aserto/pkg/grpcc"
 	"github.com/aserto-dev/aserto/pkg/grpcc/tenant"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
-	"github.com/aserto-dev/proto/aserto/api"
-	"github.com/aserto-dev/proto/aserto/tenant/connection"
+	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
+	connection "github.com/aserto-dev/go-grpc/aserto/tenant/connection/v1"
+
 	"github.com/pkg/errors"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/status"
@@ -41,7 +42,7 @@ func (cmd ListConnectionsCmd) Run(c *cc.CommonCtx) error {
 	if kind, ok := api.ProviderKind_value[kindStr]; ok {
 		req.Kind = api.ProviderKind(kind)
 	} else {
-		req.Kind = api.ProviderKind_UNKNOWN_PROVIDER_KIND
+		req.Kind = api.ProviderKind_PROVIDER_KIND_UNKNOWN
 	}
 
 	resp, err := connClient.ListConnections(ctx, req)
@@ -159,7 +160,7 @@ func (cmd SyncConnectionCmd) Run(c *cc.CommonCtx) error {
 		return errors.Wrapf(err, "get connection [%s]", cmd.ID)
 	}
 
-	if curConn.Result.Kind != api.ProviderKind_IDP {
+	if curConn.Result.Kind != api.ProviderKind_PROVIDER_KIND_IDP {
 		return errors.Errorf("connection must be of kind IDP (provided %s)", curConn.Result.Kind.Enum().String())
 	}
 

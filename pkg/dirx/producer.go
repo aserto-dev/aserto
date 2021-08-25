@@ -1,6 +1,6 @@
 package dirx
 
-import "github.com/aserto-dev/proto/aserto/api"
+import api "github.com/aserto-dev/go-grpc/aserto/api/v1"
 
 // Producer interface.
 type Producer interface {

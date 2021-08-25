@@ -1,7 +1,7 @@
 package auth0
 
 import (
-	"github.com/aserto-dev/proto/aserto/api"
+	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
 	"gopkg.in/auth0.v5/management"
 )
 

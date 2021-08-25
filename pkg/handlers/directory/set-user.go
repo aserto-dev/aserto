@@ -5,7 +5,8 @@ import (
 	"github.com/aserto-dev/aserto/pkg/grpcc"
 	"github.com/aserto-dev/aserto/pkg/grpcc/authorizer"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
-	dir "github.com/aserto-dev/proto/aserto/authorizer/directory"
+	dir "github.com/aserto-dev/go-grpc/aserto/authorizer/directory/v1"
+
 	"github.com/pkg/errors"
 )
 

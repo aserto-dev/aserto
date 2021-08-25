@@ -3,8 +3,8 @@ package dirx
 import (
 	"context"
 
-	"github.com/aserto-dev/proto/aserto/api"
-	dir "github.com/aserto-dev/proto/aserto/authorizer/directory"
+	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
+	dir "github.com/aserto-dev/go-grpc/aserto/authorizer/directory/v1"
 	"github.com/pkg/errors"
 )
 

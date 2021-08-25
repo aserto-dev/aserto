@@ -5,8 +5,8 @@ import (
 	"github.com/aserto-dev/aserto/pkg/grpcc"
 	"github.com/aserto-dev/aserto/pkg/grpcc/authorizer"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
-	"github.com/aserto-dev/proto/aserto/api"
-	authz "github.com/aserto-dev/proto/aserto/authorizer/authorizer"
+	authz "github.com/aserto-dev/go-grpc-authz/aserto/authorizer/authorizer/v1"
+	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
 )
 
 type ExecQueryCmd struct {
@@ -38,7 +38,7 @@ func (cmd *ExecQueryCmd) Run(c *cc.CommonCtx) error {
 		Options: &authz.QueryOptions{
 			Metrics:      false,
 			Instrument:   false,
-			Trace:        authz.TraceLevel_OFF,
+			Trace:        authz.TraceLevel_TRACE_LEVEL_OFF,
 			TraceSummary: false,
 		},
 	})

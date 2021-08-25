@@ -5,9 +5,9 @@ import (
 	"github.com/aserto-dev/aserto/pkg/grpcc"
 	"github.com/aserto-dev/aserto/pkg/grpcc/authorizer"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
+	authz "github.com/aserto-dev/go-grpc-authz/aserto/authorizer/authorizer/v1"
+	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
 	"github.com/aserto-dev/go-lib/pb"
-	"github.com/aserto-dev/proto/aserto/api"
-	authz "github.com/aserto-dev/proto/aserto/authorizer/authorizer"
 )
 
 type EvalDecisionCmd struct {

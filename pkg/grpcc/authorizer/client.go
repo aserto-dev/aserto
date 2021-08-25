@@ -4,13 +4,14 @@ import (
 	"context"
 
 	"github.com/aserto-dev/aserto/pkg/grpcc"
-	authz "github.com/aserto-dev/proto/aserto/authorizer/authorizer"
-	dir "github.com/aserto-dev/proto/aserto/authorizer/directory"
-	"github.com/aserto-dev/proto/aserto/authorizer/policy"
-	"github.com/aserto-dev/proto/aserto/authorizer/system"
-	"github.com/aserto-dev/proto/aserto/common/info"
-	"github.com/pkg/errors"
 
+	authz "github.com/aserto-dev/go-grpc-authz/aserto/authorizer/authorizer/v1"
+	dir "github.com/aserto-dev/go-grpc/aserto/authorizer/directory/v1"
+	policy "github.com/aserto-dev/go-grpc/aserto/authorizer/policy/v1"
+	system "github.com/aserto-dev/go-grpc/aserto/authorizer/system/v1"
+	info "github.com/aserto-dev/go-grpc/aserto/common/info/v1"
+
+	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )

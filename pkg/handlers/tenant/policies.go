@@ -6,7 +6,8 @@ import (
 	"github.com/aserto-dev/aserto/pkg/grpcc"
 	"github.com/aserto-dev/aserto/pkg/grpcc/tenant"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
-	"github.com/aserto-dev/proto/aserto/tenant/policy"
+	policy "github.com/aserto-dev/go-grpc/aserto/tenant/policy/v1"
+
 	"github.com/pkg/errors"
 )
 

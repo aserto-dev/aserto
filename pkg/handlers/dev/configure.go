@@ -12,9 +12,9 @@ import (
 	"github.com/aserto-dev/aserto/pkg/grpcc"
 	"github.com/aserto-dev/aserto/pkg/grpcc/tenant"
 
-	"github.com/aserto-dev/proto/aserto/api"
-	"github.com/aserto-dev/proto/aserto/tenant/connection"
-	"github.com/aserto-dev/proto/aserto/tenant/policy"
+	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
+	connection "github.com/aserto-dev/go-grpc/aserto/tenant/connection/v1"
+	policy "github.com/aserto-dev/go-grpc/aserto/tenant/policy/v1"
 
 	"github.com/fatih/color"
 	"github.com/pkg/errors"
@@ -78,7 +78,7 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 	listResp, err := connClient.ListConnections(
 		ctx,
 		&connection.ListConnectionsRequest{
-			Kind: api.ProviderKind_POLICY_REGISTRY,
+			Kind: api.ProviderKind_PROVIDER_KIND_POLICY_REGISTRY,
 		},
 	)
 	if err != nil {
