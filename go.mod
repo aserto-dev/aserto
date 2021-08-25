@@ -7,10 +7,10 @@ go 1.16
 
 require (
 	github.com/alecthomas/kong v0.2.17
-	github.com/aserto-dev/aserto-tenant v0.0.167
+	github.com/aserto-dev/aserto-tenant v0.1.2
 	github.com/aserto-dev/go-grpc v0.0.2
 	github.com/aserto-dev/go-grpc-authz v0.0.2
-	github.com/aserto-dev/go-lib v0.2.75
+	github.com/aserto-dev/go-lib v0.3.0
 	github.com/cli/browser v1.1.0
 	github.com/containerd/containerd v1.5.4
 	github.com/fatih/color v1.12.0
