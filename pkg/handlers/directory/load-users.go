@@ -93,11 +93,13 @@ func (cmd *LoadUsersCmd) Run(c *cc.CommonCtx) error {
 	// close error channel as the last action before returning
 	close(errc)
 
-	fmt.Fprintf(c.ErrWriter, "received %d\n", result.Counts.Received)
-	fmt.Fprintf(c.ErrWriter, "created  %d\n", result.Counts.Created)
-	fmt.Fprintf(c.ErrWriter, "updated  %d\n", result.Counts.Updated)
-	fmt.Fprintf(c.ErrWriter, "deleted  %d\n", result.Counts.Deleted)
-	fmt.Fprintf(c.ErrWriter, "errors   %d\n", result.Counts.Errors)
+	if result.Counts != nil {
+		fmt.Fprintf(c.ErrWriter, "received %d\n", result.Counts.Received)
+		fmt.Fprintf(c.ErrWriter, "created  %d\n", result.Counts.Created)
+		fmt.Fprintf(c.ErrWriter, "updated  %d\n", result.Counts.Updated)
+		fmt.Fprintf(c.ErrWriter, "deleted  %d\n", result.Counts.Deleted)
+		fmt.Fprintf(c.ErrWriter, "errors   %d\n", result.Counts.Errors)
+	}
 
 	return result.Err
 }
