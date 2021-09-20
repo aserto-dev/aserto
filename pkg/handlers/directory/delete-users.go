@@ -52,7 +52,7 @@ func (cmd *DeleteUsersCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 	if input == "CONFIRMED" {
-		fmt.Fprintf(c.OutWriter, "starting deletetion\n")
+		fmt.Fprintf(c.OutWriter, "starting deletion\n")
 		for i, u := range resp.Results {
 			fmt.Fprintf(os.Stderr, "\033[2K\rdeleted %d of %d", i+1, resp.Page.TotalSize)
 			if _, err := dirClient.DeleteUser(ctx, &dir.DeleteUserRequest{
