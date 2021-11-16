@@ -3,6 +3,7 @@
 package pkce
 
 import (
+	"context"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
@@ -82,17 +83,20 @@ func (flow *Flow) StartServer(writeSuccess func(io.Writer)) error {
 	return flow.server.Serve()
 }
 
+var errStateMismatch = errors.New("state mismatch")
+
 // AccessToken blocks until the browser flow has completed and returns the access token.
-func (flow *Flow) AccessToken(tokenURL, redirectURL, codeVerifier string) (*api.Token, error) {
+func (flow *Flow) AccessToken(ctx context.Context, tokenURL, redirectURL, codeVerifier string) (*api.Token, error) {
 	code, err := flow.server.WaitForCode()
 	if err != nil {
 		return nil, err
 	}
 	if code.State != flow.state {
-		return nil, errors.New("state mismatch")
+		return nil, errStateMismatch
 	}
 
-	resp, err := api.PostForm(tokenURL,
+	resp, err := api.PostForm(ctx,
+		tokenURL,
 		url.Values{
 			"grant_type":    {"authorization_code"},
 			"client_id":     {flow.clientID},
@@ -116,14 +120,21 @@ func randomString(length int) (string, error) {
 	return hex.EncodeToString(b), nil
 }
 
-func CreateCodeChallenge(n int) (string, string, error) {
+type CodeChallenge struct {
+	Verifier  string
+	Challenge string
+}
+
+var errInvalidArg = errors.New("invalid argument")
+
+func CreateCodeChallenge(n int) (CodeChallenge, error) {
 	const safe = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-._~"
 	if n < 43 || n > 128 {
-		return "", "", errors.New("invalid argument")
+		return CodeChallenge{"", ""}, errInvalidArg
 	}
 	buff := make([]byte, n)
 	if _, err := rand.Read(buff); err != nil {
-		return "", "", err
+		return CodeChallenge{"", ""}, err
 	}
 	nsafe := byte(len(safe))
 	for i, b := range buff {
@@ -133,5 +144,5 @@ func CreateCodeChallenge(n int) (string, string, error) {
 	cv := base64.RawURLEncoding.EncodeToString(buff)
 	s256 := sha256.Sum256([]byte(cv))
 	cc := base64.RawURLEncoding.EncodeToString(s256[:])
-	return cv, cc, nil
+	return CodeChallenge{cv, cc}, nil
 }

@@ -1,7 +1,6 @@
-package grpcc
+package x
 
 import (
-	"github.com/aserto-dev/aserto/pkg/x"
 	"github.com/pkg/errors"
 )
 
@@ -15,21 +14,19 @@ type Services struct {
 
 func Environment(env string) (*Services, error) {
 	switch env {
-	case x.EnvProduction:
+	case EnvProduction:
 		return &Services{
-			Environment:       x.EnvProduction,
+			Environment:       EnvProduction,
 			TenantService:     "tenant.prod.aserto.com:8443",
 			AuthorizerService: "authorizer.prod.aserto.com:8443",
 			RegistryService:   "https://bundler.prod.aserto.com",
-			TasksService:      "tasks.prod.aserto.com:8433",
 		}, nil
-	case x.EnvEngineering:
+	case EnvEngineering:
 		return &Services{
-			Environment:       x.EnvEngineering,
+			Environment:       EnvEngineering,
 			TenantService:     "tenant.eng.aserto.com:8443",
 			AuthorizerService: "authorizer.eng.aserto.com:8443",
 			RegistryService:   "https://bundler.eng.aserto.com",
-			TasksService:      "tasks.eng.aserto.com:8433",
 		}, nil
 	default:
 		return nil, errors.Errorf("invalid environment [%s]", env)

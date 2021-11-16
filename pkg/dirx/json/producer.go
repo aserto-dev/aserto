@@ -42,7 +42,7 @@ func (p *Producer) Producer(s chan *api.User, errc chan error) {
 
 	for dec.More() {
 		u := api.User{}
-		if err := pb.UnmarshalNext(dec, &u); err != nil {
+		if err = pb.UnmarshalNext(dec, &u); err != nil {
 			errc <- errors.Wrapf(err, "unmarshal next")
 		}
 

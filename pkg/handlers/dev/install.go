@@ -117,7 +117,7 @@ api:
       tls_ca_cert_path: "/root/.config/aserto/aserto-one/certs/gateway-ca.crt"
 
 opa:
-  instance_id: "0fb5d7eb-8190-4f9d-ac7f-db0ba8374cb7"
+  instance_id: "5d7cccc6-1657-11ec-a291-00001df0866c"
   store: aserto
   graceful_shutdown_period_seconds: 2
   local_bundles:

@@ -1,9 +1,9 @@
 package authorizer
 
 import (
+	aserto "github.com/aserto-dev/aserto-go/client"
+	"github.com/aserto-dev/aserto-go/client/grpc/authorizer"
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/grpcc"
-	"github.com/aserto-dev/aserto/pkg/grpcc/authorizer"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	authz "github.com/aserto-dev/go-grpc-authz/aserto/authorizer/authorizer/v1"
 	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
@@ -15,20 +15,17 @@ type ExecQueryCmd struct {
 }
 
 func (cmd *ExecQueryCmd) Run(c *cc.CommonCtx) error {
-
-	conn, err := authorizer.Connection(
+	client, err := authorizer.New(
 		c.Context,
-		c.AuthorizerService(),
-		grpcc.NewAPIKeyAuth(c.AuthorizerAPIKey()),
+		aserto.WithAddr(c.AuthorizerService()),
+		aserto.WithAPIKeyAuth(c.AuthorizerAPIKey()),
+		aserto.WithTenantID(c.TenantID()),
 	)
 	if err != nil {
 		return err
 	}
 
-	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
-
-	authzClient := conn.AuthorizerClient()
-	resp, err := authzClient.Query(ctx, &authz.QueryRequest{
+	resp, err := client.Query(c.Context, &authz.QueryRequest{
 		Query: cmd.Statement,
 		Input: cmd.Input,
 		IdentityContext: &api.IdentityContext{
@@ -42,7 +39,6 @@ func (cmd *ExecQueryCmd) Run(c *cc.CommonCtx) error {
 			TraceSummary: false,
 		},
 	})
-
 	if err != nil {
 		return err
 	}

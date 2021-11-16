@@ -20,6 +20,14 @@ func OutputJSON(w io.Writer, v interface{}) error {
 	return nil
 }
 
+func OutputJSONStrings(results []string, writer io.Writer) error {
+	if results == nil {
+		results = []string{}
+	}
+
+	return OutputJSON(writer, results)
+}
+
 func OutputJSONPB(w io.Writer, msg proto.Message, opts ...protojson.MarshalOptions) error {
 	options := DefaultMarshalOpts()
 	if len(opts) == 1 {

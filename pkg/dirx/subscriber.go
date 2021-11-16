@@ -13,31 +13,30 @@ type Result struct {
 	Err    error
 }
 
-// Subscriber subscribes to the api.User channel and sends the users instance to the directory using the gRPC LoadUsers API.
-func Subscriber(ctx context.Context, client dir.DirectoryClient, s <-chan *api.User, r chan<- *Result, errc chan<- error, inclAttrSets bool) {
+type UserSubscriber struct {
+	Ctx           context.Context
+	DirClient     dir.DirectoryClient
+	SourceChannel chan *api.User
+	ResultChannel chan *Result
+	ErrorChannel  chan error
+}
 
-	stream, err := client.LoadUsers(ctx)
+type LoadUsersRequestFactory func(*api.User) *dir.LoadUsersRequest
+
+func (subscriber *UserSubscriber) Subscribe(requestFactory LoadUsersRequestFactory) {
+	stream, err := subscriber.DirClient.LoadUsers(subscriber.Ctx)
 	if err != nil {
-		errc <- errors.Wrapf(err, "client.LoadUsers")
+		subscriber.ErrorChannel <- errors.Wrapf(err, "client.LoadUsers")
 	}
 
 	sendCount := int32(0)
 	errCount := int32(0)
 
-	for user := range s {
-		if !inclAttrSets {
-			user.Attributes = &api.AttrSet{}
-			user.Applications = make(map[string]*api.AttrSet)
-		}
+	for user := range subscriber.SourceChannel {
+		loadUsersRequest := requestFactory(user)
 
-		req := &dir.LoadUsersRequest{
-			Data: &dir.LoadUsersRequest_User{
-				User: user,
-			},
-		}
-
-		if err := stream.Send(req); err != nil {
-			errc <- errors.Wrapf(err, "stream send %s", user.Id)
+		if err = stream.Send(loadUsersRequest); err != nil {
+			subscriber.ErrorChannel <- errors.Wrapf(err, "stream send %s", user.Id)
 			errCount++
 		}
 		sendCount++
@@ -45,54 +44,40 @@ func Subscriber(ctx context.Context, client dir.DirectoryClient, s <-chan *api.U
 
 	res, err := stream.CloseAndRecv()
 	if err != nil {
-		errc <- errors.Wrapf(err, "stream.CloseAndRecv()")
+		subscriber.ErrorChannel <- errors.Wrapf(err, "stream.CloseAndRecv()")
 	}
 
-	r <- &Result{
+	subscriber.ResultChannel <- &Result{
 		Counts: res,
 		Err:    err,
 	}
 }
 
-// UserExtSubscriber subscribes to the api.User channel and sends user extensions (api.UserExt message) to the directory using the gRPC LoadUser API.
-func UserExtSubscriber(ctx context.Context, client dir.DirectoryClient, s <-chan *api.User, r chan<- *Result, errc chan<- error) {
-
-	stream, err := client.LoadUsers(ctx)
-	if err != nil {
-		errc <- errors.Wrapf(err, "client.LoadUsers")
-	}
-
-	sendCount := int32(0)
-	errCount := int32(0)
-
-	for user := range s {
-
-		userExt := api.UserExt{
-			Id:           user.Id,
-			Attributes:   user.Attributes,
-			Applications: user.Applications,
+func NewLoadUsersRequestFactory(inclAttrSets bool) LoadUsersRequestFactory {
+	return func(user *api.User) *dir.LoadUsersRequest {
+		if !inclAttrSets {
+			user.Attributes = &api.AttrSet{}
+			user.Applications = make(map[string]*api.AttrSet)
 		}
 
-		req := &dir.LoadUsersRequest{
-			Data: &dir.LoadUsersRequest_UserExt{
-				UserExt: &userExt,
+		return &dir.LoadUsersRequest{
+			Data: &dir.LoadUsersRequest_User{
+				User: user,
 			},
 		}
+	}
+}
 
-		if err := stream.Send(req); err != nil {
-			errc <- errors.Wrapf(err, "stream send %s", user.Id)
-			errCount++
-		}
-		sendCount++
+func UserExtensionsRequestFactory(user *api.User) *dir.LoadUsersRequest {
+	userExt := api.UserExt{
+		Id:           user.Id,
+		Attributes:   user.Attributes,
+		Applications: user.Applications,
 	}
 
-	res, err := stream.CloseAndRecv()
-	if err != nil {
-		errc <- errors.Wrapf(err, "stream.CloseAndRecv()")
-	}
-
-	r <- &Result{
-		Counts: res,
-		Err:    err,
+	return &dir.LoadUsersRequest{
+		Data: &dir.LoadUsersRequest_UserExt{
+			UserExt: &userExt,
+		},
 	}
 }

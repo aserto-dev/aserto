@@ -7,10 +7,10 @@ import (
 	"path"
 	"text/template"
 
+	aserto "github.com/aserto-dev/aserto-go/client"
+	"github.com/aserto-dev/aserto-go/client/grpc/tenant"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/filex"
-	"github.com/aserto-dev/aserto/pkg/grpcc"
-	"github.com/aserto-dev/aserto/pkg/grpcc/tenant"
 
 	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
 	connection "github.com/aserto-dev/go-grpc/aserto/tenant/connection/v1"
@@ -24,15 +24,14 @@ type ConfigureCmd struct {
 	Name string `arg:"" required:"" help:"policy name"`
 }
 
-// nolint:funlen // tbd
 func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 	color.Green(">>> configure policy...")
 	params := templateParams{}
 
-	conn, err := tenant.Connection(
+	client, err := tenant.New(
 		c.Context,
-		c.TenantService(),
-		grpcc.NewTokenAuth(c.AccessToken()),
+		aserto.WithAddr(c.TenantService()),
+		aserto.WithTokenAuth(c.AccessToken()),
 	)
 	if err != nil {
 		return err
@@ -40,13 +39,8 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 
 	fmt.Fprintf(c.OutWriter, "tenant id: %s\n", c.TenantID())
 
-	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
-
-	policyClient := conn.PolicyClient()
-	policyRefResp, err := policyClient.ListPolicyRefs(
-		ctx,
-		&policy.ListPolicyRefsRequest{},
-	)
+	ctx := c.Context
+	policyRefResp, err := client.Policy.ListPolicyRefs(ctx, &policy.ListPolicyRefsRequest{})
 	if err != nil {
 		return err
 	}
@@ -74,8 +68,7 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 
 	fmt.Fprintf(c.OutWriter, "policy id: %s\n", params.PolicyID)
 
-	connClient := conn.ConnectionManagerClient()
-	listResp, err := connClient.ListConnections(
+	listResp, err := client.Connections.ListConnections(
 		ctx,
 		&connection.ListConnectionsRequest{
 			Kind: api.ProviderKind_PROVIDER_KIND_POLICY_REGISTRY,
@@ -88,7 +81,7 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 		return errors.Errorf("policy registry connection not found")
 	}
 
-	connResp, err := connClient.GetConnection(
+	connResp, err := client.Connections.GetConnection(
 		ctx,
 		&connection.GetConnectionRequest{
 			Id: listResp.Results[0].Id,
@@ -106,16 +99,9 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 
 	params.DownloadAPIKey = downloadKey
 
-	home, err := os.UserHomeDir()
+	configDir, err := CreateConfigDir()
 	if err != nil {
 		return err
-	}
-
-	configDir := path.Join(home, "/.config/aserto/aserto-one/cfg")
-	if !filex.DirExists(configDir) {
-		if err := os.MkdirAll(configDir, 0700); err != nil {
-			return err
-		}
 	}
 
 	w, err := os.Create(path.Join(configDir, params.PolicyName+".yaml"))
@@ -126,6 +112,19 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 	err = CreateConfig(w, &params)
 
 	return err
+}
+
+func CreateConfigDir() (string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+
+	configDir := path.Join(home, "/.config/aserto/aserto-one/cfg")
+	if filex.DirExists(configDir) {
+		return configDir, nil
+	}
+	return configDir, os.MkdirAll(configDir, 0700)
 }
 
 func CreateConfig(w io.Writer, params *templateParams) error {

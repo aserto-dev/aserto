@@ -14,7 +14,6 @@ import (
 
 const (
 	local = "local"
-	// modeRemote = "remote"
 )
 
 type StartCmd struct {

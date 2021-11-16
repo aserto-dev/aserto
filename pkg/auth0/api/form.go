@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -10,9 +11,9 @@ import (
 
 // PostForm makes an POST request by serializing input parameters as a form and parsing the response
 // of the same type.
-func PostForm(tokenURL string, params url.Values) (*Token, error) {
+func PostForm(ctx context.Context, tokenURL string, params url.Values) (*Token, error) {
 
-	req, err := http.NewRequest("POST", tokenURL, strings.NewReader(params.Encode()))
+	req, err := http.NewRequestWithContext(ctx, "POST", tokenURL, strings.NewReader(params.Encode()))
 	if err != nil {
 		return nil, err
 	}
@@ -23,6 +24,7 @@ func PostForm(tokenURL string, params url.Values) (*Token, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	defer func() {
 		_ = resp.Body.Close()
 	}()

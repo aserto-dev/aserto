@@ -2,10 +2,11 @@ package directory
 
 import (
 	"fmt"
+	"io"
 
+	aserto "github.com/aserto-dev/aserto-go/client"
+	"github.com/aserto-dev/aserto-go/client/grpc"
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/grpcc"
-	"github.com/aserto-dev/aserto/pkg/grpcc/authorizer"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	dir "github.com/aserto-dev/go-grpc/aserto/authorizer/directory/v1"
 
@@ -16,38 +17,32 @@ import (
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
+func OutputJSONResults(results []string, writer io.Writer) error {
+	if results == nil {
+		results = []string{}
+	}
+
+	return jsonx.OutputJSON(writer, results)
+}
+
 type ListUserAppsCmd struct {
 	UserID string `arg:"id" name:"id" required:"" help:"user id or identifier"`
 }
 
 func (cmd *ListUserAppsCmd) Run(c *cc.CommonCtx) error {
-	conn, err := authorizer.Connection(
+	client, identity, err := NewClientWithIdentity(c, cmd.UserID)
+	if err != nil {
+		return err
+	}
+
+	resp, err := client.Directory.ListUserApplications(
 		c.Context,
-		c.AuthorizerService(),
-		grpcc.NewTokenAuth(c.AccessToken()),
+		&dir.ListUserApplicationsRequest{Id: identity.Id},
 	)
 	if err != nil {
 		return err
 	}
-
-	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
-	dirClient := conn.DirectoryClient()
-	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
-		Identity: cmd.UserID,
-	})
-	if err != nil {
-		return errors.Wrapf(err, "resolve identity")
-	}
-
-	resp, err := dirClient.ListUserApplications(ctx, &dir.ListUserApplicationsRequest{Id: idResp.Id})
-	if err != nil {
-		return err
-	}
-	if resp.Results == nil {
-		resp.Results = []string{}
-	}
-
-	return jsonx.OutputJSON(c.OutWriter, resp.Results)
+	return OutputJSONResults(resp.Results, c.OutWriter)
 }
 
 type SetUserAppCmd struct {
@@ -65,28 +60,18 @@ type DelUserAppCmd struct {
 }
 
 func (cmd *DelUserAppCmd) Run(c *cc.CommonCtx) error {
-	conn, err := authorizer.Connection(
-		c.Context,
-		c.AuthorizerService(),
-		grpcc.NewTokenAuth(c.AccessToken()),
-	)
+	client, identity, err := NewClientWithIdentity(c, cmd.UserID)
 	if err != nil {
 		return err
 	}
 
-	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
-	dirClient := conn.DirectoryClient()
-	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
-		Identity: cmd.UserID,
-	})
-	if err != nil {
-		return errors.Wrapf(err, "resolve identity")
-	}
-
-	_, err = dirClient.DeleteUserApplication(ctx, &dir.DeleteUserApplicationRequest{
-		Id:   idResp.Id,
-		Name: cmd.AppName,
-	})
+	_, err = client.Directory.DeleteUserApplication(
+		c.Context,
+		&dir.DeleteUserApplicationRequest{
+			Id:   identity.Id,
+			Name: cmd.AppName,
+		},
+	)
 	if err != nil {
 		return err
 	}
@@ -100,25 +85,18 @@ type GetApplPropsCmd struct {
 }
 
 func (cmd *GetApplPropsCmd) Run(c *cc.CommonCtx) error {
-	conn, err := authorizer.Connection(
-		c.Context,
-		c.AuthorizerService(),
-		grpcc.NewTokenAuth(c.AccessToken()),
-	)
+	client, identity, err := NewClientWithIdentity(c, cmd.UserID)
 	if err != nil {
 		return err
 	}
 
-	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
-	dirClient := conn.DirectoryClient()
-	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
-		Identity: cmd.UserID,
-	})
-	if err != nil {
-		return errors.Wrapf(err, "resolve identity")
-	}
-
-	resp, err := dirClient.GetApplProperties(ctx, &dir.GetApplPropertiesRequest{Id: idResp.Id, Name: cmd.AppName})
+	resp, err := client.Directory.GetApplProperties(
+		c.Context,
+		&dir.GetApplPropertiesRequest{
+			Id:   identity.Id,
+			Name: cmd.AppName,
+		},
+	)
 	if err != nil {
 		return err
 	}
@@ -131,32 +109,22 @@ type GetApplRolesCmd struct {
 }
 
 func (cmd *GetApplRolesCmd) Run(c *cc.CommonCtx) error {
-	conn, err := authorizer.Connection(
+	client, identity, err := NewClientWithIdentity(c, cmd.UserID)
+	if err != nil {
+		return err
+	}
+
+	resp, err := client.Directory.GetApplRoles(
 		c.Context,
-		c.AuthorizerService(),
-		grpcc.NewTokenAuth(c.AccessToken()),
+		&dir.GetApplRolesRequest{
+			Id:   identity.Id,
+			Name: cmd.AppName,
+		},
 	)
 	if err != nil {
 		return err
 	}
-
-	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
-	dirClient := conn.DirectoryClient()
-	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
-		Identity: cmd.UserID,
-	})
-	if err != nil {
-		return errors.Wrapf(err, "resolve identity")
-	}
-
-	resp, err := dirClient.GetApplRoles(ctx, &dir.GetApplRolesRequest{Id: idResp.Id, Name: cmd.AppName})
-	if err != nil {
-		return err
-	}
-	if resp.Results == nil {
-		resp.Results = []string{}
-	}
-	return jsonx.OutputJSON(c.OutWriter, resp.Results)
+	return OutputJSONResults(resp.Results, c.OutWriter)
 }
 
 type GetApplPermsCmd struct {
@@ -165,32 +133,22 @@ type GetApplPermsCmd struct {
 }
 
 func (cmd *GetApplPermsCmd) Run(c *cc.CommonCtx) error {
-	conn, err := authorizer.Connection(
+	client, identity, err := NewClientWithIdentity(c, cmd.UserID)
+	if err != nil {
+		return err
+	}
+
+	resp, err := client.Directory.GetApplPermissions(
 		c.Context,
-		c.AuthorizerService(),
-		grpcc.NewTokenAuth(c.AccessToken()),
+		&dir.GetApplPermissionsRequest{
+			Id:   identity.Id,
+			Name: cmd.AppName,
+		},
 	)
 	if err != nil {
 		return err
 	}
-
-	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
-	dirClient := conn.DirectoryClient()
-	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
-		Identity: cmd.UserID,
-	})
-	if err != nil {
-		return errors.Wrapf(err, "resolve identity")
-	}
-
-	resp, err := dirClient.GetApplPermissions(ctx, &dir.GetApplPermissionsRequest{Id: idResp.Id, Name: cmd.AppName})
-	if err != nil {
-		return err
-	}
-	if resp.Results == nil {
-		resp.Results = []string{}
-	}
-	return jsonx.OutputJSON(c.OutWriter, resp.Results)
+	return OutputJSONResults(resp.Results, c.OutWriter)
 }
 
 type SetApplPropCmd struct {
@@ -205,31 +163,21 @@ func (cmd *SetApplPropCmd) Run(c *cc.CommonCtx) error {
 		return errors.Errorf("argument provided is not a valid user id")
 	}
 
-	conn, err := authorizer.Connection(
-		c.Context,
-		c.AuthorizerService(),
-		grpcc.NewTokenAuth(c.AccessToken()),
-	)
+	client, identity, err := NewClientWithIdentity(c, cmd.UserID)
 	if err != nil {
 		return err
 	}
 
-	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
-	dirClient := conn.DirectoryClient()
-	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
-		Identity: cmd.UserID,
-	})
-	if err != nil {
-		return errors.Wrapf(err, "resolve identity")
-	}
-
 	fmt.Fprintf(c.ErrWriter, "set property %s\n", cmd.Key)
-	if _, err := dirClient.SetApplProperty(ctx, &dir.SetApplPropertyRequest{
-		Id:    idResp.Id,
-		Name:  cmd.AppName,
-		Key:   cmd.Key,
-		Value: structpb.NewStringValue(cmd.Value),
-	}); err != nil {
+	if _, err := client.Directory.SetApplProperty(
+		c.Context,
+		&dir.SetApplPropertyRequest{
+			Id:    identity.Id,
+			Name:  cmd.AppName,
+			Key:   cmd.Key,
+			Value: structpb.NewStringValue(cmd.Value),
+		},
+	); err != nil {
 		return err
 	}
 
@@ -243,29 +191,19 @@ type SetApplRoleCmd struct {
 }
 
 func (cmd *SetApplRoleCmd) Run(c *cc.CommonCtx) error {
-	conn, err := authorizer.Connection(
-		c.Context,
-		c.AuthorizerService(),
-		grpcc.NewTokenAuth(c.AccessToken()),
-	)
+	client, identity, err := NewClientWithIdentity(c, cmd.UserID)
 	if err != nil {
 		return err
 	}
 
-	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
-	dirClient := conn.DirectoryClient()
-	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
-		Identity: cmd.UserID,
-	})
-	if err != nil {
-		return errors.Wrapf(err, "resolve identity")
-	}
-
-	if _, err := dirClient.SetApplRole(ctx, &dir.SetApplRoleRequest{
-		Id:   idResp.Id,
-		Name: cmd.AppName,
-		Role: cmd.Key,
-	}); err != nil {
+	if _, err := client.Directory.SetApplRole(
+		c.Context,
+		&dir.SetApplRoleRequest{
+			Id:   identity.Id,
+			Name: cmd.AppName,
+			Role: cmd.Key,
+		},
+	); err != nil {
 		return err
 	}
 	return nil
@@ -278,25 +216,24 @@ type SetApplPermCmd struct {
 }
 
 func (cmd *SetApplPermCmd) Run(c *cc.CommonCtx) error {
-	conn, err := authorizer.Connection(
+	client, err := grpc.New(
 		c.Context,
-		c.AuthorizerService(),
-		grpcc.NewTokenAuth(c.AccessToken()),
+		aserto.WithAddr(c.AuthorizerService()),
+		aserto.WithTokenAuth(c.AccessToken()),
+		aserto.WithTenantID(c.TenantID()),
 	)
 	if err != nil {
 		return err
 	}
 
-	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
-	dirClient := conn.DirectoryClient()
-	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
+	idResp, err := client.Directory.GetIdentity(c.Context, &dir.GetIdentityRequest{
 		Identity: cmd.UserID,
 	})
 	if err != nil {
 		return errors.Wrapf(err, "resolve identity")
 	}
 
-	if _, err := dirClient.SetApplPermission(ctx, &dir.SetApplPermissionRequest{
+	if _, err := client.Directory.SetApplPermission(c.Context, &dir.SetApplPermissionRequest{
 		Id:         idResp.Id,
 		Name:       cmd.AppName,
 		Permission: cmd.Key,
@@ -314,30 +251,20 @@ type DelApplPropCmd struct {
 }
 
 func (cmd *DelApplPropCmd) Run(c *cc.CommonCtx) error {
-	conn, err := authorizer.Connection(
-		c.Context,
-		c.AuthorizerService(),
-		grpcc.NewTokenAuth(c.AccessToken()),
-	)
+	client, identity, err := NewClientWithIdentity(c, cmd.UserID)
 	if err != nil {
 		return err
 	}
 
-	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
-	dirClient := conn.DirectoryClient()
-	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
-		Identity: cmd.UserID,
-	})
-	if err != nil {
-		return errors.Wrapf(err, "resolve identity")
-	}
-
 	fmt.Fprintf(c.ErrWriter, "remove property %s\n", cmd.Key)
-	if _, err := dirClient.DeleteApplProperty(ctx, &dir.DeleteApplPropertyRequest{
-		Id:   idResp.Id,
-		Name: cmd.AppName,
-		Key:  cmd.Key,
-	}); err != nil {
+	if _, err := client.Directory.DeleteApplProperty(
+		c.Context,
+		&dir.DeleteApplPropertyRequest{
+			Id:   identity.Id,
+			Name: cmd.AppName,
+			Key:  cmd.Key,
+		},
+	); err != nil {
 		return err
 	}
 
@@ -351,30 +278,20 @@ type DelApplRoleCmd struct {
 }
 
 func (cmd *DelApplRoleCmd) Run(c *cc.CommonCtx) error {
-	conn, err := authorizer.Connection(
-		c.Context,
-		c.AuthorizerService(),
-		grpcc.NewTokenAuth(c.AccessToken()),
-	)
+	client, identity, err := NewClientWithIdentity(c, cmd.UserID)
 	if err != nil {
 		return err
 	}
 
-	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
-	dirClient := conn.DirectoryClient()
-	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
-		Identity: cmd.UserID,
-	})
-	if err != nil {
-		return errors.Wrapf(err, "resolve identity")
-	}
-
 	fmt.Fprintf(c.ErrWriter, "remove role %s\n", cmd.Key)
-	if _, err := dirClient.DeleteApplRole(ctx, &dir.DeleteApplRoleRequest{
-		Id:   idResp.Id,
-		Name: cmd.AppName,
-		Role: cmd.Key,
-	}); err != nil {
+	if _, err := client.Directory.DeleteApplRole(
+		c.Context,
+		&dir.DeleteApplRoleRequest{
+			Id:   identity.Id,
+			Name: cmd.AppName,
+			Role: cmd.Key,
+		},
+	); err != nil {
 		return err
 	}
 
@@ -388,30 +305,20 @@ type DelApplPermCmd struct {
 }
 
 func (cmd *DelApplPermCmd) Run(c *cc.CommonCtx) error {
-	conn, err := authorizer.Connection(
-		c.Context,
-		c.AuthorizerService(),
-		grpcc.NewTokenAuth(c.AccessToken()),
-	)
+	client, identity, err := NewClientWithIdentity(c, cmd.UserID)
 	if err != nil {
 		return err
 	}
 
-	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
-	dirClient := conn.DirectoryClient()
-	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
-		Identity: cmd.UserID,
-	})
-	if err != nil {
-		return errors.Wrapf(err, "resolve identity")
-	}
-
 	fmt.Fprintf(c.ErrWriter, "remove permission %s\n", cmd.Key)
-	if _, err := dirClient.DeleteApplPermission(ctx, &dir.DeleteApplPermissionRequest{
-		Id:         idResp.Id,
-		Name:       cmd.AppName,
-		Permission: cmd.Key,
-	}); err != nil {
+	if _, err := client.Directory.DeleteApplPermission(
+		c.Context,
+		&dir.DeleteApplPermissionRequest{
+			Id:         identity.Id,
+			Name:       cmd.AppName,
+			Permission: cmd.Key,
+		},
+	); err != nil {
 		return err
 	}
 	return nil
