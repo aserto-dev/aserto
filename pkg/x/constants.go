@@ -6,19 +6,19 @@ const (
 	AppDescription string = "Welcome to modern authorization!"
 )
 
-// environments
+// environments.
 const (
 	EnvProduction  string = "prod"
 	EnvEngineering string = "eng"
 )
 
-// overrides
+// overrides.
 const (
 	AuthorizerOverride string = "authorizer-override"
 	TenantIDOverride   string = "tenant-id-override"
 )
 
-// property names
+// property names.
 const (
 	PropertyAccessToken         string = "access-token"
 	PropertyTenantID            string = "tenant-id"

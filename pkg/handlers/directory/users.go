@@ -1,9 +1,9 @@
 package directory
 
 import (
+	aserto "github.com/aserto-dev/aserto-go/client"
+	"github.com/aserto-dev/aserto-go/client/grpc"
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/grpcc"
-	"github.com/aserto-dev/aserto/pkg/grpcc/authorizer"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
 	dir "github.com/aserto-dev/go-grpc/aserto/authorizer/directory/v1"
@@ -19,17 +19,15 @@ type ListUsersCmd struct {
 }
 
 func (cmd *ListUsersCmd) Run(c *cc.CommonCtx) error {
-	conn, err := authorizer.Connection(
+	client, err := grpc.New(
 		c.Context,
-		c.AuthorizerService(),
-		grpcc.NewTokenAuth(c.AccessToken()),
+		aserto.WithAddr(c.AuthorizerService()),
+		aserto.WithTokenAuth(c.AccessToken()),
+		aserto.WithTenantID(c.TenantID()),
 	)
 	if err != nil {
 		return err
 	}
-
-	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
-
 	mask, err := fieldmaskpb.New(&api.User{}, cmd.Fields...)
 	if err != nil {
 		return err
@@ -44,12 +42,10 @@ func (cmd *ListUsersCmd) Run(c *cc.CommonCtx) error {
 	first := true
 	count := int32(0)
 
-	dirClient := conn.DirectoryClient()
-
 	opts := jsonx.MaskedMarshalOpts()
 
 	for {
-		resp, err := dirClient.ListUsers(ctx, &dir.ListUsersRequest{
+		resp, err := client.Directory.ListUsers(c.Context, &dir.ListUsersRequest{
 			Page: &api.PaginationRequest{
 				Size:  pageSize,
 				Token: token,
@@ -59,7 +55,6 @@ func (cmd *ListUsersCmd) Run(c *cc.CommonCtx) error {
 			},
 			Base: cmd.Base,
 		})
-
 		if err != nil {
 			return errors.Wrapf(err, "list users")
 		}
@@ -100,27 +95,12 @@ type GetIdentityCmd struct {
 }
 
 func (cmd *GetIdentityCmd) Run(c *cc.CommonCtx) error {
-	conn, err := authorizer.Connection(
-		c.Context,
-		c.AuthorizerService(),
-		grpcc.NewTokenAuth(c.AccessToken()),
-	)
+	_, identity, err := NewClientWithIdentity(c, cmd.Identity)
 	if err != nil {
 		return err
 	}
 
-	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
-
-	dirClient := conn.DirectoryClient()
-	resp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
-		Identity: cmd.Identity,
-	})
-
-	if err != nil {
-		return err
-	}
-
-	return jsonx.OutputJSONPB(c.OutWriter, resp)
+	return jsonx.OutputJSONPB(c.OutWriter, identity)
 }
 
 type GetUserCmd struct {
@@ -129,27 +109,13 @@ type GetUserCmd struct {
 }
 
 func (cmd *GetUserCmd) Run(c *cc.CommonCtx) error {
-	conn, err := authorizer.Connection(
-		c.Context,
-		c.AuthorizerService(),
-		grpcc.NewTokenAuth(c.AccessToken()),
-	)
+	client, identity, err := NewClientWithIdentity(c, cmd.ID)
 	if err != nil {
 		return err
 	}
 
-	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
-
-	dirClient := conn.DirectoryClient()
-	idResp, err := dirClient.GetIdentity(ctx, &dir.GetIdentityRequest{
-		Identity: cmd.ID,
-	})
-	if err != nil {
-		return errors.Wrapf(err, "resolve identity")
-	}
-
-	resp, err := dirClient.GetUser(ctx, &dir.GetUserRequest{
-		Id:   idResp.Id,
+	resp, err := client.Directory.GetUser(c.Context, &dir.GetUserRequest{
+		Id:   identity.Id,
 		Base: cmd.Base,
 	})
 	if err != nil {

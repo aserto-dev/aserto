@@ -1,9 +1,9 @@
 package authorizer
 
 import (
+	aserto "github.com/aserto-dev/aserto-go/client"
+	"github.com/aserto-dev/aserto-go/client/grpc/authorizer"
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/grpcc"
-	"github.com/aserto-dev/aserto/pkg/grpcc/authorizer"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	authz "github.com/aserto-dev/go-grpc-authz/aserto/authorizer/authorizer/v1"
 	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
@@ -16,19 +16,17 @@ type DecisionTreeCmd struct {
 }
 
 func (cmd *DecisionTreeCmd) Run(c *cc.CommonCtx) error {
-	conn, err := authorizer.Connection(
+	client, err := authorizer.New(
 		c.Context,
-		c.AuthorizerService(),
-		grpcc.NewAPIKeyAuth(c.AuthorizerAPIKey()),
+		aserto.WithAddr(c.AuthorizerService()),
+		aserto.WithAPIKeyAuth(c.AuthorizerAPIKey()),
+		aserto.WithTenantID(c.TenantID()),
 	)
 	if err != nil {
 		return err
 	}
 
-	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
-
-	authzClient := conn.AuthorizerClient()
-	resp, err := authzClient.DecisionTree(ctx, &authz.DecisionTreeRequest{
+	resp, err := client.DecisionTree(c.Context, &authz.DecisionTreeRequest{
 		PolicyContext: &api.PolicyContext{
 			Id:        cmd.PolicyID,
 			Path:      cmd.Path,
@@ -42,7 +40,6 @@ func (cmd *DecisionTreeCmd) Run(c *cc.CommonCtx) error {
 			PathSeparator: authz.PathSeparator_PATH_SEPARATOR_DOT,
 		},
 	})
-
 	if err != nil {
 		return err
 	}

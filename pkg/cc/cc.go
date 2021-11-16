@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/aserto-dev/aserto/pkg/auth0/api"
-	"github.com/aserto-dev/aserto/pkg/grpcc"
 	"github.com/aserto-dev/aserto/pkg/keyring"
 	"github.com/aserto-dev/aserto/pkg/x"
 	"github.com/pkg/errors"
@@ -21,7 +20,7 @@ type CommonCtx struct {
 	OutWriter   io.Writer
 	ErrWriter   io.Writer
 	environment string
-	services    *grpcc.Services
+	services    *x.Services
 	_token      *api.Token
 	overrides   map[string]string
 }
@@ -30,13 +29,12 @@ func New() *CommonCtx {
 	log.SetOutput(ioutil.Discard)
 	log.SetPrefix("")
 	log.SetFlags(log.LstdFlags)
-	ctx := CommonCtx{
+	return &CommonCtx{
 		Context:   context.Background(),
 		OutWriter: os.Stdout,
 		ErrWriter: os.Stderr,
 		overrides: make(map[string]string),
 	}
-	return &ctx
 }
 
 func (ctx *CommonCtx) SetEnv(env string) error {
@@ -46,7 +44,7 @@ func (ctx *CommonCtx) SetEnv(env string) error {
 	}
 
 	var err error
-	ctx.services, err = grpcc.Environment(env)
+	ctx.services, err = x.Environment(env)
 	if err != nil {
 		return err
 	}

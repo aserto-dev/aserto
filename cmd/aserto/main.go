@@ -8,7 +8,6 @@ import (
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/cmd"
 	"github.com/aserto-dev/aserto/pkg/x"
-	"github.com/pkg/errors"
 )
 
 func main() {
@@ -30,23 +29,8 @@ func main() {
 		}),
 		kong.Vars{"defaultEnv": x.DefaultEnv},
 		kong.Bind(&cli),
+		kong.Bind(c),
 	)
-
-	if cli.Debug {
-		c.SetLogger(os.Stderr)
-	}
-
-	if err := c.SetEnv(cli.EnvOverride); err != nil {
-		ctx.FatalIfErrorf(errors.Wrapf(err, "set environment [%s]", cli.EnvOverride))
-	}
-
-	if cli.TenantOverride != "" {
-		c.Override(x.TenantIDOverride, cli.TenantOverride)
-	}
-
-	if cli.AuthorizerOverride != "" {
-		c.Override(x.AuthorizerOverride, cli.AuthorizerOverride)
-	}
 
 	if cli.IsLoginRequired() {
 		if err := c.VerifyLoggedIn(); err != nil {

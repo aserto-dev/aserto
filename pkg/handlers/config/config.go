@@ -3,12 +3,13 @@ package config
 import (
 	"fmt"
 
+	aserto "github.com/aserto-dev/aserto-go/client"
+	"github.com/aserto-dev/aserto-go/client/grpc/tenant"
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/grpcc"
-	"github.com/aserto-dev/aserto/pkg/grpcc/tenant"
 	"github.com/aserto-dev/aserto/pkg/handlers/user"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	"github.com/aserto-dev/aserto/pkg/keyring"
+	"github.com/aserto-dev/aserto/pkg/x"
 	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
 	account "github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"
 	"github.com/aserto-dev/go-lib/ids"
@@ -16,11 +17,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-type GetEnvCmd struct {
-}
+type GetEnvCmd struct{}
 
 func (cmd *GetEnvCmd) Run(c *cc.CommonCtx) error {
-	services, err := grpcc.Environment(c.Environment())
+	services, err := x.Environment(c.Environment())
 	if err != nil {
 		return err
 	}
@@ -28,25 +28,21 @@ func (cmd *GetEnvCmd) Run(c *cc.CommonCtx) error {
 	return jsonx.OutputJSON(c.OutWriter, services)
 }
 
-type GetTenantCmd struct {
-}
+type GetTenantCmd struct{}
 
 func (cmd *GetTenantCmd) Run(c *cc.CommonCtx) error {
-
-	conn, err := tenant.Connection(
+	client, err := tenant.New(
 		c.Context,
-		c.TenantService(),
-		grpcc.NewTokenAuth(c.AccessToken()),
+		aserto.WithAddr(c.TenantService()),
+		aserto.WithTokenAuth(c.AccessToken()),
 	)
 	if err != nil {
 		return err
 	}
 
-	accntClient := conn.AccountClient()
-
 	req := &account.GetAccountRequest{}
 
-	resp, err := accntClient.GetAccount(c.Context, req)
+	resp, err := client.Account.GetAccount(c.Context, req)
 	if err != nil {
 		return errors.Wrapf(err, "get account")
 	}
@@ -85,18 +81,16 @@ func (cmd *SetTenantCmd) Run(c *cc.CommonCtx) error {
 		return errors.Errorf("argument is not a valid tenant id")
 	}
 
-	conn, err := tenant.Connection(
+	conn, err := tenant.New(
 		c.Context,
-		c.TenantService(),
-		grpcc.NewTokenAuth(c.AccessToken()),
+		aserto.WithAddr(c.TenantService()),
+		aserto.WithTokenAuth(c.AccessToken()),
 	)
 	if err != nil {
 		return err
 	}
 
-	accntClient := conn.AccountClient()
-
-	getAccntResp, err := accntClient.GetAccount(c.Context, &account.GetAccountRequest{})
+	getAccntResp, err := conn.Account.GetAccount(c.Context, &account.GetAccountRequest{})
 	if err != nil {
 		return errors.Wrapf(err, "get account")
 	}
@@ -118,7 +112,7 @@ func (cmd *SetTenantCmd) Run(c *cc.CommonCtx) error {
 	tok := c.Token()
 	tok.TenantID = tnt.Id
 
-	if err := user.GetConnectionKeys(c.Context, conn, tok); err != nil {
+	if err = user.GetConnectionKeys(c.Context, conn, tok); err != nil {
 		return errors.Wrapf(err, "get connection keys")
 	}
 
@@ -137,7 +131,7 @@ func (cmd *SetTenantCmd) Run(c *cc.CommonCtx) error {
 			Account: &api.Account{DefaultTenant: cmd.ID},
 		}
 
-		if _, err := accntClient.UpdateAccount(c.Context, req); err != nil {
+		if _, err := conn.Account.UpdateAccount(c.Context, req); err != nil {
 			return errors.Wrapf(err, "update account")
 		}
 	}

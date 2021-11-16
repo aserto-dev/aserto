@@ -2,6 +2,7 @@ package pkce
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"net"
 	"net/http"
@@ -13,8 +14,10 @@ type fakeListener struct {
 	addr   *net.TCPAddr
 }
 
+var errNotImplemented = errors.New("not implemented")
+
 func (l *fakeListener) Accept() (net.Conn, error) {
-	return nil, errors.New("not implemented")
+	return nil, errNotImplemented
 }
 func (l *fakeListener) Close() error {
 	l.closed = true
@@ -57,11 +60,12 @@ func Test_localServer_ServeHTTP(t *testing.T) {
 	w1 := &responseWriter{}
 	w2 := &responseWriter{}
 
+	ctx := context.Background()
 	serveChan := make(chan struct{})
 	go func() {
-		req1, _ := http.NewRequest("GET", "http://127.0.0.1:12345/favicon.ico", nil)
+		req1, _ := http.NewRequestWithContext(ctx, "GET", "http://127.0.0.1:12345/favicon.ico", nil)
 		s.ServeHTTP(w1, req1)
-		req2, _ := http.NewRequest("GET", "http://127.0.0.1:12345/hello?code=ABC-123&state=xy%2Fz", nil)
+		req2, _ := http.NewRequestWithContext(ctx, "GET", "http://127.0.0.1:12345/hello?code=ABC-123&state=xy%2Fz", nil)
 		s.ServeHTTP(w2, req2)
 		serveChan <- struct{}{}
 	}()

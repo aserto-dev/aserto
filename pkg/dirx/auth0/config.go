@@ -20,7 +20,7 @@ type Config struct {
 	ClientSecret string `mapstructure:"client_secret"`
 }
 
-// FromEnv - create config instance from environment variables
+// FromEnv - create config instance from environment variables.
 func FromEnv() (*Config, error) {
 	a := Config{
 		Domain:       os.Getenv(envAuth0Domain),

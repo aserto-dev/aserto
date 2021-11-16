@@ -3,11 +3,10 @@ package tenant
 import (
 	"fmt"
 	"regexp"
-	"strings"
 
+	aserto "github.com/aserto-dev/aserto-go/client"
+	"github.com/aserto-dev/aserto-go/client/grpc/tenant"
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/grpcc"
-	"github.com/aserto-dev/aserto/pkg/grpcc/tenant"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
 	connection "github.com/aserto-dev/go-grpc/aserto/tenant/connection/v1"
@@ -22,30 +21,20 @@ type ListConnectionsCmd struct {
 }
 
 func (cmd ListConnectionsCmd) Run(c *cc.CommonCtx) error {
-	conn, err := tenant.Connection(
+	client, err := tenant.New(
 		c.Context,
-		c.TenantService(),
-		grpcc.NewTokenAuth(c.AccessToken()),
+		aserto.WithAddr(c.TenantService()),
+		aserto.WithTokenAuth(c.AccessToken()),
 	)
 	if err != nil {
 		return err
 	}
 
-	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
-
-	connClient := conn.ConnectionManagerClient()
-
-	req := &connection.ListConnectionsRequest{}
-
-	kindStr := strings.ToUpper(cmd.Kind)
-
-	if kind, ok := api.ProviderKind_value[kindStr]; ok {
-		req.Kind = api.ProviderKind(kind)
-	} else {
-		req.Kind = api.ProviderKind_PROVIDER_KIND_UNKNOWN
-	}
-
-	resp, err := connClient.ListConnections(ctx, req)
+	resp, err := client.Connections.ListConnections(
+		c.Context,
+		&connection.ListConnectionsRequest{
+			Kind: ProviderKind(cmd.Kind),
+		})
 	if err != nil {
 		return errors.Wrapf(err, "list connections")
 	}
@@ -58,24 +47,21 @@ type GetConnectionCmd struct {
 }
 
 func (cmd GetConnectionCmd) Run(c *cc.CommonCtx) error {
-	conn, err := tenant.Connection(
+	client, err := tenant.New(
 		c.Context,
-		c.TenantService(),
-		grpcc.NewTokenAuth(c.AccessToken()),
+		aserto.WithAddr(c.TenantService()),
+		aserto.WithTokenAuth(c.AccessToken()),
+		aserto.WithTenantID(c.TenantID()),
 	)
 	if err != nil {
 		return err
 	}
 
-	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
-
-	connClient := conn.ConnectionManagerClient()
-
 	req := &connection.GetConnectionRequest{
 		Id: cmd.ID,
 	}
 
-	resp, err := connClient.GetConnection(ctx, req)
+	resp, err := client.Connections.GetConnection(c.Context, req)
 	if err != nil {
 		return errors.Wrapf(err, "get connection [%s]", cmd.ID)
 	}
@@ -88,24 +74,21 @@ type VerifyConnectionCmd struct {
 }
 
 func (cmd VerifyConnectionCmd) Run(c *cc.CommonCtx) error {
-	conn, err := tenant.Connection(
+	client, err := tenant.New(
 		c.Context,
-		c.TenantService(),
-		grpcc.NewTokenAuth(c.AccessToken()),
+		aserto.WithAddr(c.TenantService()),
+		aserto.WithTokenAuth(c.AccessToken()),
+		aserto.WithTenantID(c.TenantID()),
 	)
 	if err != nil {
 		return err
 	}
 
-	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
-
-	connClient := conn.ConnectionManagerClient()
-
 	req := &connection.VerifyConnectionRequest{
 		Id: cmd.ID,
 	}
 
-	if _, err = connClient.VerifyConnection(ctx, req); err != nil {
+	if _, err = client.Connections.VerifyConnection(c.Context, req); err != nil {
 		st := status.Convert(err)
 		re := regexp.MustCompile(`\r?\n`)
 
@@ -138,24 +121,21 @@ type SyncConnectionCmd struct {
 }
 
 func (cmd SyncConnectionCmd) Run(c *cc.CommonCtx) error {
-	conn, err := tenant.Connection(
+	client, err := tenant.New(
 		c.Context,
-		c.TenantService(),
-		grpcc.NewTokenAuth(c.AccessToken()),
+		aserto.WithAddr(c.TenantService()),
+		aserto.WithTokenAuth(c.AccessToken()),
+		aserto.WithTenantID(c.TenantID()),
 	)
 	if err != nil {
 		return err
 	}
 
-	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
-
-	connClient := conn.ConnectionManagerClient()
-
 	getReq := &connection.GetConnectionRequest{
 		Id: cmd.ID,
 	}
 
-	curConn, err := connClient.GetConnection(ctx, getReq)
+	curConn, err := client.Connections.GetConnection(c.Context, getReq)
 	if err != nil {
 		return errors.Wrapf(err, "get connection [%s]", cmd.ID)
 	}
@@ -169,7 +149,7 @@ func (cmd SyncConnectionCmd) Run(c *cc.CommonCtx) error {
 		Force:      false,
 	}
 
-	if _, err = connClient.UpdateConnection(ctx, updReq); err != nil {
+	if _, err = client.Connections.UpdateConnection(c.Context, updReq); err != nil {
 		return errors.Wrapf(err, "update connection [%s]", cmd.ID)
 	}
 

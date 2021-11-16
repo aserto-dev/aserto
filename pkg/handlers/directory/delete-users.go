@@ -4,32 +4,29 @@ import (
 	"fmt"
 	"os"
 
+	aserto "github.com/aserto-dev/aserto-go/client"
+	"github.com/aserto-dev/aserto-go/client/grpc"
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/grpcc"
-	"github.com/aserto-dev/aserto/pkg/grpcc/authorizer"
 	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
 	dir "github.com/aserto-dev/go-grpc/aserto/authorizer/directory/v1"
 
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
-type DeleteUsersCmd struct {
-}
+type DeleteUsersCmd struct{}
 
 func (cmd *DeleteUsersCmd) Run(c *cc.CommonCtx) error {
-	conn, err := authorizer.Connection(
+	client, err := grpc.New(
 		c.Context,
-		c.AuthorizerService(),
-		grpcc.NewTokenAuth(c.AccessToken()),
+		aserto.WithAddr(c.AuthorizerService()),
+		aserto.WithTokenAuth(c.AccessToken()),
+		aserto.WithTenantID(c.TenantID()),
 	)
 	if err != nil {
 		return err
 	}
 
-	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
-
-	dirClient := conn.DirectoryClient()
-	resp, err := dirClient.ListUsers(ctx, &dir.ListUsersRequest{
+	resp, err := client.Directory.ListUsers(c.Context, &dir.ListUsersRequest{
 		Fields: &api.Fields{
 			Mask: &fieldmaskpb.FieldMask{
 				Paths: []string{"id", "email"},
@@ -55,7 +52,7 @@ func (cmd *DeleteUsersCmd) Run(c *cc.CommonCtx) error {
 		fmt.Fprintf(c.OutWriter, "starting deletion\n")
 		for i, u := range resp.Results {
 			fmt.Fprintf(os.Stderr, "\033[2K\rdeleted %d of %d", i+1, resp.Page.TotalSize)
-			if _, err := dirClient.DeleteUser(ctx, &dir.DeleteUserRequest{
+			if _, err := client.Directory.DeleteUser(c.Context, &dir.DeleteUserRequest{
 				Id: u.Id,
 			}); err != nil {
 				return err

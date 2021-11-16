@@ -1,10 +1,10 @@
 package tenant
 
 import (
+	aserto "github.com/aserto-dev/aserto-go/client"
+	"github.com/aserto-dev/aserto-go/client/grpc/tenant"
 	"github.com/aserto-dev/aserto-tenant/pkg/app/sources"
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/grpcc"
-	"github.com/aserto-dev/aserto/pkg/grpcc/tenant"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	policy "github.com/aserto-dev/go-grpc/aserto/tenant/policy/v1"
 
@@ -14,22 +14,19 @@ import (
 type ListPolicyReferencesCmd struct{}
 
 func (cmd ListPolicyReferencesCmd) Run(c *cc.CommonCtx) error {
-	conn, err := tenant.Connection(
+	client, err := tenant.New(
 		c.Context,
-		c.TenantService(),
-		grpcc.NewTokenAuth(c.AccessToken()),
+		aserto.WithAddr(c.TenantService()),
+		aserto.WithTokenAuth(c.AccessToken()),
+		aserto.WithTenantID(c.TenantID()),
 	)
 	if err != nil {
 		return err
 	}
 
-	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
-
-	policyClient := conn.PolicyClient()
-
 	req := &policy.ListPolicyRefsRequest{}
 
-	resp, err := policyClient.ListPolicyRefs(ctx, req)
+	resp, err := client.Policy.ListPolicyRefs(c.Context, req)
 	if err != nil {
 		return errors.Wrapf(err, "list policy packages")
 	}
@@ -42,21 +39,18 @@ type CreatePolicyPushKeyCmd struct {
 }
 
 func (cmd CreatePolicyPushKeyCmd) Run(c *cc.CommonCtx) error {
-	conn, err := tenant.Connection(
+	client, err := tenant.New(
 		c.Context,
-		c.TenantService(),
-		grpcc.NewTokenAuth(c.AccessToken()),
+		aserto.WithAddr(c.TenantService()),
+		aserto.WithTokenAuth(c.AccessToken()),
+		aserto.WithTenantID(c.TenantID()),
 	)
 	if err != nil {
 		return err
 	}
 
-	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
-
-	policyClient := conn.PolicyClient()
-
 	req := &policy.ListPolicyRefsRequest{}
-	resp, err := policyClient.ListPolicyRefs(ctx, req)
+	resp, err := client.Policy.ListPolicyRefs(c.Context, req)
 	if err != nil {
 		return errors.Wrapf(err, "list policy packages")
 	}

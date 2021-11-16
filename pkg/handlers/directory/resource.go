@@ -6,9 +6,9 @@ import (
 	"os"
 	"strings"
 
+	aserto "github.com/aserto-dev/aserto-go/client"
+	"github.com/aserto-dev/aserto-go/client/grpc"
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/grpcc"
-	"github.com/aserto-dev/aserto/pkg/grpcc/authorizer"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	"github.com/aserto-dev/aserto/pkg/pb"
 	dir "github.com/aserto-dev/go-grpc/aserto/authorizer/directory/v1"
@@ -22,22 +22,19 @@ type GetResCmd struct {
 }
 
 func (cmd *GetResCmd) Run(c *cc.CommonCtx) error {
-	conn, err := authorizer.Connection(
+	client, err := grpc.New(
 		c.Context,
-		c.AuthorizerService(),
-		grpcc.NewAPIKeyAuth(c.AuthorizerAPIKey()),
+		aserto.WithAddr(c.AuthorizerService()),
+		aserto.WithAPIKeyAuth(c.AuthorizerAPIKey()),
+		aserto.WithTenantID(c.TenantID()),
 	)
 	if err != nil {
 		return err
 	}
 
-	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
-
-	dirClient := conn.DirectoryClient()
-	resp, err := dirClient.GetResource(ctx, &dir.GetResourceRequest{
+	resp, err := client.Directory.GetResource(c.Context, &dir.GetResourceRequest{
 		Key: cmd.Key,
 	})
-
 	if err != nil {
 		return err
 	}
@@ -79,27 +76,24 @@ func (cmd *SetResCmd) Run(c *cc.CommonCtx) error {
 
 	if buf == nil {
 		value = structpb.Struct{}
-	} else if err := pb.BufToProto(buf, &value); err != nil {
+	} else if err = pb.BufToProto(buf, &value); err != nil { //nolint:gocritic
 		return err
 	}
 
-	conn, err := authorizer.Connection(
+	client, err := grpc.New(
 		c.Context,
-		c.AuthorizerService(),
-		grpcc.NewAPIKeyAuth(c.AuthorizerAPIKey()),
+		aserto.WithAddr(c.AuthorizerService()),
+		aserto.WithAPIKeyAuth(c.AuthorizerAPIKey()),
+		aserto.WithTenantID(c.TenantID()),
 	)
 	if err != nil {
 		return err
 	}
 
-	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
-
-	dirClient := conn.DirectoryClient()
-	resp, err := dirClient.SetResource(ctx, &dir.SetResourceRequest{
+	resp, err := client.Directory.SetResource(c.Context, &dir.SetResourceRequest{
 		Key:   cmd.Key,
 		Value: &value,
 	})
-
 	if err != nil {
 		return err
 	}
@@ -112,19 +106,17 @@ type DelResCmd struct {
 }
 
 func (cmd *DelResCmd) Run(c *cc.CommonCtx) error {
-	conn, err := authorizer.Connection(
+	client, err := grpc.New(
 		c.Context,
-		c.AuthorizerService(),
-		grpcc.NewAPIKeyAuth(c.AuthorizerAPIKey()),
+		aserto.WithAddr(c.AuthorizerService()),
+		aserto.WithAPIKeyAuth(c.AuthorizerAPIKey()),
+		aserto.WithTenantID(c.TenantID()),
 	)
 	if err != nil {
 		return err
 	}
 
-	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
-
-	dirClient := conn.DirectoryClient()
-	_, err = dirClient.DeleteResource(ctx, &dir.DeleteResourceRequest{
+	_, err = client.Directory.DeleteResource(c.Context, &dir.DeleteResourceRequest{
 		Key: cmd.Key,
 	})
 
@@ -138,20 +130,17 @@ func (cmd *DelResCmd) Run(c *cc.CommonCtx) error {
 type ListResCmd struct{}
 
 func (cmd *ListResCmd) Run(c *cc.CommonCtx) error {
-	conn, err := authorizer.Connection(
+	client, err := grpc.New(
 		c.Context,
-		c.AuthorizerService(),
-		grpcc.NewAPIKeyAuth(c.AuthorizerAPIKey()),
+		aserto.WithAddr(c.AuthorizerService()),
+		aserto.WithAPIKeyAuth(c.AuthorizerAPIKey()),
+		aserto.WithTenantID(c.TenantID()),
 	)
 	if err != nil {
 		return err
 	}
 
-	ctx := grpcc.SetTenantContext(c.Context, c.TenantID())
-
-	dirClient := conn.DirectoryClient()
-	resp, err := dirClient.ListResources(ctx, &dir.ListResourcesRequest{})
-
+	resp, err := client.Directory.ListResources(c.Context, &dir.ListResourcesRequest{})
 	if err != nil {
 		return err
 	}

@@ -10,8 +10,7 @@ import (
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 )
 
-type InfoCmd struct {
-}
+type InfoCmd struct{}
 
 func (cmd *InfoCmd) Run(c *cc.CommonCtx) error {
 	info, err := getInfo(c)
@@ -34,7 +33,7 @@ type Info struct {
 // getInfo, retrieve user profile information.
 func getInfo(c *cc.CommonCtx) (*Info, error) {
 	env := c.Environment()
-	req, err := http.NewRequest("GET", auth0.GetSettings(env).UserInfoURL, nil)
+	req, err := http.NewRequestWithContext(c.Context, "GET", auth0.GetSettings(env).UserInfoURL, nil)
 	if err != nil {
 		return nil, err
 	}

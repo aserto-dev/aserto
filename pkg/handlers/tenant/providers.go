@@ -3,9 +3,9 @@ package tenant
 import (
 	"strings"
 
+	aserto "github.com/aserto-dev/aserto-go/client"
+	"github.com/aserto-dev/aserto-go/client/grpc/tenant"
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/grpcc"
-	"github.com/aserto-dev/aserto/pkg/grpcc/tenant"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
 	provider "github.com/aserto-dev/go-grpc/aserto/tenant/provider/v1"
@@ -16,20 +16,18 @@ import (
 type ListProviderKindsCmd struct{}
 
 func (cmd ListProviderKindsCmd) Run(c *cc.CommonCtx) error {
-	conn, err := tenant.Connection(
+	client, err := tenant.New(
 		c.Context,
-		c.TenantService(),
-		grpcc.NewTokenAuth(c.AccessToken()),
+		aserto.WithAddr(c.TenantService()),
+		aserto.WithTokenAuth(c.AccessToken()),
 	)
 	if err != nil {
 		return err
 	}
 
-	provClient := conn.ProviderClient()
-
 	req := &provider.ListProviderKindsRequest{}
 
-	resp, err := provClient.ListProviderKinds(c.Context, req)
+	resp, err := client.Provider.ListProviderKinds(c.Context, req)
 	if err != nil {
 		return errors.Wrapf(err, "list provider kinds")
 	}
@@ -41,29 +39,30 @@ type ListProvidersCmd struct {
 	Kind string `help:"provider kind"`
 }
 
+func ProviderKind(kind string) api.ProviderKind {
+	kind = strings.ToUpper(kind)
+
+	if apiKind, ok := api.ProviderKind_value[kind]; ok {
+		return api.ProviderKind(apiKind)
+	}
+	return api.ProviderKind_PROVIDER_KIND_UNKNOWN
+}
+
 func (cmd ListProvidersCmd) Run(c *cc.CommonCtx) error {
-	conn, err := tenant.Connection(
+	client, err := tenant.New(
 		c.Context,
-		c.TenantService(),
-		grpcc.NewTokenAuth(c.AccessToken()),
+		aserto.WithAddr(c.TenantService()),
+		aserto.WithTokenAuth(c.AccessToken()),
 	)
 	if err != nil {
 		return err
 	}
 
-	provClient := conn.ProviderClient()
-
-	req := &provider.ListProvidersRequest{}
-
-	kindStr := strings.ToUpper(cmd.Kind)
-
-	if kind, ok := api.ProviderKind_value[kindStr]; ok {
-		req.Kind = api.ProviderKind(kind)
-	} else {
-		req.Kind = api.ProviderKind_PROVIDER_KIND_UNKNOWN
-	}
-
-	resp, err := provClient.ListProviders(c.Context, req)
+	resp, err := client.Provider.ListProviders(
+		c.Context,
+		&provider.ListProvidersRequest{
+			Kind: ProviderKind(cmd.Kind),
+		})
 	if err != nil {
 		return errors.Wrapf(err, "list providers")
 	}
@@ -76,22 +75,20 @@ type GetProviderCmd struct {
 }
 
 func (cmd GetProviderCmd) Run(c *cc.CommonCtx) error {
-	conn, err := tenant.Connection(
+	conn, err := tenant.New(
 		c.Context,
-		c.TenantService(),
-		grpcc.NewTokenAuth(c.AccessToken()),
+		aserto.WithAddr(c.TenantService()),
+		aserto.WithTokenAuth(c.AccessToken()),
 	)
 	if err != nil {
 		return err
 	}
 
-	provClient := conn.ProviderClient()
-
 	req := &provider.GetProviderRequest{
 		Id: cmd.ID,
 	}
 
-	resp, err := provClient.GetProvider(c.Context, req)
+	resp, err := conn.Provider.GetProvider(c.Context, req)
 	if err != nil {
 		return errors.Wrapf(err, "get provider [%s]", cmd.ID)
 	}
