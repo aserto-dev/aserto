@@ -1,4 +1,4 @@
-// +build !prod
+//go:build !prod
 
 package x
 
