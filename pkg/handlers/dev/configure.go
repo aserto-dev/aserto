@@ -1,117 +1,143 @@
 package dev
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
 	"path"
 	"text/template"
 
-	aserto "github.com/aserto-dev/aserto-go/client"
 	"github.com/aserto-dev/aserto-go/client/grpc/tenant"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/filex"
+	"google.golang.org/protobuf/types/known/structpb"
 
 	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
-	connection "github.com/aserto-dev/go-grpc/aserto/tenant/connection/v1"
+	"github.com/aserto-dev/go-grpc/aserto/tenant/connection/v1"
 	policy "github.com/aserto-dev/go-grpc/aserto/tenant/policy/v1"
 
-	"github.com/fatih/color"
 	"github.com/pkg/errors"
 )
 
 type ConfigureCmd struct {
-	Name string `arg:"" required:"" help:"policy name"`
+	Name   string `arg:"" required:"" help:"policy name"`
+	Stdout bool   `short:"p" help:"generated configuration is printed to stdout but not saved"`
 }
 
 func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
-	color.Green(">>> configure policy...")
-	params := templateParams{}
+	fmt.Fprintf(c.ErrWriter, ">>> configure policy...\n")
+	fmt.Fprintf(c.ErrWriter, "tenant id: %s\n", c.TenantID())
 
-	client, err := tenant.New(
-		c.Context,
-		aserto.WithAddr(c.TenantService()),
-		aserto.WithTokenAuth(c.AccessToken()),
-	)
+	client, err := tenant.New(c.Context, c.TenantSvcConnectionOptions()...)
 	if err != nil {
 		return err
 	}
 
-	fmt.Fprintf(c.OutWriter, "tenant id: %s\n", c.TenantID())
-
-	ctx := c.Context
-	policyRefResp, err := client.Policy.ListPolicyRefs(ctx, &policy.ListPolicyRefsRequest{})
+	policyRef, err := findPolicyRef(c.Context, client, cmd.Name)
 	if err != nil {
 		return err
 	}
 
-	var (
-		pack  *api.PolicyRef
-		found bool
-	)
+	discoveryConf, err := getDiscoveryConfig(c.Context, client)
+	if err != nil {
+		return err
+	}
 
-	for _, v := range policyRefResp.Results {
-		if v.Name == cmd.Name {
-			pack = v
-			found = true
-			break
+	params := templateParams{
+		TenantID:     c.TenantID(),
+		PolicyName:   policyRef.Name,
+		PolicyID:     policyRef.Id,
+		DiscoveryURL: discoveryConf.URL,
+		TenantKey:    discoveryConf.APIKey,
+	}
+
+	if params.TenantKey == "" {
+		return errors.Errorf("missing $ASERTO_TENANT_KEY env var")
+	}
+
+	fmt.Fprintf(c.ErrWriter, "policy id: %s\n", params.PolicyID)
+
+	var w io.Writer
+
+	if cmd.Stdout {
+		w = c.OutWriter
+	} else {
+		w, err = ConfigFileWriter(params.PolicyName)
+		if err != nil {
+			return err
 		}
 	}
-	if !found {
-		return errors.Errorf("policy not found [%s]", cmd.Name)
-	}
 
-	params.TenantID = c.TenantID()
-	params.PolicyName = pack.Name
-	params.PolicyID = pack.Id
-	params.RegistrySvc = c.RegistrySvc()
+	return WriteConfig(w, configTemplate, &params)
+}
 
-	fmt.Fprintf(c.OutWriter, "policy id: %s\n", params.PolicyID)
-
-	listResp, err := client.Connections.ListConnections(
-		ctx,
-		&connection.ListConnectionsRequest{
-			Kind: api.ProviderKind_PROVIDER_KIND_POLICY_REGISTRY,
-		},
-	)
+func findPolicyRef(ctx context.Context, client *tenant.Client, policyName string) (*api.PolicyRef, error) {
+	policyRefResp, err := client.Policy.ListPolicyRefs(ctx, &policy.ListPolicyRefsRequest{})
 	if err != nil {
-		return err
-	}
-	if len(listResp.Results) != 1 {
-		return errors.Errorf("policy registry connection not found")
+		return nil, err
 	}
 
-	connResp, err := client.Connections.GetConnection(
-		ctx,
-		&connection.GetConnectionRequest{
-			Id: listResp.Results[0].Id,
-		},
-	)
-	if err != nil {
-		return err
+	for _, v := range policyRefResp.Results {
+		if v.Name == policyName {
+			return v, nil
+		}
 	}
+	return nil, errors.Errorf("policy not found [%s]", policyName)
+}
 
-	connConfigMap := connResp.Result.Config.AsMap()
-	downloadKey, ok := connConfigMap["download_key"].(string)
+type discoveryConfig struct {
+	URL    string
+	APIKey string
+}
+
+func newDiscoveryConfig(config *structpb.Struct) (*discoveryConfig, error) {
+	urlField, ok := config.Fields["url"]
 	if !ok {
-		return errors.Errorf("download key not found")
+		return nil, errors.New("missing field: url")
 	}
 
-	params.DownloadAPIKey = downloadKey
+	apiKeyField, ok := config.Fields["api_key"]
+	if !ok {
+		return nil, errors.New("missing field: api_key")
+	}
 
+	return &discoveryConfig{URL: urlField.GetStringValue(), APIKey: apiKeyField.GetStringValue()}, nil
+}
+
+func getDiscoveryConfig(ctx context.Context, client *tenant.Client) (*discoveryConfig, error) {
+	resp, err := client.Connections.ListConnections(
+		ctx,
+		&connection.ListConnectionsRequest{Kind: api.ProviderKind_PROVIDER_KIND_DISCOVERY},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(resp.Results) == 0 {
+		return nil, errors.New("no discovery connections available for tenant. please contact support@aserto.com")
+	}
+
+	for _, conn := range resp.Results {
+		conResp, err := client.Connections.GetConnection(ctx, &connection.GetConnectionRequest{Id: conn.Id})
+		if err == nil {
+			conf, err := newDiscoveryConfig(conResp.Result.Config)
+			if err == nil {
+				return conf, nil
+			}
+		}
+	}
+
+	return nil, errors.Errorf("cannot find discovery configuration")
+}
+
+func ConfigFileWriter(policyName string) (io.Writer, error) {
 	configDir, err := CreateConfigDir()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	w, err := os.Create(path.Join(configDir, params.PolicyName+".yaml"))
-	if err != nil {
-		return err
-	}
-
-	err = CreateConfig(w, &params)
-
-	return err
+	return os.Create(path.Join(configDir, policyName+".yaml"))
 }
 
 func CreateConfigDir() (string, error) {
@@ -127,8 +153,8 @@ func CreateConfigDir() (string, error) {
 	return configDir, os.MkdirAll(configDir, 0700)
 }
 
-func CreateConfig(w io.Writer, params *templateParams) error {
-	t, err := template.New("config").Parse(configTemplate)
+func WriteConfig(w io.Writer, templ string, params *templateParams) error {
+	t, err := template.New("config").Parse(templ)
 	if err != nil {
 		return err
 	}
@@ -140,55 +166,3 @@ func CreateConfig(w io.Writer, params *templateParams) error {
 
 	return nil
 }
-
-type templateParams struct {
-	TenantID       string
-	DownloadAPIKey string
-	PolicyName     string
-	PolicyID       string
-	RegistrySvc    string
-}
-
-const configTemplate = `
----
-logging:
-  prod: false
-  log_level: debug
-
-directory_service:
-  path: "/app/eds/eds-{{ .PolicyName }}.db"
-
-api:
-  grpc:
-    connection_timeout_seconds: 2
-    certs:
-      tls_key_path: "/root/.config/aserto/aserto-one/certs/grpc.key"
-      tls_cert_path: "/root/.config/aserto/aserto-one/certs/grpc.crt"
-      tls_ca_cert_path: "/root/.config/aserto/aserto-one/certs/grpc-ca.crt"
-  gateway:
-    certs:
-      tls_key_path: "/root/.config/aserto/aserto-one/certs/gateway.key"
-      tls_cert_path: "/root/.config/aserto/aserto-one/certs/gateway.crt"
-      tls_ca_cert_path: "/root/.config/aserto/aserto-one/certs/gateway-ca.crt"
-
-opa:
-  instance_id: "{{ .TenantID }}"
-  store: aserto
-  graceful_shutdown_period_seconds: 2
-  config:
-    services:
-      acmecorp:
-        url: {{ .RegistrySvc }}/{{ .TenantID }}
-        response_header_timeout_seconds: 5
-        credentials:
-          bearer:
-            token: "{{ .DownloadAPIKey }}"
-    bundles:
-      {{ .PolicyID }}:
-        service: acmecorp
-        resource: "/{{ .PolicyID }}/bundle.tar.gz"
-        persist: true
-        polling:
-          min_delay_seconds: 10
-          max_delay_seconds: 30
-`

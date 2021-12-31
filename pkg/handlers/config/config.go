@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 
-	aserto "github.com/aserto-dev/aserto-go/client"
 	"github.com/aserto-dev/aserto-go/client/grpc/tenant"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/handlers/user"
@@ -31,11 +30,7 @@ func (cmd *GetEnvCmd) Run(c *cc.CommonCtx) error {
 type GetTenantCmd struct{}
 
 func (cmd *GetTenantCmd) Run(c *cc.CommonCtx) error {
-	client, err := tenant.New(
-		c.Context,
-		aserto.WithAddr(c.TenantService()),
-		aserto.WithTokenAuth(c.AccessToken()),
-	)
+	client, err := tenant.New(c.Context, c.TenantSvcConnectionOptions()...)
 	if err != nil {
 		return err
 	}
@@ -81,11 +76,7 @@ func (cmd *SetTenantCmd) Run(c *cc.CommonCtx) error {
 		return errors.Errorf("argument is not a valid tenant id")
 	}
 
-	conn, err := tenant.New(
-		c.Context,
-		aserto.WithAddr(c.TenantService()),
-		aserto.WithTokenAuth(c.AccessToken()),
-	)
+	conn, err := tenant.New(c.Context, c.TenantSvcConnectionOptions()...)
 	if err != nil {
 		return err
 	}

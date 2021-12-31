@@ -3,14 +3,13 @@ package dev
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
-	"path"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/dockerx"
-	"github.com/aserto-dev/aserto/pkg/filex"
+	"github.com/aserto-dev/aserto/pkg/handlers/dev/certs"
 	"github.com/aserto-dev/aserto/pkg/orasx"
+	localpaths "github.com/aserto-dev/aserto/pkg/paths"
 
 	"github.com/fatih/color"
 	"github.com/pkg/errors"
@@ -19,7 +18,9 @@ import (
 )
 
 type InstallCmd struct {
-	ContainerName    string `optional:""  default:"aserto-one" help:"container name"`
+	TrustCert bool `optional:"" default:"false" help:"add onebox certificate to the system's trusted CAs"`
+
+	ContainerName    string `optional:""  default:"authorizer-onebox" help:"container name"`
 	ContainerVersion string `optional:""  default:"latest" help:"container version" `
 }
 
@@ -34,55 +35,20 @@ func (cmd InstallCmd) Run(c *cc.CommonCtx) error {
 
 	color.Green(">>> installing onebox...")
 
-	home, err := os.UserHomeDir()
+	paths, err := localpaths.Create()
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to create configuration directory")
 	}
 
-	configDir := path.Join(home, "/.config/aserto/aserto-one/cfg")
-	if !filex.DirExists(configDir) {
-		if err := os.MkdirAll(configDir, 0700); err != nil {
-			return err
-		}
+	// Create onebox certs if none exist.
+	if err := certs.GenerateCerts(c.OutWriter, paths.Certs.GRPC, paths.Certs.Gateway); err != nil {
+		return errors.Wrap(err, "failed to create dev certificates")
 	}
 
-	cfgLocal := path.Join(configDir, "/local.yaml")
-	if !filex.FileExists(cfgLocal) {
-		fmt.Fprintf(c.OutWriter, "creating %s\n", cfgLocal)
-		if err := ioutil.WriteFile(cfgLocal, []byte(configTemplateLocal), 0600); err != nil {
-			return errors.Wrapf(err, "writing %s", cfgLocal)
-		}
-	}
-
-	cacheDir := path.Join(home, "/.cache/aserto/aserto-one/eds")
-	if !filex.DirExists(configDir) {
-		if err := os.MkdirAll(configDir, 0700); err != nil {
-			return err
-		}
-	}
-
-	edsFile := path.Join(cacheDir, "/eds-acmecorp-v4.db")
-	if !filex.FileExists(edsFile) {
-		fmt.Fprintf(c.OutWriter, "creating %s\n", edsFile)
-		ctx := context.Background()
-
-		resolver := orasx.NewResolver("", "", false, false, []string{}...)
-
-		fileStore := content.NewFileStore(cacheDir)
-		defer fileStore.Close()
-
-		allowedMediaTypes := []string{content.DefaultBlobMediaType, content.DefaultBlobDirMediaType}
-
-		pullOpts := []oras.PullOpt{
-			oras.WithAllowedMediaTypes(allowedMediaTypes),
-			oras.WithPullStatusTrack(os.Stdout),
-		}
-
-		ref := "ghcr.io/aserto-demo/assets/eds:v4"
-
-		_, _, err := oras.Pull(ctx, resolver, ref, fileStore, pullOpts...)
-		if err != nil {
-			return errors.Wrap(err, "pull assets/eds:v4")
+	if cmd.TrustCert {
+		fmt.Fprintln(c.OutWriter, "Adding developer certificate to system store. You may need to provide credentials.")
+		if err := certs.AddTrustedCert(paths.Certs.Gateway.CA); err != nil {
+			return errors.Wrap(err, "add gateway-ca cert to trusted certs")
 		}
 	}
 
@@ -94,33 +60,27 @@ func (cmd InstallCmd) Run(c *cc.CommonCtx) error {
 	)
 }
 
-const configTemplateLocal = `
----
-logging:
-  prod: false
-  log_level: debug
+func createDefaultEds(edsFile string) error {
+	ctx := context.Background()
 
-directory_service:
-  path: "/app/eds/eds-acmecorp-v4.db"
+	resolver := orasx.NewResolver("", "", false, false, []string{}...)
 
-api:
-  grpc:
-    connection_timeout_seconds: 2
-    certs:
-      tls_key_path: "/root/.config/aserto/aserto-one/certs/grpc.key"
-      tls_cert_path: "/root/.config/aserto/aserto-one/certs/grpc.crt"
-      tls_ca_cert_path: "/root/.config/aserto/aserto-one/certs/grpc-ca.crt"
-  gateway:
-    certs:
-      tls_key_path: "/root/.config/aserto/aserto-one/certs/gateway.key"
-      tls_cert_path: "/root/.config/aserto/aserto-one/certs/gateway.crt"
-      tls_ca_cert_path: "/root/.config/aserto/aserto-one/certs/gateway-ca.crt"
+	fileStore := content.NewFileStore(edsFile)
+	defer fileStore.Close()
 
-opa:
-  instance_id: "5d7cccc6-1657-11ec-a291-00001df0866c"
-  store: aserto
-  graceful_shutdown_period_seconds: 2
-  local_bundles:
-    paths: []
-    skip_verification: true
-`
+	allowedMediaTypes := []string{content.DefaultBlobMediaType, content.DefaultBlobDirMediaType}
+
+	pullOpts := []oras.PullOpt{
+		oras.WithAllowedMediaTypes(allowedMediaTypes),
+		oras.WithPullStatusTrack(os.Stdout),
+	}
+
+	ref := "ghcr.io/aserto-demo/assets/eds:v4"
+
+	_, _, err := oras.Pull(ctx, resolver, ref, fileStore, pullOpts...)
+	if err != nil {
+		return errors.Wrap(err, "pull assets/eds:v4")
+	}
+
+	return nil
+}

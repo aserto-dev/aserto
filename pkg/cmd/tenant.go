@@ -9,6 +9,7 @@ type TenantCmd struct {
 	GetAccount           tenant.GetAccountCmd           `cmd:"" group:"tenant" help:"get account info"`
 	ListConnections      tenant.ListConnectionsCmd      `cmd:"" group:"tenant" help:"list connections"`
 	GetConnection        tenant.GetConnectionCmd        `cmd:"" group:"tenant" help:"get connection instance info"`
+	UpdateConnection     tenant.UpdateConnectionCmd     `cmd:"" group:"tenant" help:"update connection configuration fields"`
 	VerifyConnection     tenant.VerifyConnectionCmd     `cmd:"" group:"tenant" help:"verify connection settings"`
 	SyncConnection       tenant.SyncConnectionCmd       `cmd:"" group:"tenant" help:"trigger sync of IDP connection"`
 	ListPolicyReferences tenant.ListPolicyReferencesCmd `cmd:"" group:"tenant" help:"list policy references"`

@@ -4,13 +4,15 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 	"time"
 
+	aserto "github.com/aserto-dev/aserto-go/client"
 	"github.com/aserto-dev/aserto/pkg/auth0/api"
 	"github.com/aserto-dev/aserto/pkg/keyring"
+	"github.com/aserto-dev/aserto/pkg/paths"
 	"github.com/aserto-dev/aserto/pkg/x"
 	"github.com/pkg/errors"
 )
@@ -19,6 +21,7 @@ type CommonCtx struct {
 	Context     context.Context
 	OutWriter   io.Writer
 	ErrWriter   io.Writer
+	Insecure    bool
 	environment string
 	services    *x.Services
 	_token      *api.Token
@@ -26,7 +29,7 @@ type CommonCtx struct {
 }
 
 func New() *CommonCtx {
-	log.SetOutput(ioutil.Discard)
+	log.SetOutput(io.Discard)
 	log.SetPrefix("")
 	log.SetFlags(log.LstdFlags)
 	return &CommonCtx{
@@ -105,6 +108,34 @@ func (ctx *CommonCtx) TenantID() string {
 	return ctx.token().TenantID
 }
 
+func (ctx *CommonCtx) TenantSvcConnectionOptions(opts ...aserto.ConnectionOption) []aserto.ConnectionOption {
+	return ctx.SvcConnectionOptions(ctx.TenantService(), opts...)
+}
+
+func (ctx *CommonCtx) AuthorizerSvcConnectionOptions(opts ...aserto.ConnectionOption) []aserto.ConnectionOption {
+	return ctx.SvcConnectionOptions(ctx.AuthorizerService(), opts...)
+}
+
+func (ctx *CommonCtx) SvcConnectionOptions(addr string, opts ...aserto.ConnectionOption) []aserto.ConnectionOption {
+	options := []aserto.ConnectionOption{
+		aserto.WithAddr(addr),
+		aserto.WithTokenAuth(ctx.AccessToken()),
+		aserto.WithTenantID(ctx.TenantID()),
+		aserto.WithInsecure(ctx.Insecure),
+	}
+
+	if strings.Contains(addr, "localhost") && !ctx.Insecure {
+		p, err := paths.New()
+		if err == nil {
+			options = append(options, aserto.WithCACertPath(p.Certs.GRPC.CA))
+		} else {
+			fmt.Fprintln(ctx.ErrWriter, "Unable to locate onebox certificates.", err.Error())
+		}
+	}
+
+	return append(options, opts...)
+}
+
 func (ctx *CommonCtx) AuthorizerService() string {
 	if authorizer, ok := ctx.overrides[x.AuthorizerOverride]; ok {
 		fmt.Fprintf(ctx.ErrWriter, "!!! authorizer override [%s]\n", authorizer)
@@ -117,10 +148,6 @@ func (ctx *CommonCtx) AuthorizerAPIKey() string {
 	return ctx.token().AuthorizerAPIKey
 }
 
-func (ctx *CommonCtx) RegistrySvc() string {
-	return ctx.services.RegistryService
-}
-
 func (ctx *CommonCtx) RegistryDownloadKey() string {
 	return ctx.token().RegistryDownloadKey
 }
@@ -129,12 +156,20 @@ func (ctx *CommonCtx) RegistryUploadKey() string {
 	return ctx.token().RegistryUploadKey
 }
 
+func (ctx *CommonCtx) DecisionLogsKey() string {
+	return ctx.token().DecisionLogsKey
+}
+
 func (ctx *CommonCtx) TenantService() string {
 	return ctx.services.TenantService
 }
 
 func (ctx *CommonCtx) TasksService() string {
 	return ctx.services.TasksService
+}
+
+func (ctx *CommonCtx) DecisionLogsService() string {
+	return ctx.services.DecisionLogsService
 }
 
 func (ctx *CommonCtx) token() *api.Token {

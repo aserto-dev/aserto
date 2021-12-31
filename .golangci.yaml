@@ -43,7 +43,7 @@ linters-settings:
     settings:
       mnd:
         # don't include the "operation" and "assign"
-        checks: argument,case,condition,return
+        checks: [argument, case, condition, return]
   govet:
     check-shadowing: true
     settings:
@@ -68,18 +68,23 @@ linters:
   # inverted configuration with `enable-all` and `disable` is not scalable during updates of golangci-lint
   disable-all: true
   enable:
+    - asciicheck
     - bodyclose
     - deadcode
     - depguard
     - dogsled
+    - dupl
     - errcheck
-    - exportloopref
     - exhaustive
+    - exportloopref
     - funlen
     - gochecknoinits
+    - gocognit
     - goconst
     - gocritic
     - gocyclo
+    - godot
+    - goerr113
     - gofmt
     - goimports
     - goprintffuncname
@@ -89,6 +94,11 @@ linters:
     - ineffassign
     - misspell
     - nakedret
+    - nestif
+    - noctx
+    - nolintlint
+    - prealloc
+    - revive
     - rowserrcheck
     - staticcheck
     - structcheck
@@ -98,30 +108,15 @@ linters:
     - unparam
     - unused
     - varcheck
-
-  # don't enable:
-  # - asciicheck
-  # - dupl
-  # - scopelint
-  # - gochecknoglobals
-  # - gocognit
-  # - godot
-  # - godox
-  # - goerr113
-  # - gomnd
-  # - interfacer
-  # - lll
-  # - maligned
-  # - nestif
-  # - noctx
-  # - nolintlint
-  # - prealloc
-  # - testpackage
-  # - revive
-  # - wsl
-  # - whitespace
-
-issues:
+    # - gochecknoglobals
+    # - godox
+    # - gomnd
+    # - lll
+    # - testpackage
+    # - whitespace
+    # - wsl
+ 
+ #issues:
   # List of regexps of issue texts to exclude, empty list by default.
   # But independently from this option we use default exclude patterns,
   # it can be disabled by `exclude-use-default: false`. To list all

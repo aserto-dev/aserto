@@ -50,6 +50,40 @@ func OutputJSONPB(w io.Writer, msg proto.Message, opts ...protojson.MarshalOptio
 	return nil
 }
 
+func OutputJSONPBMap(w io.Writer, m map[string]proto.Message) error {
+	prettyJSON, err := json.MarshalIndent(m, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	if _, err := w.Write(prettyJSON); err != nil {
+		return err
+	}
+
+	if _, err := w.Write([]byte("\n")); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func OutputJSONPBArray(w io.Writer, a []proto.Message) error {
+	prettyJSON, err := json.MarshalIndent(a, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	if _, err := w.Write(prettyJSON); err != nil {
+		return err
+	}
+
+	if _, err := w.Write([]byte("\n")); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func EncodeJSONPB(w io.Writer, msg proto.Message, opts ...protojson.MarshalOptions) error {
 	options := DefaultMarshalOpts()
 	if len(opts) == 1 {

@@ -13,4 +13,5 @@ type Token struct {
 	AuthorizerAPIKey    string    `json:"authorizer_api_key"`
 	RegistryDownloadKey string    `json:"registry_download_key"`
 	RegistryUploadKey   string    `json:"registry_upload_key"`
+	DecisionLogsKey     string    `json:"decision_logs_key"`
 }

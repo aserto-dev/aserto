@@ -3,8 +3,8 @@ package tenant
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 
-	aserto "github.com/aserto-dev/aserto-go/client"
 	"github.com/aserto-dev/aserto-go/client/grpc/tenant"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
@@ -14,6 +14,7 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/structpb"
 )
 
 type ListConnectionsCmd struct {
@@ -21,11 +22,7 @@ type ListConnectionsCmd struct {
 }
 
 func (cmd ListConnectionsCmd) Run(c *cc.CommonCtx) error {
-	client, err := tenant.New(
-		c.Context,
-		aserto.WithAddr(c.TenantService()),
-		aserto.WithTokenAuth(c.AccessToken()),
-	)
+	client, err := tenant.New(c.Context, c.TenantSvcConnectionOptions()...)
 	if err != nil {
 		return err
 	}
@@ -47,12 +44,7 @@ type GetConnectionCmd struct {
 }
 
 func (cmd GetConnectionCmd) Run(c *cc.CommonCtx) error {
-	client, err := tenant.New(
-		c.Context,
-		aserto.WithAddr(c.TenantService()),
-		aserto.WithTokenAuth(c.AccessToken()),
-		aserto.WithTenantID(c.TenantID()),
-	)
+	client, err := tenant.New(c.Context, c.TenantSvcConnectionOptions()...)
 	if err != nil {
 		return err
 	}
@@ -74,12 +66,7 @@ type VerifyConnectionCmd struct {
 }
 
 func (cmd VerifyConnectionCmd) Run(c *cc.CommonCtx) error {
-	client, err := tenant.New(
-		c.Context,
-		aserto.WithAddr(c.TenantService()),
-		aserto.WithTokenAuth(c.AccessToken()),
-		aserto.WithTenantID(c.TenantID()),
-	)
+	client, err := tenant.New(c.Context, c.TenantSvcConnectionOptions()...)
 	if err != nil {
 		return err
 	}
@@ -116,17 +103,118 @@ func (cmd VerifyConnectionCmd) Run(c *cc.CommonCtx) error {
 	return nil
 }
 
+type UpdateConnectionCmd struct {
+	ID string `arg:"" required:"" help:"connection id"`
+
+	Name        string            `optional:"" help:"connection name"`
+	Description string            `optional:"" help:"connection description"`
+	Kind        string            `optional:"" help:"connection kind: use 'tenant list-provider-kinds' for list of allowed values"`
+	ProviderID  string            `optional:"" help:"id of the provider used by the connection"`
+	Config      map[string]string `optional:"" help:"connection config values (--config key1=val1 --config key2=val2 ...)"`
+}
+
+var (
+	ErrUnsupportedConfigType = errors.New("found unsupported type")
+	ErrUnknownConfigOption   = errors.New("unknown config option")
+	ErrInvalidProviderKind   = errors.New("invalid provider kind")
+)
+
+func (cmd *UpdateConnectionCmd) Run(c *cc.CommonCtx) error {
+	client, err := tenant.New(c.Context, c.TenantSvcConnectionOptions()...)
+	if err != nil {
+		return err
+	}
+
+	getResponse, err := client.Connections.GetConnection(c.Context, &connection.GetConnectionRequest{Id: cmd.ID})
+	if err != nil {
+		return errors.Wrapf(err, "get connection [%s]", cmd.ID)
+	}
+
+	conn := getResponse.Result
+
+	if cmd.Name != "" {
+		conn.Name = cmd.Name
+	}
+	if cmd.Description != "" {
+		conn.Description = cmd.Description
+	}
+	if cmd.Kind != "" {
+		value, ok := api.ProviderKind_value[cmd.Kind]
+		if !ok {
+			return errors.Wrap(ErrInvalidProviderKind, cmd.Kind)
+		}
+
+		conn.Kind = api.ProviderKind(value)
+	}
+	if cmd.ProviderID != "" {
+		conn.ProviderId = cmd.ProviderID
+	}
+
+	if err := applyConfigOverrides(conn.Config.Fields, cmd.Config); err != nil {
+		return err
+	}
+
+	if _, err := client.Connections.UpdateConnection(
+		c.Context,
+		&connection.UpdateConnectionRequest{Connection: conn},
+	); err != nil {
+		return errors.Wrap(err, "update connection")
+	}
+
+	return jsonx.OutputJSONPB(c.OutWriter, conn)
+}
+
+func applyConfigOverrides(config map[string]*structpb.Value, overrides map[string]string) error {
+	for key, override := range overrides {
+
+		value, ok := config[key]
+		if !ok {
+			return errors.Wrap(ErrUnknownConfigOption, key)
+		}
+
+		switch value.GetKind().(type) {
+		case *structpb.Value_StringValue:
+			config[key] = structpb.NewStringValue(override)
+
+		case *structpb.Value_NumberValue:
+			asFloat, err := strconv.ParseFloat(override, 64)
+			if err != nil {
+				return typeMismatch(err, key, "number", override)
+			}
+
+			config[key] = structpb.NewNumberValue(asFloat)
+
+		case *structpb.Value_BoolValue:
+			asBool, err := strconv.ParseBool(override)
+			if err != nil {
+				return typeMismatch(err, key, "bool", override)
+			}
+
+			config[key] = structpb.NewBoolValue(asBool)
+
+		default:
+			return errors.Wrapf(ErrUnsupportedConfigType, "key '%s': type '%T', value: '%v'", key, override, override)
+		}
+	}
+
+	return nil
+}
+
+func typeMismatch(err error, key, expectedType, actualValue string) error {
+	return errors.Wrapf(err,
+		"type mismatch: config value '%s': expected type '%s': received: '%s'",
+		key,
+		expectedType,
+		actualValue,
+	)
+}
+
 type SyncConnectionCmd struct {
 	ID string `arg:"" required:"" help:"connection id"`
 }
 
 func (cmd SyncConnectionCmd) Run(c *cc.CommonCtx) error {
-	client, err := tenant.New(
-		c.Context,
-		aserto.WithAddr(c.TenantService()),
-		aserto.WithTokenAuth(c.AccessToken()),
-		aserto.WithTenantID(c.TenantID()),
-	)
+	client, err := tenant.New(c.Context, c.TenantSvcConnectionOptions()...)
 	if err != nil {
 		return err
 	}

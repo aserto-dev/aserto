@@ -8,7 +8,7 @@ import (
 )
 
 type UpdateCmd struct {
-	ContainerName    string `optional:""  default:"aserto-one" help:"container name"`
+	ContainerName    string `optional:""  default:"authorizer-onebox" help:"container name"`
 	ContainerVersion string `optional:""  default:"latest" help:"container version" `
 }
 

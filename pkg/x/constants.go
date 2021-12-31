@@ -10,20 +10,12 @@ const (
 const (
 	EnvProduction  string = "prod"
 	EnvEngineering string = "eng"
+	EnvBeta        string = "beta"
 )
 
 // overrides.
 const (
-	AuthorizerOverride string = "authorizer-override"
-	TenantIDOverride   string = "tenant-id-override"
-)
-
-// property names.
-const (
-	PropertyAccessToken         string = "access-token"
-	PropertyTenantID            string = "tenant-id"
-	PropertyAuthorizerAPIKey    string = "authorizer-api-key"
-	PropertyRegistryDownloadKey string = "registry-download-key"
-	PropertyRegistryUploadKey   string = "registry-upload-key"
-	PropertyToken               string = "token"
+	AuthorizerOverride         string = "authorizer-override"
+	TenantIDOverride           string = "tenant-id-override"
+	DecisionLogsAPIKeyOverride string = "decision-logs-api-key"
 )

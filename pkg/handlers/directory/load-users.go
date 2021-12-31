@@ -3,7 +3,6 @@ package directory
 import (
 	"context"
 
-	aserto "github.com/aserto-dev/aserto-go/client"
 	"github.com/aserto-dev/aserto-go/client/grpc/tenant"
 	"github.com/aserto-dev/aserto-tenant/pkg/app/providers"
 	"github.com/aserto-dev/aserto/pkg/cc"
@@ -31,12 +30,7 @@ func (cmd *LoadUsersCmd) Run(c *cc.CommonCtx) error {
 func auth0ConfigFromConnection(c *cc.CommonCtx) (*auth0.Config, error) {
 	cfg := auth0.Config{}
 
-	client, err := tenant.New(
-		context.Background(),
-		aserto.WithAddr(c.TenantService()),
-		aserto.WithTokenAuth(c.AccessToken()),
-		aserto.WithTenantID(c.TenantID()),
-	)
+	client, err := tenant.New(context.Background(), c.AuthorizerSvcConnectionOptions()...)
 	if err != nil {
 		return nil, err
 	}

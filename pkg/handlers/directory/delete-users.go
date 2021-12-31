@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	aserto "github.com/aserto-dev/aserto-go/client"
 	"github.com/aserto-dev/aserto-go/client/grpc"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
@@ -16,12 +15,7 @@ import (
 type DeleteUsersCmd struct{}
 
 func (cmd *DeleteUsersCmd) Run(c *cc.CommonCtx) error {
-	client, err := grpc.New(
-		c.Context,
-		aserto.WithAddr(c.AuthorizerService()),
-		aserto.WithTokenAuth(c.AccessToken()),
-		aserto.WithTenantID(c.TenantID()),
-	)
+	client, err := grpc.New(c.Context, c.AuthorizerSvcConnectionOptions()...)
 	if err != nil {
 		return err
 	}

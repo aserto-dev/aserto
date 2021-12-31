@@ -1,7 +1,6 @@
 package tenant
 
 import (
-	aserto "github.com/aserto-dev/aserto-go/client"
 	"github.com/aserto-dev/aserto-go/client/grpc/tenant"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
@@ -13,11 +12,7 @@ import (
 type GetAccountCmd struct{}
 
 func (cmd GetAccountCmd) Run(c *cc.CommonCtx) error {
-	conn, err := tenant.New(
-		c.Context,
-		aserto.WithAddr(c.TenantService()),
-		aserto.WithTokenAuth(c.AccessToken()),
-	)
+	conn, err := tenant.New(c.Context, c.TenantSvcConnectionOptions()...)
 	if err != nil {
 		return err
 	}

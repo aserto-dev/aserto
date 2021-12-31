@@ -2,7 +2,7 @@ package user
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	"github.com/aserto-dev/aserto/pkg/auth0"
@@ -33,7 +33,7 @@ type Info struct {
 // getInfo, retrieve user profile information.
 func getInfo(c *cc.CommonCtx) (*Info, error) {
 	env := c.Environment()
-	req, err := http.NewRequestWithContext(c.Context, "GET", auth0.GetSettings(env).UserInfoURL, nil)
+	req, err := http.NewRequestWithContext(c.Context, "GET", auth0.GetSettings(env).UserInfoURL, http.NoBody)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func getInfo(c *cc.CommonCtx) (*Info, error) {
 
 	var info Info
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}

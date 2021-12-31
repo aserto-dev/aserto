@@ -1,7 +1,6 @@
 package authorizer
 
 import (
-	aserto "github.com/aserto-dev/aserto-go/client"
 	"github.com/aserto-dev/aserto-go/client/grpc/authorizer"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
@@ -17,12 +16,7 @@ type EvalDecisionCmd struct {
 }
 
 func (cmd *EvalDecisionCmd) Run(c *cc.CommonCtx) error {
-	client, err := authorizer.New(
-		c.Context,
-		aserto.WithAddr(c.AuthorizerService()),
-		aserto.WithAPIKeyAuth(c.AuthorizerAPIKey()),
-		aserto.WithTenantID(c.TenantID()),
-	)
+	client, err := authorizer.New(c.Context, c.AuthorizerSvcConnectionOptions()...)
 	if err != nil {
 		return err
 	}
