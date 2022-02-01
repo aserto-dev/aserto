@@ -4,14 +4,13 @@ import (
 	aserto "github.com/aserto-dev/aserto-go/client"
 	"github.com/aserto-dev/aserto-go/client/authorizer"
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/go-kit/kit/transport/grpc"
 
 	dir "github.com/aserto-dev/go-grpc/aserto/authorizer/directory/v1"
 
 	"github.com/pkg/errors"
 )
 
-func NewClientWithIdentity(c *cc.CommonCtx, id string) (*grpc.Client, *dir.GetIdentityResponse, error) {
+func NewClientWithIdentity(c *cc.CommonCtx, id string) (*authorizer.Client, *dir.GetIdentityResponse, error) {
 	client, err := authorizer.New(
 		c.Context,
 		aserto.WithAddr(c.AuthorizerService()),

@@ -26,7 +26,7 @@ func (cmd *DecisionTreeCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	resp, err := client.DecisionTree(c.Context, &authz.DecisionTreeRequest{
+	resp, err := client.Authorizer.DecisionTree(c.Context, &authz.DecisionTreeRequest{
 		PolicyContext: &api.PolicyContext{
 			Id:        cmd.PolicyID,
 			Path:      cmd.Path,

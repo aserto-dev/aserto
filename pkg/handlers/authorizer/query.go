@@ -25,7 +25,7 @@ func (cmd *ExecQueryCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	resp, err := client.Query(c.Context, &authz.QueryRequest{
+	resp, err := client.Authorizer.Query(c.Context, &authz.QueryRequest{
 		Query: cmd.Statement,
 		Input: cmd.Input,
 		IdentityContext: &api.IdentityContext{

@@ -27,7 +27,7 @@ func (cmd *EvalDecisionCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	resp, err := client.Is(c.Context, &authz.IsRequest{
+	resp, err := client.Authorizer.Is(c.Context, &authz.IsRequest{
 		PolicyContext: &api.PolicyContext{
 			Id:        cmd.PolicyID,
 			Path:      cmd.Path,
