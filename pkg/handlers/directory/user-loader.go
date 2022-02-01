@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	aserto "github.com/aserto-dev/aserto-go/client"
-	"github.com/aserto-dev/aserto-go/client/grpc"
+	"github.com/aserto-dev/aserto-go/client/authorizer"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/dirx"
 	"github.com/aserto-dev/aserto/pkg/dirx/auth0"
@@ -20,7 +20,7 @@ type UserLoader struct {
 }
 
 func (userLoader *UserLoader) Load(c *cc.CommonCtx, requestFactory dirx.LoadUsersRequestFactory) error {
-	client, err := grpc.New(
+	client, err := authorizer.New(
 		c.Context,
 		aserto.WithAddr(c.AuthorizerService()),
 		aserto.WithTokenAuth(c.AccessToken()),

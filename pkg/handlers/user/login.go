@@ -7,7 +7,7 @@ import (
 	"time"
 
 	aserto "github.com/aserto-dev/aserto-go/client"
-	"github.com/aserto-dev/aserto-go/client/grpc/tenant"
+	"github.com/aserto-dev/aserto-go/client/tenant"
 	"github.com/aserto-dev/aserto/pkg/auth0"
 	auth0api "github.com/aserto-dev/aserto/pkg/auth0/api"
 	"github.com/aserto-dev/aserto/pkg/auth0/pkce"

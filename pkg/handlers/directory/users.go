@@ -2,7 +2,7 @@ package directory
 
 import (
 	aserto "github.com/aserto-dev/aserto-go/client"
-	"github.com/aserto-dev/aserto-go/client/grpc"
+	"github.com/aserto-dev/aserto-go/client/authorizer"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
@@ -19,7 +19,7 @@ type ListUsersCmd struct {
 }
 
 func (cmd *ListUsersCmd) Run(c *cc.CommonCtx) error {
-	client, err := grpc.New(
+	client, err := authorizer.New(
 		c.Context,
 		aserto.WithAddr(c.AuthorizerService()),
 		aserto.WithTokenAuth(c.AccessToken()),

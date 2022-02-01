@@ -2,7 +2,7 @@ package directory
 
 import (
 	aserto "github.com/aserto-dev/aserto-go/client"
-	"github.com/aserto-dev/aserto-go/client/grpc"
+	"github.com/aserto-dev/aserto-go/client/authorizer"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	dir "github.com/aserto-dev/go-grpc/aserto/authorizer/directory/v1"
@@ -22,7 +22,7 @@ func (cmd *SetUserCmd) Run(c *cc.CommonCtx) error {
 		return errors.Errorf("must provide either --disable or --enable flag")
 	}
 
-	client, err := grpc.New(
+	client, err := authorizer.New(
 		c.Context,
 		aserto.WithAddr(c.AuthorizerService()),
 		aserto.WithTokenAuth(c.AccessToken()),

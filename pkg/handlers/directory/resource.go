@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	aserto "github.com/aserto-dev/aserto-go/client"
-	"github.com/aserto-dev/aserto-go/client/grpc"
+	"github.com/aserto-dev/aserto-go/client/authorizer"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	"github.com/aserto-dev/aserto/pkg/pb"
@@ -22,7 +22,7 @@ type GetResCmd struct {
 }
 
 func (cmd *GetResCmd) Run(c *cc.CommonCtx) error {
-	client, err := grpc.New(
+	client, err := authorizer.New(
 		c.Context,
 		aserto.WithAddr(c.AuthorizerService()),
 		aserto.WithAPIKeyAuth(c.AuthorizerAPIKey()),
@@ -80,7 +80,7 @@ func (cmd *SetResCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	client, err := grpc.New(
+	client, err := authorizer.New(
 		c.Context,
 		aserto.WithAddr(c.AuthorizerService()),
 		aserto.WithAPIKeyAuth(c.AuthorizerAPIKey()),
@@ -106,7 +106,7 @@ type DelResCmd struct {
 }
 
 func (cmd *DelResCmd) Run(c *cc.CommonCtx) error {
-	client, err := grpc.New(
+	client, err := authorizer.New(
 		c.Context,
 		aserto.WithAddr(c.AuthorizerService()),
 		aserto.WithAPIKeyAuth(c.AuthorizerAPIKey()),
@@ -130,7 +130,7 @@ func (cmd *DelResCmd) Run(c *cc.CommonCtx) error {
 type ListResCmd struct{}
 
 func (cmd *ListResCmd) Run(c *cc.CommonCtx) error {
-	client, err := grpc.New(
+	client, err := authorizer.New(
 		c.Context,
 		aserto.WithAddr(c.AuthorizerService()),
 		aserto.WithAPIKeyAuth(c.AuthorizerAPIKey()),
