@@ -63,9 +63,9 @@ func Test_localServer_ServeHTTP(t *testing.T) {
 	ctx := context.Background()
 	serveChan := make(chan struct{})
 	go func() {
-		req1, _ := http.NewRequestWithContext(ctx, "GET", "http://127.0.0.1:12345/favicon.ico", nil)
+		req1, _ := http.NewRequestWithContext(ctx, "GET", "http://127.0.0.1:12345/favicon.ico", http.NoBody)
 		s.ServeHTTP(w1, req1)
-		req2, _ := http.NewRequestWithContext(ctx, "GET", "http://127.0.0.1:12345/hello?code=ABC-123&state=xy%2Fz", nil)
+		req2, _ := http.NewRequestWithContext(ctx, "GET", "http://127.0.0.1:12345/hello?code=ABC-123&state=xy%2Fz", http.NoBody)
 		s.ServeHTTP(w2, req2)
 		serveChan <- struct{}{}
 	}()

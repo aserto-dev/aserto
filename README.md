@@ -77,7 +77,14 @@ developer
   developer console      launch web console
   developer configure    configure a policy
   developer install      install aserto onebox
-  developer uninstall    uninstall aserto onebox, removes all locally installed artifacts
+  developer uninstall    uninstall aserto onebox, removes all locally installed
+                         artifacts
+
+decision-logs
+  decision-logs list          list available decision log files
+  decision-logs get           download one or more decision log files
+  decision-logs list-users    list available user data files
+  decision-logs get-user      download one or more user data files
 
 user
   user info    get user profile information

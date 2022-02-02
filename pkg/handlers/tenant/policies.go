@@ -1,8 +1,7 @@
 package tenant
 
 import (
-	aserto "github.com/aserto-dev/aserto-go/client"
-	"github.com/aserto-dev/aserto-go/client/grpc/tenant"
+	"github.com/aserto-dev/aserto-go/client/tenant"
 	"github.com/aserto-dev/aserto-tenant/pkg/app/sources"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
@@ -14,12 +13,7 @@ import (
 type ListPolicyReferencesCmd struct{}
 
 func (cmd ListPolicyReferencesCmd) Run(c *cc.CommonCtx) error {
-	client, err := tenant.New(
-		c.Context,
-		aserto.WithAddr(c.TenantService()),
-		aserto.WithTokenAuth(c.AccessToken()),
-		aserto.WithTenantID(c.TenantID()),
-	)
+	client, err := tenant.New(c.Context, c.TenantSvcConnectionOptions()...)
 	if err != nil {
 		return err
 	}
@@ -39,12 +33,7 @@ type CreatePolicyPushKeyCmd struct {
 }
 
 func (cmd CreatePolicyPushKeyCmd) Run(c *cc.CommonCtx) error {
-	client, err := tenant.New(
-		c.Context,
-		aserto.WithAddr(c.TenantService()),
-		aserto.WithTokenAuth(c.AccessToken()),
-		aserto.WithTenantID(c.TenantID()),
-	)
+	client, err := tenant.New(c.Context, c.TenantSvcConnectionOptions()...)
 	if err != nil {
 		return err
 	}

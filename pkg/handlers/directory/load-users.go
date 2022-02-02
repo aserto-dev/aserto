@@ -3,8 +3,7 @@ package directory
 import (
 	"context"
 
-	aserto "github.com/aserto-dev/aserto-go/client"
-	"github.com/aserto-dev/aserto-go/client/grpc/tenant"
+	"github.com/aserto-dev/aserto-go/client/tenant"
 	"github.com/aserto-dev/aserto-tenant/pkg/app/providers"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/dirx"
@@ -24,19 +23,14 @@ type LoadUsersCmd struct {
 }
 
 func (cmd *LoadUsersCmd) Run(c *cc.CommonCtx) error {
-	loader := UserLoader{Provider: cmd.Provider, Profile: cmd.Profile, File: cmd.Profile}
+	loader := UserLoader{Provider: cmd.Provider, Profile: cmd.Profile, File: cmd.File}
 	return loader.Load(c, dirx.NewLoadUsersRequestFactory(cmd.InclUserExt))
 }
 
 func auth0ConfigFromConnection(c *cc.CommonCtx) (*auth0.Config, error) {
 	cfg := auth0.Config{}
 
-	client, err := tenant.New(
-		context.Background(),
-		aserto.WithAddr(c.TenantService()),
-		aserto.WithTokenAuth(c.AccessToken()),
-		aserto.WithTenantID(c.TenantID()),
-	)
+	client, err := tenant.New(context.Background(), c.AuthorizerSvcConnectionOptions()...)
 	if err != nil {
 		return nil, err
 	}

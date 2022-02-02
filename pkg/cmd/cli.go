@@ -15,6 +15,7 @@ type CLI struct {
 	Authorizer         AuthorizerCmd     `cmd:"" aliases:"a" help:"authorizer commands"`
 	Tenant             TenantCmd         `cmd:"" aliases:"t" help:"tenant commands"`
 	Directory          DirectoryCmd      `cmd:"" aliases:"d" help:"directory commands"`
+	DecisionLogs       DecisionLogsCmd   `cmd:"" aliases:"l" help:"decision logs commands"`
 	Developer          DeveloperCmd      `cmd:"" aliases:"x" help:"developer commands"`
 	User               UserCmd           `cmd:"" aliases:"u" help:"user commands"`
 	Login              user.LoginCmd     `cmd:"" help:"login"`
@@ -22,6 +23,7 @@ type CLI struct {
 	Config             ConfigCmd         `cmd:"" aliases:"c" help:"configuration commands"`
 	Version            VersionCmd        `cmd:"" help:"version information"`
 	Verbose            bool              `name:"verbose" help:"verbose output"`
+	Insecure           insecure          `name:"insecure" help:"skip TLS verification"`
 	AuthorizerOverride authorizerAddress `name:"authorizer" env:"ASERTO_AUTHORIZER" help:"authorizer override"`
 	TenantOverride     tenantID          `name:"tenant" env:"ASERTO_TENANT_ID" help:"tenant id override"`
 	EnvOverride        environment       `name:"env" default:"${defaultEnv}" env:"ASERTO_ENV" hidden:"" help:"environment override"`
@@ -38,6 +40,17 @@ func (cmd *CLI) IsLoginRequired() bool {
 }
 
 func (cmd *CLI) Run(c *cc.CommonCtx) error {
+	return nil
+}
+
+// An option to disable TLS verification.
+type insecure bool
+
+func (ins insecure) AfterApply(c *cc.CommonCtx) error {
+	if ins {
+		c.Insecure = bool(ins)
+	}
+
 	return nil
 }
 
@@ -59,7 +72,6 @@ func (tenantID tenantID) AfterApply(c *cc.CommonCtx) error {
 		c.Override(x.TenantIDOverride, string(tenantID))
 	}
 	return nil
-
 }
 
 // An option to set an Aserto environment (e.g. "prod", "eng").
@@ -81,8 +93,7 @@ func (dbg debug) AfterApply(c *cc.CommonCtx) error {
 	return nil
 }
 
-type VersionCmd struct {
-}
+type VersionCmd struct{}
 
 func (cmd *VersionCmd) Run(c *cc.CommonCtx) error {
 	fmt.Fprintf(c.OutWriter, "%s - %s (%s)\n",

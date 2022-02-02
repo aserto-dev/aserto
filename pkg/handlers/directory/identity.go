@@ -1,8 +1,7 @@
 package directory
 
 import (
-	aserto "github.com/aserto-dev/aserto-go/client"
-	"github.com/aserto-dev/aserto-go/client/grpc"
+	"github.com/aserto-dev/aserto-go/client/authorizer"
 	"github.com/aserto-dev/aserto/pkg/cc"
 
 	dir "github.com/aserto-dev/go-grpc/aserto/authorizer/directory/v1"
@@ -10,13 +9,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-func NewClientWithIdentity(c *cc.CommonCtx, id string) (*grpc.Client, *dir.GetIdentityResponse, error) {
-	client, err := grpc.New(
-		c.Context,
-		aserto.WithAddr(c.AuthorizerService()),
-		aserto.WithTokenAuth(c.AccessToken()),
-		aserto.WithTenantID(c.TenantID()),
-	)
+func NewClientWithIdentity(c *cc.CommonCtx, id string) (*authorizer.Client, *dir.GetIdentityResponse, error) {
+	client, err := authorizer.New(c.Context, c.AuthorizerSvcConnectionOptions()...)
 	if err != nil {
 		return nil, nil, err
 	}

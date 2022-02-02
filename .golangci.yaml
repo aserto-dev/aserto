@@ -43,7 +43,7 @@ linters-settings:
     settings:
       mnd:
         # don't include the "operation" and "assign"
-        checks: argument,case,condition,return
+        checks: [argument, case, condition, return]
   govet:
     check-shadowing: true
     settings:
@@ -98,30 +98,8 @@ linters:
     - unparam
     - unused
     - varcheck
-
-  # don't enable:
-  # - asciicheck
-  # - dupl
-  # - scopelint
-  # - gochecknoglobals
-  # - gocognit
-  # - godot
-  # - godox
-  # - goerr113
-  # - gomnd
-  # - interfacer
-  # - lll
-  # - maligned
-  # - nestif
-  # - noctx
-  # - nolintlint
-  # - prealloc
-  # - testpackage
-  # - revive
-  # - wsl
-  # - whitespace
-
-issues:
+ 
+ #issues:
   # List of regexps of issue texts to exclude, empty list by default.
   # But independently from this option we use default exclude patterns,
   # it can be disabled by `exclude-use-default: false`. To list all
@@ -143,5 +121,6 @@ issues:
       - gocritic      
 
 run:
+  timeout: 2m
   skip-dirs:
   - pkg/testharness/testdata
