@@ -1,7 +1,7 @@
 package tenant
 
 import (
-	"github.com/aserto-dev/aserto-go/client/grpc/tenant"
+	"github.com/aserto-dev/aserto-go/client/tenant"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	account "github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"

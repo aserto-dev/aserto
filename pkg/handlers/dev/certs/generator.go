@@ -11,7 +11,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
-func GenerateCerts(out io.Writer, certPaths ...*paths.CertPaths) error {
+func GenerateCerts(logOut, errOut io.Writer, certPaths ...*paths.CertPaths) error {
 	existingFiles := []string{}
 
 	for _, cert := range certPaths {
@@ -19,16 +19,16 @@ func GenerateCerts(out io.Writer, certPaths ...*paths.CertPaths) error {
 	}
 
 	if len(existingFiles) != 0 {
-		fmt.Fprintln(out, "Some cert files already exist. Skipping generation.", existingFiles)
+		fmt.Fprintln(logOut, "Some cert files already exist. Skipping generation.", existingFiles)
 		return nil
 	}
 
-	return generate(out, certPaths...)
+	return generate(logOut, errOut, certPaths...)
 }
 
-func generate(out io.Writer, certPaths ...*paths.CertPaths) error {
+func generate(logOut, errOut io.Writer, certPaths ...*paths.CertPaths) error {
 	zerologLogger, err := logger.NewLogger(
-		out,
+		logOut, errOut,
 		&logger.Config{Prod: false, LogLevel: "warn", LogLevelParsed: zerolog.WarnLevel},
 	)
 	if err != nil {

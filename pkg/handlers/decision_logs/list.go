@@ -11,6 +11,7 @@ import (
 )
 
 type ListCmd struct {
+	Policies []string `optional:"" sep:"," help:"IDs of policies to list logs for (all if not specified)"`
 }
 
 func (cmd ListCmd) Run(c *cc.CommonCtx, apiKey APIKey) error {
@@ -19,20 +20,21 @@ func (cmd ListCmd) Run(c *cc.CommonCtx, apiKey APIKey) error {
 	if err != nil {
 		return err
 	}
-	results, err := listDecisionLogs(ctx, cli)
+	results, err := listDecisionLogs(ctx, cli, cmd.Policies)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	return jsonx.OutputJSONPBArray(c.OutWriter, results)
 }
 
-func listDecisionLogs(ctx context.Context, cli dl.DecisionLogsClient) ([]proto.Message, error) {
+func listDecisionLogs(ctx context.Context, cli dl.DecisionLogsClient, policies []string) ([]proto.Message, error) {
 	next := func(ctx context.Context, token string) (*dl.ListDecisionLogsResponse, error) {
 		return cli.ListDecisionLogs(ctx, &dl.ListDecisionLogsRequest{
 			Page: &api.PaginationRequest{
 				Token: token,
 			},
+			Policies: policies,
 		})
 	}
 

@@ -1,7 +1,7 @@
 package authorizer
 
 import (
-	"github.com/aserto-dev/aserto-go/client/grpc/authorizer"
+	"github.com/aserto-dev/aserto-go/client/authorizer"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	authz "github.com/aserto-dev/go-grpc-authz/aserto/authorizer/authorizer/v1"
@@ -19,7 +19,7 @@ func (cmd *ExecQueryCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	resp, err := client.Query(c.Context, &authz.QueryRequest{
+	resp, err := client.Authorizer.Query(c.Context, &authz.QueryRequest{
 		Query: cmd.Statement,
 		Input: cmd.Input,
 		IdentityContext: &api.IdentityContext{

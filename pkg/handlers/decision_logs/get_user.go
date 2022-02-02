@@ -28,7 +28,7 @@ func (cmd GetUserCmd) Run(c *cc.CommonCtx, apiKey APIKey) error {
 	return impl.run()
 }
 
-func (cmd *GetUserCmd) list(ctx context.Context, cli dl.DecisionLogsClient) ([]proto.Message, error) {
+func (cmd *GetUserCmd) list(ctx context.Context, cli dl.DecisionLogsClient, paths []string) ([]proto.Message, error) {
 	return listUsers(ctx, cli)
 }
 

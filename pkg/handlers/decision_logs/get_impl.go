@@ -5,15 +5,21 @@ import (
 	"io/fs"
 	"os"
 	"path"
+	"strings"
+	"sync"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	dl "github.com/aserto-dev/go-grpc/aserto/decision_logs/v1"
+	"github.com/hashicorp/go-multierror"
+	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
 )
 
+const concurrency = 10
+
 type getter interface {
-	list(context.Context, dl.DecisionLogsClient) ([]proto.Message, error)
+	list(context.Context, dl.DecisionLogsClient, []string) ([]proto.Message, error)
 	get(context.Context, dl.DecisionLogsClient, string) (proto.Message, error)
 	idFromListItem(proto.Message) string
 	urlFromItem(proto.Message) string
@@ -27,6 +33,12 @@ type getImpl struct {
 	localPath string
 	apiKey    APIKey
 	getter    getter
+	dirPaths  []string
+}
+
+type item struct {
+	id  string
+	msg proto.Message
 }
 
 func (impl *getImpl) run() error {
@@ -47,27 +59,74 @@ func (impl *getImpl) run() error {
 		ids = []string{impl.id}
 	}
 
-	users, err := impl.get(ctx, cli, ids)
+	items, err := impl.get(ctx, cli, ids)
 	if err != nil {
 		return err
 	}
 
 	if impl.info {
-		return jsonx.OutputJSONPBMap(impl.c.OutWriter, users)
+		return jsonx.OutputJSONPBMap(impl.c.OutWriter, items)
 	}
 
-	for id, msg := range users {
-		url := impl.getter.urlFromItem(msg)
-		err := download(ctx, id, url, impl.localPath)
-		if err != nil {
-			return err
+	itemCh := make(chan item)
+	errCh := make(chan error, len(items))
+	done := sync.WaitGroup{}
+
+	done.Add(concurrency)
+	for worker := 0; worker < concurrency; worker++ {
+		go func() {
+			defer done.Done()
+
+			for itm := range itemCh {
+				url := impl.getter.urlFromItem(itm.msg)
+				dlerr := download(ctx, itm.id, url, impl.localPath)
+				if dlerr != nil {
+					errCh <- errors.Wrapf(dlerr, "error downloading '%s'", itm.id)
+				}
+			}
+		}()
+	}
+
+	for id, msg := range items {
+		itemCh <- item{
+			id:  id,
+			msg: msg,
 		}
+	}
+	close(itemCh)
+	done.Wait()
+
+	for done := false; !done; {
+		select {
+		case dlerr := <-errCh:
+			err = multierror.Append(err, dlerr)
+		default:
+			done = true
+		}
+	}
+	close(errCh)
+
+	if err != nil {
+		return err
 	}
 
 	return nil
 }
 
-func (impl *getImpl) calculateGet(ctx context.Context, cli dl.DecisionLogsClient) ([]string, error) {
+func (impl *getImpl) isInPaths(p string) bool {
+	if impl.dirPaths == nil {
+		return true
+	}
+	for _, v := range impl.dirPaths {
+		if strings.HasPrefix(v, p) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (impl *getImpl) getOldItems() (map[string]fs.FileInfo, error) {
 	localPath := impl.localPath
 	if !path.IsAbs(localPath) {
 		wd, err := os.Getwd()
@@ -80,12 +139,18 @@ func (impl *getImpl) calculateGet(ctx context.Context, cli dl.DecisionLogsClient
 
 	logFS := os.DirFS(localPath)
 	oldItems := map[string]fs.FileInfo{}
-	err := fs.WalkDir(logFS, ".", func(path string, d fs.DirEntry, err error) error {
+
+	walkFunc := func(fileDirPath string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 		if d.IsDir() {
-			if d.Name() != "." {
+			if d.Name() == "." {
+				return nil
+			}
+
+			newPath := path.Join(fileDirPath, d.Name())
+			if !impl.isInPaths(newPath) {
 				return fs.SkipDir
 			}
 
@@ -95,14 +160,30 @@ func (impl *getImpl) calculateGet(ctx context.Context, cli dl.DecisionLogsClient
 		if err != nil {
 			return nil
 		}
-		oldItems[path] = info
+		oldItems[fileDirPath] = info
 		return nil
-	})
+	}
+
+	err := fs.WalkDir(logFS, ".", walkFunc)
 	if err != nil {
 		return nil, err
 	}
 
-	items, err := impl.getter.list(ctx, cli)
+	return oldItems, nil
+}
+
+func (impl *getImpl) calculateGet(ctx context.Context, cli dl.DecisionLogsClient) ([]string, error) {
+	var oldItems map[string]fs.FileInfo
+	var err error
+
+	if !impl.info {
+		oldItems, err = impl.getOldItems()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	items, err := impl.getter.list(ctx, cli, impl.dirPaths)
 	if err != nil {
 		return nil, err
 	}

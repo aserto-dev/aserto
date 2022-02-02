@@ -3,7 +3,7 @@ package directory
 import (
 	"context"
 
-	"github.com/aserto-dev/aserto-go/client/grpc/tenant"
+	"github.com/aserto-dev/aserto-go/client/tenant"
 	"github.com/aserto-dev/aserto-tenant/pkg/app/providers"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/dirx"
@@ -23,7 +23,7 @@ type LoadUsersCmd struct {
 }
 
 func (cmd *LoadUsersCmd) Run(c *cc.CommonCtx) error {
-	loader := UserLoader{Provider: cmd.Provider, Profile: cmd.Profile, File: cmd.Profile}
+	loader := UserLoader{Provider: cmd.Provider, Profile: cmd.Profile, File: cmd.File}
 	return loader.Load(c, dirx.NewLoadUsersRequestFactory(cmd.InclUserExt))
 }
 

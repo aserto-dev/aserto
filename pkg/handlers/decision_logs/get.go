@@ -10,9 +10,10 @@ import (
 )
 
 type GetCmd struct {
-	Name string `xor:"group" optional:"" help:"download decision logs"`
-	Path string `arg:"" optional:"" help:"download path"`
-	Info bool   `xor:"group2" optional:"" help:"get information about the logs, don't download"`
+	Name     string   `arg:"" optional:"" help:"download decision logs"`
+	Path     string   `optional:"" help:"download path"`
+	Info     bool     `xor:"group2" optional:"" help:"get information about the logs, don't download"`
+	Policies []string `optional:"" sep:"," help:"ID of policies to get logs for (all if not specified)"`
 }
 
 func (cmd GetCmd) Run(c *cc.CommonCtx, apiKey APIKey) error {
@@ -23,13 +24,14 @@ func (cmd GetCmd) Run(c *cc.CommonCtx, apiKey APIKey) error {
 		localPath: cmd.Path,
 		apiKey:    apiKey,
 		getter:    &cmd,
+		dirPaths:  cmd.Policies,
 	}
 
 	return impl.run()
 }
 
-func (cmd *GetCmd) list(ctx context.Context, cli dl.DecisionLogsClient) ([]proto.Message, error) {
-	return listDecisionLogs(ctx, cli)
+func (cmd *GetCmd) list(ctx context.Context, cli dl.DecisionLogsClient, paths []string) ([]proto.Message, error) {
+	return listDecisionLogs(ctx, cli, paths)
 }
 
 func (cmd *GetCmd) get(ctx context.Context, cli dl.DecisionLogsClient, id string) (proto.Message, error) {

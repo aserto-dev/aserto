@@ -41,7 +41,7 @@ func (cmd InstallCmd) Run(c *cc.CommonCtx) error {
 	}
 
 	// Create onebox certs if none exist.
-	if err := certs.GenerateCerts(c.OutWriter, paths.Certs.GRPC, paths.Certs.Gateway); err != nil {
+	if err := certs.GenerateCerts(c.OutWriter, c.ErrWriter, paths.Certs.GRPC, paths.Certs.Gateway); err != nil {
 		return errors.Wrap(err, "failed to create dev certificates")
 	}
 

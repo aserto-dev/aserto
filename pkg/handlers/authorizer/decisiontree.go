@@ -1,7 +1,7 @@
 package authorizer
 
 import (
-	"github.com/aserto-dev/aserto-go/client/grpc/authorizer"
+	"github.com/aserto-dev/aserto-go/client/authorizer"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	authz "github.com/aserto-dev/go-grpc-authz/aserto/authorizer/authorizer/v1"
@@ -20,7 +20,7 @@ func (cmd *DecisionTreeCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	resp, err := client.DecisionTree(c.Context, &authz.DecisionTreeRequest{
+	resp, err := client.Authorizer.DecisionTree(c.Context, &authz.DecisionTreeRequest{
 		PolicyContext: &api.PolicyContext{
 			Id:        cmd.PolicyID,
 			Path:      cmd.Path,

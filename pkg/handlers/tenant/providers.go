@@ -3,7 +3,7 @@ package tenant
 import (
 	"strings"
 
-	"github.com/aserto-dev/aserto-go/client/grpc/tenant"
+	"github.com/aserto-dev/aserto-go/client/tenant"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	api "github.com/aserto-dev/go-grpc/aserto/api/v1"

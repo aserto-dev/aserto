@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"strings"
 )
 
 func download(ctx context.Context, name, url, downloadDir string) error {
@@ -39,6 +40,15 @@ func download(ctx context.Context, name, url, downloadDir string) error {
 	_, err = tmpFile.ReadFrom(httpResp.Body)
 	if err != nil {
 		return err
+	}
+
+	lastSep := strings.LastIndex(name, "/")
+	if lastSep != -1 {
+		subDir := path.Join(downloadDir, name[:lastSep])
+		err = os.MkdirAll(subDir, 0700)
+		if err != nil {
+			return err
+		}
 	}
 
 	finalPath := path.Join(downloadDir, name)

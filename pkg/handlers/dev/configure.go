@@ -8,7 +8,7 @@ import (
 	"path"
 	"text/template"
 
-	"github.com/aserto-dev/aserto-go/client/grpc/tenant"
+	"github.com/aserto-dev/aserto-go/client/tenant"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/filex"
 	"google.golang.org/protobuf/types/known/structpb"
