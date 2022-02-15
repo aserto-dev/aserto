@@ -148,14 +148,6 @@ func (ctx *CommonCtx) AuthorizerAPIKey() string {
 	return ctx.token().AuthorizerAPIKey
 }
 
-func (ctx *CommonCtx) RegistryDownloadKey() string {
-	return ctx.token().RegistryDownloadKey
-}
-
-func (ctx *CommonCtx) RegistryUploadKey() string {
-	return ctx.token().RegistryUploadKey
-}
-
 func (ctx *CommonCtx) DecisionLogsKey() string {
 	return ctx.token().DecisionLogsKey
 }

@@ -148,13 +148,6 @@ func GetConnectionKeys(ctx context.Context, client *tenant.Client, tok *auth0api
 			} else {
 				return errors.Wrapf(err, "get connection [%s]", cn.Id)
 			}
-		case api.ProviderKind_PROVIDER_KIND_POLICY_REGISTRY:
-			if respX, err := GetConnection(ctx, client, cn.Id); err == nil {
-				tok.RegistryDownloadKey = respX.Result.Config.Fields["download_key"].GetStringValue()
-				tok.RegistryUploadKey = respX.Result.Config.Fields["api_key"].GetStringValue()
-			} else {
-				return errors.Wrapf(err, "get connection [%s]", cn.Id)
-			}
 		case api.ProviderKind_PROVIDER_KIND_DECISION_LOGS:
 			if respX, err := GetConnection(ctx, client, cn.Id); err == nil {
 				tok.DecisionLogsKey = respX.Result.Config.Fields["api_key"].GetStringValue()
