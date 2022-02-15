@@ -12,10 +12,3 @@ const (
 	EnvEngineering string = "eng"
 	EnvBeta        string = "beta"
 )
-
-// overrides.
-const (
-	AuthorizerOverride         string = "authorizer-override"
-	TenantIDOverride           string = "tenant-id-override"
-	DecisionLogsAPIKeyOverride string = "decision-logs-api-key"
-)

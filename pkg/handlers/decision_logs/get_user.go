@@ -15,13 +15,12 @@ type GetUserCmd struct {
 	Info bool   `xor:"group2" optional:"" help:"get information about the logs, don't download"`
 }
 
-func (cmd GetUserCmd) Run(c *cc.CommonCtx, apiKey APIKey) error {
+func (cmd GetUserCmd) Run(c *cc.CommonCtx) error {
 	impl := getImpl{
 		c:         c,
 		id:        cmd.ID,
 		info:      cmd.Info,
 		localPath: cmd.Path,
-		apiKey:    apiKey,
 		getter:    &cmd,
 	}
 

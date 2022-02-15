@@ -16,13 +16,12 @@ type GetCmd struct {
 	Policies []string `optional:"" sep:"," help:"ID of policies to get logs for (all if not specified)"`
 }
 
-func (cmd GetCmd) Run(c *cc.CommonCtx, apiKey APIKey) error {
+func (cmd GetCmd) Run(c *cc.CommonCtx) error {
 	impl := getImpl{
 		c:         c,
 		id:        cmd.Name,
 		info:      cmd.Info,
 		localPath: cmd.Path,
-		apiKey:    apiKey,
 		getter:    &cmd,
 		dirPaths:  cmd.Policies,
 	}

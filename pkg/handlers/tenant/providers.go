@@ -3,7 +3,6 @@ package tenant
 import (
 	"strings"
 
-	"github.com/aserto-dev/aserto-go/client/tenant"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
@@ -15,10 +14,7 @@ import (
 type ListProviderKindsCmd struct{}
 
 func (cmd ListProviderKindsCmd) Run(c *cc.CommonCtx) error {
-	client, err := tenant.New(
-		c.Context,
-		c.TenantSvcConnectionOptions()...,
-	)
+	client, err := c.TenantClient()
 	if err != nil {
 		return err
 	}
@@ -47,10 +43,7 @@ func ProviderKind(kind string) api.ProviderKind {
 }
 
 func (cmd ListProvidersCmd) Run(c *cc.CommonCtx) error {
-	client, err := tenant.New(
-		c.Context,
-		c.TenantSvcConnectionOptions()...,
-	)
+	client, err := c.TenantClient()
 	if err != nil {
 		return err
 	}
@@ -72,10 +65,7 @@ type GetProviderCmd struct {
 }
 
 func (cmd GetProviderCmd) Run(c *cc.CommonCtx) error {
-	conn, err := tenant.New(
-		c.Context,
-		c.TenantSvcConnectionOptions()...,
-	)
+	conn, err := c.TenantClient()
 	if err != nil {
 		return err
 	}

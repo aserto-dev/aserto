@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/aserto-dev/aserto-go/client/authorizer"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	dir "github.com/aserto-dev/go-grpc/aserto/authorizer/directory/v1"
@@ -215,7 +214,7 @@ type SetApplPermCmd struct {
 }
 
 func (cmd *SetApplPermCmd) Run(c *cc.CommonCtx) error {
-	client, err := authorizer.New(c.Context, c.AuthorizerSvcConnectionOptions()...)
+	client, err := c.AuthorizerClient()
 	if err != nil {
 		return err
 	}

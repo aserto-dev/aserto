@@ -1,7 +1,6 @@
 package authorizer
 
 import (
-	"github.com/aserto-dev/aserto-go/client/authorizer"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	authz "github.com/aserto-dev/go-grpc-authz/aserto/authorizer/authorizer/v1"
@@ -14,7 +13,7 @@ type ExecQueryCmd struct {
 }
 
 func (cmd *ExecQueryCmd) Run(c *cc.CommonCtx) error {
-	client, err := authorizer.New(c.Context, c.AuthorizerSvcConnectionOptions()...)
+	client, err := c.AuthorizerClient()
 	if err != nil {
 		return err
 	}

@@ -6,7 +6,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/aserto-dev/aserto-go/client/authorizer"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	"github.com/aserto-dev/aserto/pkg/pb"
@@ -21,7 +20,7 @@ type GetResCmd struct {
 }
 
 func (cmd *GetResCmd) Run(c *cc.CommonCtx) error {
-	client, err := authorizer.New(c.Context, c.AuthorizerSvcConnectionOptions()...)
+	client, err := c.AuthorizerClient()
 	if err != nil {
 		return err
 	}
@@ -74,7 +73,7 @@ func (cmd *SetResCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	client, err := authorizer.New(c.Context, c.AuthorizerSvcConnectionOptions()...)
+	client, err := c.AuthorizerClient()
 	if err != nil {
 		return err
 	}
@@ -95,7 +94,7 @@ type DelResCmd struct {
 }
 
 func (cmd *DelResCmd) Run(c *cc.CommonCtx) error {
-	client, err := authorizer.New(c.Context, c.AuthorizerSvcConnectionOptions()...)
+	client, err := c.AuthorizerClient()
 	if err != nil {
 		return err
 	}
@@ -114,7 +113,7 @@ func (cmd *DelResCmd) Run(c *cc.CommonCtx) error {
 type ListResCmd struct{}
 
 func (cmd *ListResCmd) Run(c *cc.CommonCtx) error {
-	client, err := authorizer.New(c.Context, c.AuthorizerSvcConnectionOptions()...)
+	client, err := c.AuthorizerClient()
 	if err != nil {
 		return err
 	}

@@ -1,7 +1,6 @@
 package tenant
 
 import (
-	"github.com/aserto-dev/aserto-go/client/tenant"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	policy "github.com/aserto-dev/go-grpc/aserto/tenant/policy/v1"
@@ -12,7 +11,7 @@ import (
 type ListPolicyReferencesCmd struct{}
 
 func (cmd ListPolicyReferencesCmd) Run(c *cc.CommonCtx) error {
-	client, err := tenant.New(c.Context, c.TenantSvcConnectionOptions()...)
+	client, err := c.TenantClient()
 	if err != nil {
 		return err
 	}

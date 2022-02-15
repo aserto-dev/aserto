@@ -5,7 +5,6 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/aserto-dev/aserto-go/client/tenant"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
@@ -22,7 +21,7 @@ type ListConnectionsCmd struct {
 }
 
 func (cmd ListConnectionsCmd) Run(c *cc.CommonCtx) error {
-	client, err := tenant.New(c.Context, c.TenantSvcConnectionOptions()...)
+	client, err := c.TenantClient()
 	if err != nil {
 		return err
 	}
@@ -44,7 +43,7 @@ type GetConnectionCmd struct {
 }
 
 func (cmd GetConnectionCmd) Run(c *cc.CommonCtx) error {
-	client, err := tenant.New(c.Context, c.TenantSvcConnectionOptions()...)
+	client, err := c.TenantClient()
 	if err != nil {
 		return err
 	}
@@ -66,7 +65,7 @@ type VerifyConnectionCmd struct {
 }
 
 func (cmd VerifyConnectionCmd) Run(c *cc.CommonCtx) error {
-	client, err := tenant.New(c.Context, c.TenantSvcConnectionOptions()...)
+	client, err := c.TenantClient()
 	if err != nil {
 		return err
 	}
@@ -120,7 +119,7 @@ var (
 )
 
 func (cmd *UpdateConnectionCmd) Run(c *cc.CommonCtx) error {
-	client, err := tenant.New(c.Context, c.TenantSvcConnectionOptions()...)
+	client, err := c.TenantClient()
 	if err != nil {
 		return err
 	}
@@ -214,7 +213,7 @@ type SyncConnectionCmd struct {
 }
 
 func (cmd SyncConnectionCmd) Run(c *cc.CommonCtx) error {
-	client, err := tenant.New(c.Context, c.TenantSvcConnectionOptions()...)
+	client, err := c.TenantClient()
 	if err != nil {
 		return err
 	}

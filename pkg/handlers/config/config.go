@@ -3,12 +3,10 @@ package config
 import (
 	"fmt"
 
-	"github.com/aserto-dev/aserto-go/client/tenant"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/handlers/user"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	"github.com/aserto-dev/aserto/pkg/keyring"
-	"github.com/aserto-dev/aserto/pkg/x"
 	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
 	account "github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"
 	"github.com/aserto-dev/go-lib/ids"
@@ -19,18 +17,13 @@ import (
 type GetEnvCmd struct{}
 
 func (cmd *GetEnvCmd) Run(c *cc.CommonCtx) error {
-	services, err := x.Environment(c.Environment())
-	if err != nil {
-		return err
-	}
-
-	return jsonx.OutputJSON(c.OutWriter, services)
+	return jsonx.OutputJSON(c.OutWriter, c.Services)
 }
 
 type GetTenantCmd struct{}
 
 func (cmd *GetTenantCmd) Run(c *cc.CommonCtx) error {
-	client, err := tenant.New(c.Context, c.TenantSvcConnectionOptions()...)
+	client, err := c.TenantClient()
 	if err != nil {
 		return err
 	}
@@ -76,7 +69,7 @@ func (cmd *SetTenantCmd) Run(c *cc.CommonCtx) error {
 		return errors.Errorf("argument is not a valid tenant id")
 	}
 
-	conn, err := tenant.New(c.Context, c.TenantSvcConnectionOptions()...)
+	conn, err := c.TenantClient()
 	if err != nil {
 		return err
 	}

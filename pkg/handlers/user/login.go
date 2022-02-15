@@ -89,7 +89,6 @@ func (d *LoginCmd) Run(c *cc.CommonCtx) error {
 		c.Context,
 		aserto.WithAddr(svcs.TenantService),
 		aserto.WithTokenAuth(tok.Access),
-		aserto.WithInsecure(c.Insecure),
 	)
 	if err != nil {
 		return err

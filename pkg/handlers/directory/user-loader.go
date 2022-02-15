@@ -3,7 +3,6 @@ package directory
 import (
 	"fmt"
 
-	"github.com/aserto-dev/aserto-go/client/authorizer"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/dirx"
 	"github.com/aserto-dev/aserto/pkg/dirx/auth0"
@@ -19,7 +18,7 @@ type UserLoader struct {
 }
 
 func (userLoader *UserLoader) Load(c *cc.CommonCtx, requestFactory dirx.LoadUsersRequestFactory) error {
-	client, err := authorizer.New(c.Context, c.AuthorizerSvcConnectionOptions()...)
+	client, err := c.AuthorizerClient()
 	if err != nil {
 		return err
 	}

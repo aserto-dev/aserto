@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/handlers/directory"
+	"github.com/aserto-dev/aserto/pkg/x"
 )
 
 type DirectoryCmd struct {
@@ -41,10 +42,12 @@ type DirectoryCmd struct {
 	GetRes  directory.GetResCmd  `cmd:"" help:"get resource" group:"tenant resources"`
 	SetRes  directory.SetResCmd  `cmd:"" help:"set resource" group:"tenant resources"`
 	DelRes  directory.DelResCmd  `cmd:"" help:"delete resource" group:"tenant resources"`
+
+	AuthorizerOverrides AuthorizerOptions `embed:"" envprefix:"ASERTO_AUTHORIZER_"`
 }
 
-func (cmd *DirectoryCmd) BeforeApply(c *CLI) error {
-	c.RequireLogin()
+func (cmd *DirectoryCmd) AfterApply(co ConnectionOverrides) error {
+	co.Override(x.AuthorizerService, &cmd.AuthorizerOverrides)
 	return nil
 }
 

@@ -14,9 +14,9 @@ type ListCmd struct {
 	Policies []string `optional:"" sep:"," help:"IDs of policies to list logs for (all if not specified)"`
 }
 
-func (cmd ListCmd) Run(c *cc.CommonCtx, apiKey APIKey) error {
+func (cmd ListCmd) Run(c *cc.CommonCtx) error {
 	ctx := c.Context
-	cli, err := newClient(c, apiKey)
+	cli, err := c.DecisionLogsClient()
 	if err != nil {
 		return err
 	}

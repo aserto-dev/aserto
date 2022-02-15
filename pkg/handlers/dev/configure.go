@@ -29,7 +29,7 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 	fmt.Fprintf(c.ErrWriter, ">>> configure policy...\n")
 	fmt.Fprintf(c.ErrWriter, "tenant id: %s\n", c.TenantID())
 
-	client, err := tenant.New(c.Context, c.TenantSvcConnectionOptions()...)
+	client, err := c.TenantClient()
 	if err != nil {
 		return err
 	}
