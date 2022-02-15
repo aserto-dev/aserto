@@ -100,10 +100,14 @@ blobs:
     provider: gs
     bucket: aserto-cli
     folder: "aserto/{{ .Version }}"
+    extra_files:
+      - glob: VERSION.txt
   -
     provider: gs
     bucket: aserto-cli
     folder: "aserto/latest"
+    extra_files:
+      - glob: VERSION.txt
 
 brews:
   -
