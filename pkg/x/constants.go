@@ -10,5 +10,4 @@ const (
 const (
 	EnvProduction  string = "prod"
 	EnvEngineering string = "eng"
-	EnvBeta        string = "beta"
 )
