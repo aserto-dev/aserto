@@ -89,7 +89,6 @@ func (d *LoginCmd) Run(c *cc.CommonCtx) error {
 		c.Context,
 		aserto.WithAddr(svcs.TenantService),
 		aserto.WithTokenAuth(tok.Access),
-		aserto.WithInsecure(c.Insecure),
 	)
 	if err != nil {
 		return err
@@ -145,13 +144,6 @@ func GetConnectionKeys(ctx context.Context, client *tenant.Client, tok *auth0api
 		case api.ProviderKind_PROVIDER_KIND_AUTHORIZER:
 			if respX, err := GetConnection(ctx, client, cn.Id); err == nil {
 				tok.AuthorizerAPIKey = respX.Result.Config.Fields["api_key"].GetStringValue()
-			} else {
-				return errors.Wrapf(err, "get connection [%s]", cn.Id)
-			}
-		case api.ProviderKind_PROVIDER_KIND_POLICY_REGISTRY:
-			if respX, err := GetConnection(ctx, client, cn.Id); err == nil {
-				tok.RegistryDownloadKey = respX.Result.Config.Fields["download_key"].GetStringValue()
-				tok.RegistryUploadKey = respX.Result.Config.Fields["api_key"].GetStringValue()
 			} else {
 				return errors.Wrapf(err, "get connection [%s]", cn.Id)
 			}

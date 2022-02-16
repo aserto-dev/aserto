@@ -11,11 +11,6 @@ type ConfigCmd struct {
 	GetEnv    config.GetEnvCmd    `cmd:"" help:"get environment info" group:"config"`
 }
 
-func (cmd *ConfigCmd) BeforeApply(c *CLI) error {
-	c.RequireLogin()
-	return nil
-}
-
 func (cmd *ConfigCmd) Run(c *cc.CommonCtx) error {
 	return nil
 }

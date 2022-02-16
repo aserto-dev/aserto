@@ -10,8 +10,8 @@ type UserCmd struct {
 	Get  user.GetCmd  `cmd:"" group:"user" help:"get property"`
 }
 
-func (cmd *UserCmd) BeforeApply(c *CLI) error {
-	c.RequireLogin()
+func (cmd *UserCmd) BeforeApply(co ConnectionOverrides) error {
+	co.RequireToken()
 	return nil
 }
 

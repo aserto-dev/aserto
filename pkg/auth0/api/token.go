@@ -15,3 +15,7 @@ type Token struct {
 	RegistryUploadKey   string    `json:"registry_upload_key"`
 	DecisionLogsKey     string    `json:"decision_logs_key"`
 }
+
+func (t *Token) IsExpired() bool {
+	return time.Now().UTC().After(t.ExpiresAt)
+}

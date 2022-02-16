@@ -13,9 +13,9 @@ import (
 type ListUsersCmd struct {
 }
 
-func (cmd ListUsersCmd) Run(c *cc.CommonCtx, apiKey APIKey) error {
+func (cmd ListUsersCmd) Run(c *cc.CommonCtx) error {
 	ctx := c.Context
-	cli, err := newClient(c, apiKey)
+	cli, err := c.DecisionLogsClient()
 	if err != nil {
 		return err
 	}

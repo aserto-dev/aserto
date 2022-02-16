@@ -31,7 +31,6 @@ type getImpl struct {
 	id        string
 	info      bool
 	localPath string
-	apiKey    APIKey
 	getter    getter
 	dirPaths  []string
 }
@@ -43,7 +42,7 @@ type item struct {
 
 func (impl *getImpl) run() error {
 	ctx := impl.c.Context
-	cli, err := newClient(impl.c, impl.apiKey)
+	cli, err := impl.c.DecisionLogsClient()
 	if err != nil {
 		return err
 	}

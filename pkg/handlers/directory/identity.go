@@ -10,7 +10,7 @@ import (
 )
 
 func NewClientWithIdentity(c *cc.CommonCtx, id string) (*authorizer.Client, *dir.GetIdentityResponse, error) {
-	client, err := authorizer.New(c.Context, c.AuthorizerSvcConnectionOptions()...)
+	client, err := c.AuthorizerClient()
 	if err != nil {
 		return nil, nil, err
 	}

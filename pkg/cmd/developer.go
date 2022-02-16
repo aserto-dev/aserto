@@ -16,11 +16,6 @@ type DeveloperCmd struct {
 	Uninstall dev.UninstallCmd `cmd:"" group:"developer" help:"uninstall aserto onebox, removes all locally installed artifacts"`
 }
 
-func (cmd *DeveloperCmd) BeforeApply(c *CLI) error {
-	c.RequireLogin()
-	return nil
-}
-
 func (cmd *DeveloperCmd) Run(c *cc.CommonCtx) error {
 	return nil
 }
