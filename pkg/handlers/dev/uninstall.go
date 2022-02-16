@@ -58,11 +58,11 @@ func (cmd UninstallCmd) Run(c *cc.CommonCtx) error {
 	}
 
 	str, err := dockerx.DockerWithOut(map[string]string{
-		"NAME": "aserto-one",
+		"NAME": "authorizer-onebox",
 	},
 		"images",
 		"ghcr.io/aserto-dev/$NAME",
-		"--filter", "label=org.opencontainers.image.source=https://github.com/aserto-dev/aserto-one",
+		"--filter", "label=org.opencontainers.image.source=https://github.com/aserto-dev/authorizer",
 		"-q",
 	)
 	if err != nil {
@@ -70,7 +70,7 @@ func (cmd UninstallCmd) Run(c *cc.CommonCtx) error {
 	}
 
 	if str != "" {
-		fmt.Fprintf(c.OutWriter, "removing %s\n", "aserto-dev/aserto-one")
+		fmt.Fprintf(c.OutWriter, "removing %s\n", "aserto-dev/authorizer-onebox")
 		err = dockerx.DockerRun("rmi", str)
 	}
 
