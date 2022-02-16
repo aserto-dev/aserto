@@ -17,7 +17,7 @@ const (
 	edsSubdir  = "eds"
 
 	localConfigFile = "local.yaml"
-	localEDS        = "eds-acmecorp-v4.db"
+	localEDS        = "eds-acmecorp-v9.db"
 )
 
 type Certs struct {

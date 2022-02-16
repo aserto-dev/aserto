@@ -75,11 +75,11 @@ func createDefaultEds(edsFile string) error {
 		oras.WithPullStatusTrack(os.Stdout),
 	}
 
-	ref := "ghcr.io/aserto-demo/assets/eds:v4"
+	ref := "ghcr.io/aserto-demo/assets/eds:v9"
 
 	_, _, err := oras.Pull(ctx, resolver, ref, fileStore, pullOpts...)
 	if err != nil {
-		return errors.Wrap(err, "pull assets/eds:v4")
+		return errors.Wrap(err, "pull assets/eds:v9")
 	}
 
 	return nil

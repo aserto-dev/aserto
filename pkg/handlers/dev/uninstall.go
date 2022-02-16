@@ -41,7 +41,7 @@ func (cmd UninstallCmd) Run(c *cc.CommonCtx) error {
 		}
 	}
 
-	edsFile := path.Join(paths.EDS, "eds-acmecorp-v4.db")
+	edsFile := path.Join(paths.EDS, "eds-acmecorp-v9.db")
 	if filex.FileExists(edsFile) {
 		fmt.Fprintf(c.OutWriter, "removing %s\n", edsFile)
 		if err = os.Remove(edsFile); err != nil {
