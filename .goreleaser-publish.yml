@@ -21,8 +21,6 @@ builds:
       - -X github.com/aserto-dev/aserto/pkg/version.commit={{.ShortCommit}}
       - -X github.com/aserto-dev/aserto/pkg/version.date={{.Date}}
     mod_timestamp: '{{ .CommitTimestamp }}'
-    tags:
-      - prod
   -
     id: build-windows
     main: ./cmd/aserto
@@ -41,8 +39,6 @@ builds:
       - -X github.com/aserto-dev/aserto/pkg/version.commit={{.ShortCommit}}
       - -X github.com/aserto-dev/aserto/pkg/version.date={{.Date}}
     mod_timestamp: '{{ .CommitTimestamp }}'
-    tags:
-      - prod
   -
     id: build-darwin
     main: ./cmd/aserto
@@ -64,8 +60,6 @@ builds:
       - -X github.com/aserto-dev/aserto/pkg/version.commit={{.ShortCommit}}
       - -X github.com/aserto-dev/aserto/pkg/version.date={{.Date}}
     mod_timestamp: '{{ .CommitTimestamp }}'
-    tags:
-      - prod
 
 archives:
   - format: zip

@@ -35,21 +35,6 @@ func GetSettings(env string) *Settings {
 			OpenIDConfiguration:    "https://aserto.us.auth0.com/.well-known/openid-configuration",
 			JWKS:                   "https://aserto.us.auth0.com/.well-known/jwks.json",
 		}
-	case x.EnvEngineering:
-		return &Settings{
-			Environment:            x.EnvEngineering,
-			Domain:                 "aserto-eng.us.auth0.com",
-			Audience:               "https://console.aserto.com",
-			ClientID:               "IZFpro8wrS35QjSjAbQj7ylBqjutNdXe",
-			RedirectURL:            "http://localhost:3987",
-			LogoutURL:              "http://localhost:3987",
-			AuthorizationURL:       "https://aserto-eng.us.auth0.com/authorize",
-			DeviceAuthorizationURL: "https://aserto-eng.us.auth0.com/oauth/device/code",
-			TokenURL:               "https://aserto-eng.us.auth0.com/oauth/token",
-			UserInfoURL:            "https://aserto-eng.us.auth0.com/userinfo",
-			OpenIDConfiguration:    "https://aserto-eng.us.auth0.com/.well-known/openid-configuration",
-			JWKS:                   "https://aserto-eng.us.auth0.com/.well-known/jwks.json",
-		}
 	default:
 		return nil
 	}
