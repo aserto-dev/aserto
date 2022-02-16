@@ -38,8 +38,9 @@ func Publish() error {
 	if os.Getenv("GITHUB_TOKEN") == "" {
 		return fmt.Errorf("GITHUB_TOKEN environment variable is undefined")
 	}
-	if os.Getenv("ASERTO_TAP") == "" {
-		return fmt.Errorf("ASERTO_TAP environment variable is undefined")
+
+	if os.Getenv("HOMEBREW_TAP") == "" {
+		return fmt.Errorf("HOMEBREW_TAP environment variable is undefined")
 	}
 
 	if err := writeVersion(); err != nil {
