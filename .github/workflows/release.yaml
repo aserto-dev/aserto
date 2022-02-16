@@ -74,9 +74,9 @@ jobs:
 
           go run mage.go deps
       -
-        name: Publish
+        name: Build
         run: |
-          go run mage.go publish
+          go run mage.go build
       -
         name: Test
         run: |

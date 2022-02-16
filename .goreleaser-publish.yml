@@ -1,8 +1,8 @@
 before:
   hooks:
-  
+
 builds:
-  - 
+  -
     id: build-linux
     main: ./cmd/aserto
     binary: aserto
@@ -15,15 +15,15 @@ builds:
       - goos: windows
       - goos: darwin
     ldflags:
-      - -s 
-      - -w 
-      - -X github.com/aserto-dev/aserto/pkg/version.ver={{.Version}} 
-      - -X github.com/aserto-dev/aserto/pkg/version.commit={{.ShortCommit}} 
-      - -X github.com/aserto-dev/aserto/pkg/version.date={{.Date}} 
+      - -s
+      - -w
+      - -X github.com/aserto-dev/aserto/pkg/version.ver={{.Version}}
+      - -X github.com/aserto-dev/aserto/pkg/version.commit={{.ShortCommit}}
+      - -X github.com/aserto-dev/aserto/pkg/version.date={{.Date}}
     mod_timestamp: '{{ .CommitTimestamp }}'
     tags:
       - prod
-  - 
+  -
     id: build-windows
     main: ./cmd/aserto
     binary: aserto
@@ -35,15 +35,15 @@ builds:
       - goos: linux
       - goos: darwin
     ldflags:
-      - -s 
-      - -w 
-      - -X github.com/aserto-dev/aserto/pkg/version.ver={{.Version}} 
-      - -X github.com/aserto-dev/aserto/pkg/version.commit={{.ShortCommit}} 
-      - -X github.com/aserto-dev/aserto/pkg/version.date={{.Date}} 
+      - -s
+      - -w
+      - -X github.com/aserto-dev/aserto/pkg/version.ver={{.Version}}
+      - -X github.com/aserto-dev/aserto/pkg/version.commit={{.ShortCommit}}
+      - -X github.com/aserto-dev/aserto/pkg/version.date={{.Date}}
     mod_timestamp: '{{ .CommitTimestamp }}'
     tags:
       - prod
-  - 
+  -
     id: build-darwin
     main: ./cmd/aserto
     binary: aserto
@@ -58,11 +58,11 @@ builds:
     env:
       - CGO_ENABLED=1
     ldflags:
-      - -s 
-      - -w 
-      - -X github.com/aserto-dev/aserto/pkg/version.ver={{.Version}} 
-      - -X github.com/aserto-dev/aserto/pkg/version.commit={{.ShortCommit}} 
-      - -X github.com/aserto-dev/aserto/pkg/version.date={{.Date}} 
+      - -s
+      - -w
+      - -X github.com/aserto-dev/aserto/pkg/version.ver={{.Version}}
+      - -X github.com/aserto-dev/aserto/pkg/version.commit={{.ShortCommit}}
+      - -X github.com/aserto-dev/aserto/pkg/version.date={{.Date}}
     mod_timestamp: '{{ .CommitTimestamp }}'
     tags:
       - prod
@@ -77,7 +77,7 @@ archives:
     files:
       - LICENSE.md
       - README.md
-    name_template: "aserto_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    name_template: "aserto_{{ .Os }}_{{ .Arch }}"
 
 checksum:
   name_template: 'checksums.txt'
@@ -96,10 +96,18 @@ release:
   disable: true
 
 blobs:
-  - 
+  -
     provider: gs
     bucket: aserto-cli
     folder: "aserto/{{ .Version }}"
+    extra_files:
+      - glob: VERSION.txt
+  -
+    provider: gs
+    bucket: aserto-cli
+    folder: "aserto/latest"
+    extra_files:
+      - glob: VERSION.txt
 
 brews:
   -
