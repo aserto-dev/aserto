@@ -1,14 +1,15 @@
 .DS_Store
+
+/.dev/
+/.ext/
+/bin/
+/dist/
+/vendor/
+
+/.vscode/launch.json
+/.vscode/*.code-snippets
+
 .env
-
 cover.out
-
-.vscode/launch.json
-.vscode/*.code-snippets
-
-.ext/
-bin/
-dist/
-vendor/
 
 VERSION.txt

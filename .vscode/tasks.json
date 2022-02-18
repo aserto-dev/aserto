@@ -5,7 +5,7 @@
     "tasks": [
         {
             "label": "build",
-            "command": "make",
+            "command": "mage",
             "args": [
                 "build"
             ],

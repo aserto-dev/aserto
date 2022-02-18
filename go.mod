@@ -9,33 +9,32 @@ go 1.17
 // replace github.com/aserto-dev/aserto-go => ../aserto-go
 
 require (
-	github.com/alecthomas/kong v0.2.22
+	github.com/alecthomas/kong v0.4.1
 	github.com/aserto-dev/aserto-go v0.8.1
-	github.com/aserto-dev/aserto-tenant v0.8.8
+	github.com/aserto-dev/aserto-tenant v0.8.14
 	github.com/aserto-dev/go-grpc v0.8.2
 	github.com/aserto-dev/go-grpc-authz v0.8.0
-	github.com/aserto-dev/go-lib v0.8.3
-	github.com/aserto-dev/go-utils v0.8.0
-	github.com/aserto-dev/mage-loot v0.8.0
+	github.com/aserto-dev/go-lib v0.8.7
+	github.com/aserto-dev/go-utils v0.8.1
+	github.com/aserto-dev/mage-loot v0.8.1
 	github.com/cli/browser v1.1.0
 	github.com/containerd/containerd v1.5.9
 	github.com/fatih/color v1.13.0
-	github.com/google/uuid v1.3.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/joho/godotenv v1.4.0
 	github.com/magefile/mage v1.12.1
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.26.1
 	github.com/zalando/go-keyring v0.1.1
-	google.golang.org/genproto v0.0.0-20220118154757-00ab72f36ad5
-	google.golang.org/grpc v1.43.0
+	google.golang.org/genproto v0.0.0-20220218161850-94dd64e39d7c
+	google.golang.org/grpc v1.44.0
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/auth0.v5 v5.21.1
 	oras.land/oras-go v0.4.0
 )
 
 require (
-	github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78 // indirect
+	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
 	github.com/BurntSushi/toml v0.4.1 // indirect
 	github.com/Microsoft/go-winio v0.5.1 // indirect
 	github.com/PuerkitoBio/rehttp v1.0.0 // indirect
@@ -44,6 +43,7 @@ require (
 	github.com/aserto-dev/go-grpc-clients v0.8.2 // indirect
 	github.com/aserto-dev/go-grpc-internal v0.8.0 // indirect
 	github.com/aserto-dev/idp-plugin-sdk v0.8.0 // indirect
+	github.com/benbjohnson/clock v1.1.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
@@ -62,7 +62,8 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-github/v33 v33.0.0 // indirect
-	github.com/google/go-querystring v1.0.0 // indirect
+	github.com/google/go-querystring v1.1.0 // indirect
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0 // indirect
@@ -86,7 +87,7 @@ require (
 	github.com/mitchellh/go-testing-interface v1.0.0 // indirect
 	github.com/mitchellh/mapstructure v1.4.2 // indirect
 	github.com/moby/locker v1.0.1 // indirect
-	github.com/moby/term v0.0.0-20200312100748-672ec06f55cd // indirect
+	github.com/moby/term v0.0.0-20210610120745-9d4ed1856297 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
