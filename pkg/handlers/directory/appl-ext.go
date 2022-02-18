@@ -3,12 +3,13 @@ package directory
 import (
 	"fmt"
 	"io"
+	"os"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
+	"github.com/aserto-dev/aserto/pkg/pb"
 	dir "github.com/aserto-dev/go-grpc/aserto/authorizer/directory/v1"
 
-	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -153,27 +154,56 @@ type SetApplPropCmd struct {
 	UserID  string         `arg:"id" name:"id" required:"" help:"user id or identifier"`
 	AppName string         `arg:"name" name:"name" required:"" help:"application name"`
 	Key     string         `arg:"key" name:"key" required:"" help:"property key"`
-	Value   structpb.Value `required:"" help:"set property using string value"`
+	Value   structpb.Value `xor:"group" required:"" name:"value" help:"set property value using json data from argument"`
+	Stdin   bool           `xor:"group" required:"" name:"stdin" help:"set property value using json data from --stdin"`
+	File    string         `xor:"group" required:"" name:"file" type:"existingfile" help:"set property value using json data from input file"`
 }
 
 func (cmd *SetApplPropCmd) Run(c *cc.CommonCtx) error {
-	if _, err := uuid.Parse(cmd.UserID); err != nil {
-		return errors.Errorf("argument provided is not a valid user id")
-	}
+	var (
+		value *structpb.Value
+		buf   io.Reader
+		err   error
+	)
 
 	client, identity, err := NewClientWithIdentity(c, cmd.UserID)
 	if err != nil {
 		return err
 	}
 
-	fmt.Fprintf(c.ErrWriter, "set property %s\n", cmd.Key)
+	switch {
+	case cmd.Stdin:
+		fmt.Fprintf(c.ErrWriter, "reading stdin\n")
+		buf = os.Stdin
+
+		value, err = pb.BufToValue(buf)
+		if err != nil {
+			return errors.Wrapf(err, "unmarshal stdin")
+		}
+
+	case cmd.File != "":
+		fmt.Fprintf(c.ErrWriter, "reading file [%s]\n", cmd.File)
+		buf, err = os.Open(cmd.File)
+		if err != nil {
+			return errors.Wrapf(err, "opening file [%s]", cmd.File)
+		}
+		value, err = pb.BufToValue(buf)
+		if err != nil {
+			return errors.Wrapf(err, "unmarshal file [%s]", cmd.File)
+		}
+
+	default:
+		value = &cmd.Value
+	}
+
+	fmt.Fprintf(c.ErrWriter, "set property [%s]=[%s]\n", cmd.Key, value.String())
 	if _, err := client.Directory.SetApplProperty(
 		c.Context,
 		&dir.SetApplPropertyRequest{
 			Id:    identity.Id,
 			Name:  cmd.AppName,
 			Key:   cmd.Key,
-			Value: &cmd.Value,
+			Value: value,
 		},
 	); err != nil {
 		return err

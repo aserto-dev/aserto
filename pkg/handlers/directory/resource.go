@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
@@ -36,15 +35,15 @@ func (cmd *GetResCmd) Run(c *cc.CommonCtx) error {
 }
 
 type SetResCmd struct {
-	Key   string `arg:"key" name:"key" required:"" help:"resource key"`
-	Value string `optional:"" help:"set resource using string value"`
-	Stdin bool   `optional:"" name:"stdin" help:"set resource using from --stdin"`
-	File  string `optional:"" type:"existingfile" help:"set resource using file content"`
+	Key   string         `arg:"key" name:"key" required:"" help:"resource key"`
+	Value structpb.Value `xor:"group" required:"" name:"value" help:"set resource value using json data from argument"`
+	Stdin bool           `xor:"group" required:"" name:"stdin" help:"set resource value using json data from --stdin"`
+	File  string         `xor:"group" required:"" name:"file" type:"existingfile" help:"set resource value using json data file"`
 }
 
 func (cmd *SetResCmd) Run(c *cc.CommonCtx) error {
 	var (
-		value structpb.Struct
+		value *structpb.Value
 		buf   io.Reader
 		err   error
 	)
@@ -54,33 +53,38 @@ func (cmd *SetResCmd) Run(c *cc.CommonCtx) error {
 		fmt.Fprintf(c.ErrWriter, "reading stdin\n")
 		buf = os.Stdin
 
+		value, err = pb.BufToValue(buf)
+		if err != nil {
+			return errors.Wrapf(err, "unmarshal stdin")
+		}
+
 	case cmd.File != "":
 		fmt.Fprintf(c.ErrWriter, "reading file [%s]\n", cmd.File)
 		buf, err = os.Open(cmd.File)
 		if err != nil {
 			return errors.Wrapf(err, "opening file [%s]", cmd.File)
 		}
-	case cmd.Value != "":
-		fmt.Fprintf(c.ErrWriter, "reading value flag\n")
-		buf = strings.NewReader(cmd.Value)
+		value, err = pb.BufToValue(buf)
+		if err != nil {
+			return errors.Wrapf(err, "unmarshal file [%s]", cmd.File)
+		}
+
 	default:
-		return errors.Errorf("no input option specified [--stdin | --file <filepath> | --value <string>]")
+		value = &cmd.Value
 	}
 
-	if buf == nil {
-		value = structpb.Struct{}
-	} else if err = pb.BufToProto(buf, &value); err != nil { //nolint:gocritic
-		return err
-	}
+	structValue := pb.NewStruct()
+	structValue.Fields[cmd.Key] = value
 
 	client, err := c.AuthorizerClient()
 	if err != nil {
 		return err
 	}
 
+	fmt.Fprintf(c.ErrWriter, "set resource [%s]=[%s]\n", cmd.Key, value.String())
 	resp, err := client.Directory.SetResource(c.Context, &dir.SetResourceRequest{
 		Key:   cmd.Key,
-		Value: &value,
+		Value: structValue,
 	})
 	if err != nil {
 		return err
