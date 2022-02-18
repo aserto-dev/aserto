@@ -82,9 +82,9 @@ func (cmd *GetUserPermsCmd) Run(c *cc.CommonCtx) error {
 }
 
 type SetUserPropCmd struct {
-	UserID string `arg:"id" name:"id" required:"" help:"user id or identifier"`
-	Key    string `arg:"key" name:"key" required:"" help:"property key"`
-	Value  string `required:"" help:"set property using string value"`
+	UserID string         `arg:"id" name:"id" required:"" help:"user id or identifier"`
+	Key    string         `arg:"key" name:"key" required:"" help:"property key"`
+	Value  structpb.Value `required:"" help:"set property using string value"`
 }
 
 func (cmd *SetUserPropCmd) Run(c *cc.CommonCtx) error {
@@ -93,13 +93,13 @@ func (cmd *SetUserPropCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	fmt.Fprintf(c.ErrWriter, "set property %s=%s\n", cmd.Key, cmd.Value)
+	fmt.Fprintf(c.ErrWriter, "set property %s=%s\n", cmd.Key, cmd.Value.String())
 	if _, err := client.Directory.SetUserProperty(
 		c.Context,
 		&dir.SetUserPropertyRequest{
 			Id:    identity.Id,
 			Key:   cmd.Key,
-			Value: structpb.NewStringValue(cmd.Value),
+			Value: &cmd.Value,
 		},
 	); err != nil {
 		return err

@@ -150,10 +150,10 @@ func (cmd *GetApplPermsCmd) Run(c *cc.CommonCtx) error {
 }
 
 type SetApplPropCmd struct {
-	UserID  string `arg:"id" name:"id" required:"" help:"user id or identifier"`
-	AppName string `arg:"name" name:"name" required:"" help:"application name"`
-	Key     string `arg:"key" name:"key" required:"" help:"property key"`
-	Value   string `required:"" help:"set property using string value"`
+	UserID  string         `arg:"id" name:"id" required:"" help:"user id or identifier"`
+	AppName string         `arg:"name" name:"name" required:"" help:"application name"`
+	Key     string         `arg:"key" name:"key" required:"" help:"property key"`
+	Value   structpb.Value `required:"" help:"set property using string value"`
 }
 
 func (cmd *SetApplPropCmd) Run(c *cc.CommonCtx) error {
@@ -173,7 +173,7 @@ func (cmd *SetApplPropCmd) Run(c *cc.CommonCtx) error {
 			Id:    identity.Id,
 			Name:  cmd.AppName,
 			Key:   cmd.Key,
-			Value: structpb.NewStringValue(cmd.Value),
+			Value: &cmd.Value,
 		},
 	); err != nil {
 		return err
