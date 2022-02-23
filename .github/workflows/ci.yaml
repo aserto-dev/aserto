@@ -44,7 +44,7 @@ jobs:
       -
         name: Lint and Test
         run: |
-          go run mage.go deps generate lint test
+          go run mage.go deps generate build lint test
       -
         name: Upload code coverage
         uses: shogo82148/actions-goveralls@v1
