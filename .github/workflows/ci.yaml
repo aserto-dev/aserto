@@ -1,0 +1,109 @@
+name: ci
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  push:
+    # Publish `main` as Docker `latest` image.
+    branches:
+      - main
+      - release-*
+    # Publish `v1.2.3` tags as releases.
+    tags:
+      - 'v*.*.*'
+  # Run tests for PRs
+  pull_request:
+    branches:
+      - main
+      - release-*
+env:
+  VAULT_ADDR: https://vault.eng.aserto.com/
+  PRE_RELEASE: ${{ github.ref == 'refs/heads/main' && 'development' || '' }}
+  GO_VERSION: "1.17"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+      -
+        name: Setup caching
+        uses: actions/cache@v1
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      -
+        name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      -
+        name: Lint and Test
+        run: |
+          go run mage.go deps generate lint test
+      -
+        name: Upload code coverage
+        uses: shogo82148/actions-goveralls@v1
+        with:
+          path-to-profile: cover.out
+
+  release:
+    needs: test
+    runs-on: ubuntu-latest
+    # Only release when ref is a tag
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    steps:
+      -
+        name: Read Configuration
+        uses: hashicorp/vault-action@v2.1.0
+        id: vault
+        with:
+          url: ${{ env.VAULT_ADDR }}
+          token: ${{ secrets.VAULT_TOKEN }}
+          secrets: |
+            kv/data/github    "READ_WRITE_TOKEN"                        | READ_WRITE_TOKEN;
+            kv/data/github    "ASERTO_TAP"                              | ASERTO_TAP;
+            kv/data/gcp       "SERVICE_ACCOUNT_GITHUB_ACTIONS_RELEASE"  | SERVICE_ACCOUNT_GITHUB_ACTIONS_RELEASE;
+      -
+        name: Install Vault CLI
+        uses: innovationnorway/setup-vault@v1.0.3
+        with:
+          version: 1.4.2
+      -
+        name: Renew Vault Token
+        env:
+          VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
+        run: |
+          vault token renew
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      -
+        name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      -
+        name: Setup caching
+        uses: actions/cache@v1
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      -
+        name: Release
+        env:
+          HOMEBREW_TAP: ${{ steps.vault.outputs.ASERTO_TAP }}
+          GITHUB_TOKEN: ${{ steps.vault.outputs.READ_WRITE_TOKEN }}
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/gs.json
+        run: |
+          echo "${SERVICE_ACCOUNT_GITHUB_ACTIONS_RELEASE}" > /tmp/gs.json
+
+          go run mage.go deps generate release
