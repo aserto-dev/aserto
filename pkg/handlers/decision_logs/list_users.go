@@ -25,7 +25,7 @@ func (cmd ListUsersCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	return jsonx.OutputJSONPBArray(c.OutWriter, results)
+	return jsonx.OutputJSONPBArray(c.UI.Output(), results)
 
 }
 

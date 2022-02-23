@@ -35,7 +35,7 @@ func (cmd ListConnectionsCmd) Run(c *cc.CommonCtx) error {
 		return errors.Wrapf(err, "list connections")
 	}
 
-	return jsonx.OutputJSONPB(c.OutWriter, resp)
+	return jsonx.OutputJSONPB(c.UI.Output(), resp)
 }
 
 type GetConnectionCmd struct {
@@ -57,7 +57,7 @@ func (cmd GetConnectionCmd) Run(c *cc.CommonCtx) error {
 		return errors.Wrapf(err, "get connection [%s]", cmd.ID)
 	}
 
-	return jsonx.OutputJSONPB(c.OutWriter, resp)
+	return jsonx.OutputJSONPB(c.UI.Output(), resp)
 }
 
 type VerifyConnectionCmd struct {
@@ -78,25 +78,25 @@ func (cmd VerifyConnectionCmd) Run(c *cc.CommonCtx) error {
 		st := status.Convert(err)
 		re := regexp.MustCompile(`\r?\n`)
 
-		fmt.Fprintf(c.ErrWriter, "verification    : failed\n")
-		fmt.Fprintf(c.ErrWriter, "code            : %d\n", st.Code())
-		fmt.Fprintf(c.ErrWriter, "message         : %s\n",
+		fmt.Fprintf(c.UI.Err(), "verification    : failed\n")
+		fmt.Fprintf(c.UI.Err(), "code            : %d\n", st.Code())
+		fmt.Fprintf(c.UI.Err(), "message         : %s\n",
 			re.ReplaceAllString(st.Message(), " | "))
-		fmt.Fprintf(c.ErrWriter, "error           : %s\n",
+		fmt.Fprintf(c.UI.Err(), "error           : %s\n",
 			re.ReplaceAllString(st.Err().Error(), " | "))
 
 		for _, detail := range st.Details() {
 			if t, ok := detail.(*errdetails.ErrorInfo); ok {
-				fmt.Fprintf(c.ErrWriter, "domain          : %s\n", t.Domain)
-				fmt.Fprintf(c.ErrWriter, "reason          : %s\n", t.Reason)
+				fmt.Fprintf(c.UI.Err(), "domain          : %s\n", t.Domain)
+				fmt.Fprintf(c.UI.Err(), "reason          : %s\n", t.Reason)
 
 				for k, v := range t.Metadata {
-					fmt.Fprintf(c.ErrWriter, "detail          : %s (%s)\n", v, k)
+					fmt.Fprintf(c.UI.Err(), "detail          : %s (%s)\n", v, k)
 				}
 			}
 		}
 	} else {
-		fmt.Fprintf(c.ErrWriter, "verification: succeeded\n")
+		fmt.Fprintf(c.UI.Err(), "verification: succeeded\n")
 	}
 
 	return nil
@@ -160,7 +160,7 @@ func (cmd *UpdateConnectionCmd) Run(c *cc.CommonCtx) error {
 		return errors.Wrap(err, "update connection")
 	}
 
-	return jsonx.OutputJSONPB(c.OutWriter, conn)
+	return jsonx.OutputJSONPB(c.UI.Output(), conn)
 }
 
 func applyConfigOverrides(config map[string]*structpb.Value, overrides map[string]string) error {

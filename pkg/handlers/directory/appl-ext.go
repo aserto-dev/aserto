@@ -41,7 +41,7 @@ func (cmd *ListUserAppsCmd) Run(c *cc.CommonCtx) error {
 	if err != nil {
 		return err
 	}
-	return OutputJSONResults(resp.Results, c.OutWriter)
+	return OutputJSONResults(resp.Results, c.UI.Output())
 }
 
 type SetUserAppCmd struct {
@@ -99,7 +99,7 @@ func (cmd *GetApplPropsCmd) Run(c *cc.CommonCtx) error {
 	if err != nil {
 		return err
 	}
-	return jsonx.OutputJSONPB(c.OutWriter, resp.Results)
+	return jsonx.OutputJSONPB(c.UI.Output(), resp.Results)
 }
 
 type GetApplRolesCmd struct {
@@ -123,7 +123,7 @@ func (cmd *GetApplRolesCmd) Run(c *cc.CommonCtx) error {
 	if err != nil {
 		return err
 	}
-	return OutputJSONResults(resp.Results, c.OutWriter)
+	return OutputJSONResults(resp.Results, c.UI.Output())
 }
 
 type GetApplPermsCmd struct {
@@ -147,7 +147,7 @@ func (cmd *GetApplPermsCmd) Run(c *cc.CommonCtx) error {
 	if err != nil {
 		return err
 	}
-	return OutputJSONResults(resp.Results, c.OutWriter)
+	return OutputJSONResults(resp.Results, c.UI.Output())
 }
 
 type SetApplPropCmd struct {
@@ -173,7 +173,7 @@ func (cmd *SetApplPropCmd) Run(c *cc.CommonCtx) error {
 
 	switch {
 	case cmd.Stdin:
-		fmt.Fprintf(c.ErrWriter, "reading stdin\n")
+		fmt.Fprintf(c.UI.Err(), "reading stdin\n")
 		buf = os.Stdin
 
 		value, err = pb.BufToValue(buf)
@@ -182,7 +182,7 @@ func (cmd *SetApplPropCmd) Run(c *cc.CommonCtx) error {
 		}
 
 	case cmd.File != "":
-		fmt.Fprintf(c.ErrWriter, "reading file [%s]\n", cmd.File)
+		fmt.Fprintf(c.UI.Err(), "reading file [%s]\n", cmd.File)
 		buf, err = os.Open(cmd.File)
 		if err != nil {
 			return errors.Wrapf(err, "opening file [%s]", cmd.File)
@@ -196,7 +196,7 @@ func (cmd *SetApplPropCmd) Run(c *cc.CommonCtx) error {
 		value = &cmd.Value
 	}
 
-	fmt.Fprintf(c.ErrWriter, "set property [%s]=[%s]\n", cmd.Key, value.String())
+	fmt.Fprintf(c.UI.Err(), "set property [%s]=[%s]\n", cmd.Key, value.String())
 	if _, err := client.Directory.SetApplProperty(
 		c.Context,
 		&dir.SetApplPropertyRequest{
@@ -279,7 +279,7 @@ func (cmd *DelApplPropCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	fmt.Fprintf(c.ErrWriter, "remove property %s\n", cmd.Key)
+	fmt.Fprintf(c.UI.Err(), "remove property %s\n", cmd.Key)
 	if _, err := client.Directory.DeleteApplProperty(
 		c.Context,
 		&dir.DeleteApplPropertyRequest{
@@ -306,7 +306,7 @@ func (cmd *DelApplRoleCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	fmt.Fprintf(c.ErrWriter, "remove role %s\n", cmd.Key)
+	fmt.Fprintf(c.UI.Err(), "remove role %s\n", cmd.Key)
 	if _, err := client.Directory.DeleteApplRole(
 		c.Context,
 		&dir.DeleteApplRoleRequest{
@@ -333,7 +333,7 @@ func (cmd *DelApplPermCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	fmt.Fprintf(c.ErrWriter, "remove permission %s\n", cmd.Key)
+	fmt.Fprintf(c.UI.Err(), "remove permission %s\n", cmd.Key)
 	if _, err := client.Directory.DeleteApplPermission(
 		c.Context,
 		&dir.DeleteApplPermissionRequest{

@@ -32,10 +32,10 @@ func (cmd *GetCmd) Run(c *cc.CommonCtx) error {
 	case cmd.DecisionLogsKey:
 		propValue = c.DecisionLogsKey()
 	case cmd.Token:
-		return jsonx.OutputJSON(c.OutWriter, c.Token())
+		return jsonx.OutputJSON(c.UI.Output(), c.Token())
 	}
 
-	fmt.Fprintf(c.OutWriter, "%s\n", propValue)
+	fmt.Fprintf(c.UI.Output(), "%s\n", propValue)
 
 	return nil
 }

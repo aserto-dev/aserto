@@ -22,7 +22,7 @@ func (cmd UninstallCmd) Run(c *cc.CommonCtx) error {
 
 	var err error
 
-	//nolint:gocritic
+	//nolint :gocritic // tbd
 	if err = (StopCmd{}).Run(c); err != nil {
 		return err
 	}
@@ -35,7 +35,7 @@ func (cmd UninstallCmd) Run(c *cc.CommonCtx) error {
 
 	cfgLocal := path.Join(paths.Config, "local.yaml")
 	if filex.FileExists(cfgLocal) {
-		fmt.Fprintf(c.OutWriter, "removing %s\n", cfgLocal)
+		fmt.Fprintf(c.UI.Output(), "removing %s\n", cfgLocal)
 		if err = os.Remove(cfgLocal); err != nil {
 			return errors.Wrapf(err, "removing %s", cfgLocal)
 		}
@@ -43,7 +43,7 @@ func (cmd UninstallCmd) Run(c *cc.CommonCtx) error {
 
 	edsFile := path.Join(paths.EDS, "eds-acmecorp-v9.db")
 	if filex.FileExists(edsFile) {
-		fmt.Fprintf(c.OutWriter, "removing %s\n", edsFile)
+		fmt.Fprintf(c.UI.Output(), "removing %s\n", edsFile)
 		if err = os.Remove(edsFile); err != nil {
 			return errors.Wrapf(err, "removing %s", edsFile)
 		}
@@ -70,7 +70,7 @@ func (cmd UninstallCmd) Run(c *cc.CommonCtx) error {
 	}
 
 	if str != "" {
-		fmt.Fprintf(c.OutWriter, "removing %s\n", "aserto-dev/authorizer-onebox")
+		fmt.Fprintf(c.UI.Output(), "removing %s\n", "aserto-dev/authorizer-onebox")
 		err = dockerx.DockerRun("rmi", str)
 	}
 

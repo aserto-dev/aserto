@@ -13,9 +13,9 @@ import (
 	"github.com/pkg/errors"
 )
 
-func init() {
-	// Set private repositories
-	os.Setenv("GOPRIVATE", "github.com/aserto-dev")
+// Generate generates all code.
+func Generate() error {
+	return common.Generate()
 }
 
 // Lint runs linting for the entire project.
@@ -28,13 +28,13 @@ func Test() error {
 	return common.Test()
 }
 
-// Build builds all binaries in ./cmd.
+// Build all binaries in ./cmd.
 func Build() error {
-	return common.BuildReleaser("--config", ".goreleaser-prod.yml")
+	return common.BuildReleaser()
 }
 
-// Build and publish to GitHub.
-func Publish() error {
+// Release the project.
+func Release() error {
 	if os.Getenv("GITHUB_TOKEN") == "" {
 		return fmt.Errorf("GITHUB_TOKEN environment variable is undefined")
 	}
@@ -43,22 +43,21 @@ func Publish() error {
 		return fmt.Errorf("HOMEBREW_TAP environment variable is undefined")
 	}
 
+	if os.Getenv("GOOGLE_APPLICATION_CREDENTIALS") == "" {
+		return fmt.Errorf("GOOGLE_APPLICATION_CREDENTIALS environment variable is undefined")
+	}
+
 	if err := writeVersion(); err != nil {
 		return err
 	}
 
-	return common.Release("--rm-dist", "--config", ".goreleaser-publish.yml")
-}
-
-// Release releases the project.
-func Release() error {
-	return common.Release("--skip-publish", "--rm-dist", "--snapshot", "--config", ".goreleaser-prod.yml")
+	return common.Release("--rm-dist")
 }
 
 // BuildAll builds all binaries in ./cmd for
 // all configured operating systems and architectures.
 func BuildAll() error {
-	return common.BuildAllReleaser()
+	return common.BuildAllReleaser("--rm-dist", "--snapshot")
 }
 
 // Deps installs all dependencies required to build the project.

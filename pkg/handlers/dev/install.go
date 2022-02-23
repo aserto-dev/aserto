@@ -41,12 +41,12 @@ func (cmd InstallCmd) Run(c *cc.CommonCtx) error {
 	}
 
 	// Create onebox certs if none exist.
-	if err := certs.GenerateCerts(c.OutWriter, c.ErrWriter, paths.Certs.GRPC, paths.Certs.Gateway); err != nil {
+	if err := certs.GenerateCerts(c.UI.Output(), c.UI.Err(), paths.Certs.GRPC, paths.Certs.Gateway); err != nil {
 		return errors.Wrap(err, "failed to create dev certificates")
 	}
 
 	if cmd.TrustCert {
-		fmt.Fprintln(c.OutWriter, "Adding developer certificate to system store. You may need to provide credentials.")
+		fmt.Fprintln(c.UI.Output(), "Adding developer certificate to system store. You may need to provide credentials.")
 		if err := certs.AddTrustedCert(paths.Certs.Gateway.CA); err != nil {
 			return errors.Wrap(err, "add gateway-ca cert to trusted certs")
 		}

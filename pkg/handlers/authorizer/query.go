@@ -36,5 +36,5 @@ func (cmd *ExecQueryCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	return jsonx.OutputJSONPB(c.OutWriter, resp)
+	return jsonx.OutputJSONPB(c.UI.Output(), resp)
 }

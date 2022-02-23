@@ -4,6 +4,8 @@ import (
 	"fmt"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
+	"github.com/aserto-dev/aserto/pkg/cc/clients"
+	"github.com/aserto-dev/aserto/pkg/cc/token"
 	"github.com/aserto-dev/aserto/pkg/handlers/user"
 	"github.com/aserto-dev/aserto/pkg/version"
 	"github.com/aserto-dev/aserto/pkg/x"
@@ -21,23 +23,28 @@ type CLI struct {
 	Config       ConfigCmd       `cmd:"" aliases:"c" help:"configuration commands"`
 	Version      VersionCmd      `cmd:"" help:"version information"`
 
-	Debug          bool   `name:"debug" env:"ASERTO_DEBUG" help:"enable debug logging"`
-	EnvOverride    string `name:"env" default:"${defaultEnv}" env:"ASERTO_ENV" hidden:"" help:"environment override"`
+	Cfg            string `name:"config" short:"c" type:"conf" env:"ASERTO_ENV" help:"name or path of configuration file"`
+	Verbosity      int    `short:"v" type:"counter" help:"Use to increase output verbosity."`
 	TenantOverride string `name:"tenant" env:"ASERTO_TENANT_ID" help:"tenant id override"`
 }
 
-func (cli *CLI) TenantID(token cc.CachedToken) string {
+type ServiceOptions interface {
+	Override(svc x.Service, overrides clients.Overrides)
+	RequireToken()
+}
+
+func (cli *CLI) TenantID(cachedToken token.CachedToken) string {
 	if cli.TenantOverride != "" {
 		return cli.TenantOverride
 	}
 
-	return token.TenantID()
+	return cachedToken.TenantID()
 }
 
 type VersionCmd struct{}
 
 func (cmd *VersionCmd) Run(c *cc.CommonCtx) error {
-	fmt.Fprintf(c.OutWriter, "%s - %s (%s)\n",
+	fmt.Fprintf(c.UI.Output(), "%s - %s (%s)\n",
 		x.AppName,
 		version.GetInfo().String(),
 		x.AppVersionTag,
