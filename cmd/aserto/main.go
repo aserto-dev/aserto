@@ -2,18 +2,30 @@ package main
 
 import (
 	"fmt"
-	"io"
-	"log"
 	"os"
+	"path/filepath"
+	"reflect"
+	"strings"
 
 	"github.com/alecthomas/kong"
 	"github.com/aserto-dev/aserto/pkg/cc"
+	"github.com/aserto-dev/aserto/pkg/cc/clients"
+	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/cmd"
+	"github.com/aserto-dev/aserto/pkg/filex"
 	"github.com/aserto-dev/aserto/pkg/x"
+	"github.com/pkg/errors"
 )
 
 func main() {
-	factoryBuilder := cc.NewClientFactoryBuilder()
+	home, err := os.UserHomeDir()
+	if err != nil {
+		panic(errors.Wrap(err, "failed to determine user home directory"))
+	}
+
+	configDir := filepath.Join(home, ".config", x.AppName)
+
+	serviceOptions := clients.NewServiceOptions()
 
 	cli := cmd.CLI{}
 	kongCtx := kong.Parse(&cli,
@@ -29,46 +41,89 @@ func main() {
 			Indenter:            kong.SpaceIndenter,
 			NoExpandSubcommands: false,
 		}),
-		kong.Vars{"defaultEnv": x.DefaultEnv},
-		kong.BindTo(factoryBuilder, (*cmd.ConnectionOverrides)(nil)),
+		kong.NamedMapper("conf", configFileMapper(configDir)), // attach to tag `type:"conf"`
+		kong.BindTo(serviceOptions, (*cmd.ServiceOptions)(nil)),
 	)
 
-	configureLogging(cli.Debug)
-
-	env, err := x.Environment(cli.EnvOverride)
+	ctx, err := cc.BuildCommonCtx(
+		config.Path(cli.Cfg),
+		configOverrider(&cli),
+		serviceOptions,
+	)
 	if err != nil {
-		fatal(err)
+		fmt.Fprintln(os.Stderr, err.Error())
+		os.Exit(1)
 	}
 
-	token := cc.NewCachedToken(env.Environment)
-	tenantID := cli.TenantID(token)
-
-	clientFactory, err := factoryBuilder.ClientFactory(env, tenantID, token)
-	if err != nil {
-		fatal(err)
-	}
-
-	c := cc.NewCommonCtx(env, tenantID, clientFactory, token.Get())
-	if err := kongCtx.Run(c); err != nil {
+	if err := kongCtx.Run(ctx); err != nil {
 		kongCtx.FatalIfErrorf(err)
 	}
 }
 
-func configureLogging(debug bool) {
-	log.SetOutput(logWriter(debug))
-	log.SetPrefix("")
-	log.SetFlags(log.LstdFlags)
+func configOverrider(cli *cmd.CLI) config.Overrider {
+	return func(conf *config.Config) {
+		if cli.TenantOverride != "" {
+			conf.TenantID = cli.TenantOverride
+		}
+	}
 }
 
-func logWriter(debug bool) io.Writer {
-	if debug {
-		return os.Stderr
+// configFileMapper is a kong.Mapper that resolves config files.
+//
+// When applied to a CLI flag, it attempts to find a configuration file that best matches the specified name using
+// the following rules:
+// 1. If the value is a full or relative path to an existing file, that file is chosen.
+// 2. If the value is a file name (without a path separator) with an extension (e.g. "config.yaml") and a file with that
+//    name exists in the config directory, that file is chosen.
+// 3. If the value is a string without an dot (e.g. "eng") and a file with that name (i.e. "eng.*") exists in the
+//    config directory, that file is chosen. If multiple files match, the first one is chosen and a warning is printed
+//    to stderr.
+type configFileMapper string
+
+func (m configFileMapper) Decode(ctx *kong.DecodeContext, target reflect.Value) error {
+	if target.Kind() != reflect.String {
+		return errors.Errorf(`"conf" type must be applied to a string not %s`, target.Type())
 	}
 
-	return io.Discard
+	var path string
+	if err := ctx.Scan.PopValueInto("file", &path); err != nil {
+		return err
+	}
+
+	if path != "-" {
+		path = m.find(path)
+	}
+
+	target.SetString(path)
+	return nil
 }
 
-func fatal(err error) {
-	fmt.Fprintln(os.Stderr, err.Error())
-	os.Exit(1)
+func (m configFileMapper) find(path string) string {
+	expanded := kong.ExpandPath(path)
+	if filex.FileExists(expanded) {
+		return expanded
+	}
+
+	if !strings.ContainsRune(path, filepath.Separator) {
+		expanded = filepath.Join(string(m), path)
+		if filepath.Ext(path) != "" {
+			// It's a filename with no path. Look in config directory.
+			if filex.FileExists(expanded) {
+				return expanded
+			}
+		} else if matches, err := filepath.Glob(expanded + ".*"); err == nil && len(matches) > 0 {
+			if len(matches) > 1 {
+				fmt.Fprintf(
+					os.Stderr,
+					"WARNING: The specified configuration ('%s') matches multiple configuration files: %s. Using '%s'",
+					path,
+					matches,
+					matches[0],
+				)
+			}
+			return matches[0]
+		}
+	}
+
+	return path
 }

@@ -33,16 +33,16 @@ func (cmd *DeleteUsersCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	fmt.Fprintf(c.OutWriter, "tenant %s\n", c.TenantID())
-	fmt.Fprintf(c.OutWriter, "!!! deleting %d users\n", resp.Page.TotalSize)
-	fmt.Fprintf(c.OutWriter, "please acknowledge that is what you want by typing \"CONFIRMED\" (all uppercase)\n")
+	fmt.Fprintf(c.UI.Output(), "tenant %s\n", c.TenantID())
+	fmt.Fprintf(c.UI.Output(), "!!! deleting %d users\n", resp.Page.TotalSize)
+	fmt.Fprintf(c.UI.Output(), "please acknowledge that is what you want by typing \"CONFIRMED\" (all uppercase)\n")
 	var input string
 	n, err := fmt.Fscanln(os.Stdin, &input)
 	if err != nil || n == 0 {
 		return err
 	}
 	if input == "CONFIRMED" {
-		fmt.Fprintf(c.OutWriter, "starting deletion\n")
+		fmt.Fprintf(c.UI.Output(), "starting deletion\n")
 		for i, u := range resp.Results {
 			fmt.Fprintf(os.Stderr, "\033[2K\rdeleted %d of %d", i+1, resp.Page.TotalSize)
 			if _, err := client.Directory.DeleteUser(c.Context, &dir.DeleteUserRequest{

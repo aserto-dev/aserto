@@ -147,7 +147,7 @@ func setupLocalRun(c *cc.CommonCtx, paths *localpaths.Paths, srcPath string) err
 
 	cfgLocal := paths.LocalConfig()
 	if !filex.FileExists(cfgLocal) {
-		fmt.Fprintf(c.OutWriter, "creating %s\n", cfgLocal)
+		fmt.Fprintf(c.UI.Output(), "creating %s\n", cfgLocal)
 		f, err := os.OpenFile(cfgLocal, os.O_WRONLY|os.O_CREATE, 0600)
 		if err != nil {
 			return errors.Wrapf(err, "creating %s", cfgLocal)
@@ -159,9 +159,9 @@ func setupLocalRun(c *cc.CommonCtx, paths *localpaths.Paths, srcPath string) err
 
 	}
 
-	edsFile := paths.LocaEDS()
+	edsFile := paths.LocalEDS()
 	if !filex.FileExists(edsFile) {
-		fmt.Fprintf(c.OutWriter, "creating %s\n", edsFile)
+		fmt.Fprintf(c.UI.Output(), "creating %s\n", edsFile)
 		if err := createDefaultEds(edsFile); err != nil {
 			return errors.Wrap(err, "create default eds")
 		}

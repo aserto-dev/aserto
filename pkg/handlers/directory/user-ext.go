@@ -32,7 +32,7 @@ func (cmd *GetUserPropsCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	return jsonx.OutputJSONPB(c.OutWriter, resp.Results)
+	return jsonx.OutputJSONPB(c.UI.Output(), resp.Results)
 }
 
 type GetUserRolesCmd struct {
@@ -57,7 +57,7 @@ func (cmd *GetUserRolesCmd) Run(c *cc.CommonCtx) error {
 		resp.Results = []string{}
 	}
 
-	return jsonx.OutputJSON(c.OutWriter, resp.Results)
+	return jsonx.OutputJSON(c.UI.Output(), resp.Results)
 }
 
 type GetUserPermsCmd struct {
@@ -82,7 +82,7 @@ func (cmd *GetUserPermsCmd) Run(c *cc.CommonCtx) error {
 		resp.Results = []string{}
 	}
 
-	return jsonx.OutputJSON(c.OutWriter, resp.Results)
+	return jsonx.OutputJSON(c.UI.Output(), resp.Results)
 }
 
 type SetUserPropCmd struct {
@@ -107,7 +107,7 @@ func (cmd *SetUserPropCmd) Run(c *cc.CommonCtx) error {
 
 	switch {
 	case cmd.Stdin:
-		fmt.Fprintf(c.ErrWriter, "reading stdin\n")
+		fmt.Fprintf(c.UI.Err(), "reading stdin\n")
 		buf = os.Stdin
 
 		value, err = pb.BufToValue(buf)
@@ -116,7 +116,7 @@ func (cmd *SetUserPropCmd) Run(c *cc.CommonCtx) error {
 		}
 
 	case cmd.File != "":
-		fmt.Fprintf(c.ErrWriter, "reading file [%s]\n", cmd.File)
+		fmt.Fprintf(c.UI.Err(), "reading file [%s]\n", cmd.File)
 		buf, err = os.Open(cmd.File)
 		if err != nil {
 			return errors.Wrapf(err, "opening file [%s]", cmd.File)
@@ -130,7 +130,7 @@ func (cmd *SetUserPropCmd) Run(c *cc.CommonCtx) error {
 		value = &cmd.Value
 	}
 
-	fmt.Fprintf(c.ErrWriter, "set property [%s]=[%s]\n", cmd.Key, value.String())
+	fmt.Fprintf(c.UI.Err(), "set property [%s]=[%s]\n", cmd.Key, value.String())
 	if _, err := client.Directory.SetUserProperty(
 		c.Context,
 		&dir.SetUserPropertyRequest{
@@ -156,7 +156,7 @@ func (cmd *SetUserRoleCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	fmt.Fprintf(c.ErrWriter, "set role %s\n", cmd.Key)
+	fmt.Fprintf(c.UI.Err(), "set role %s\n", cmd.Key)
 	if _, err := client.Directory.SetUserRole(
 		c.Context,
 		&dir.SetUserRoleRequest{
@@ -180,7 +180,7 @@ func (cmd *SetUserPermCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	fmt.Fprintf(c.ErrWriter, "set permission %s\n", cmd.Key)
+	fmt.Fprintf(c.UI.Err(), "set permission %s\n", cmd.Key)
 	if _, err := client.Directory.SetUserPermission(
 		c.Context,
 		&dir.SetUserPermissionRequest{
@@ -204,7 +204,7 @@ func (cmd *DelUserPropCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	fmt.Fprintf(c.ErrWriter, "removing property [%s]\n", cmd.Key)
+	fmt.Fprintf(c.UI.Err(), "removing property [%s]\n", cmd.Key)
 	if _, err := client.Directory.DeleteUserProperty(
 		c.Context,
 		&dir.DeleteUserPropertyRequest{
@@ -229,7 +229,7 @@ func (cmd *DelUserRoleCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	fmt.Fprintf(c.ErrWriter, "removing role [%s]\n", cmd.Key)
+	fmt.Fprintf(c.UI.Err(), "removing role [%s]\n", cmd.Key)
 	if _, err := client.Directory.DeleteUserRole(
 		c.Context,
 		&dir.DeleteUserRoleRequest{
@@ -254,7 +254,7 @@ func (cmd *DelUserPermCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	fmt.Fprintf(c.ErrWriter, "removing permission [%s]\n", cmd.Key)
+	fmt.Fprintf(c.UI.Err(), "removing permission [%s]\n", cmd.Key)
 	if _, err := client.Directory.DeleteUserPermission(
 		c.Context,
 		&dir.DeleteUserPermissionRequest{

@@ -13,9 +13,9 @@ import (
 	"github.com/pkg/errors"
 )
 
-func init() {
-	// Set private repositories
-	os.Setenv("GOPRIVATE", "github.com/aserto-dev")
+// Generate generates all code.
+func Generate() error {
+	return common.Generate()
 }
 
 // Lint runs linting for the entire project.
@@ -58,7 +58,7 @@ func Release() error {
 // BuildAll builds all binaries in ./cmd for
 // all configured operating systems and architectures.
 func BuildAll() error {
-	return common.BuildAllReleaser()
+	return common.BuildAllReleaser("--rm-dist", "--snapshot")
 }
 
 // Deps installs all dependencies required to build the project.

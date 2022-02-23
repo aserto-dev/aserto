@@ -53,20 +53,20 @@ func (cmd *ListUsersCmd) Run(c *cc.CommonCtx) error {
 		}
 
 		if cmd.Count {
-			return jsonx.OutputJSONPB(c.OutWriter, resp.Page, opts)
+			return jsonx.OutputJSONPB(c.UI.Output(), resp.Page, opts)
 		}
 
 		if first {
-			_, _ = c.OutWriter.Write([]byte("[\n"))
+			_, _ = c.UI.Output().Write([]byte("[\n"))
 			first = false
 		}
 
 		for _, u := range resp.Results {
 			if count > 0 {
-				_, _ = c.OutWriter.Write([]byte(",\n"))
+				_, _ = c.UI.Output().Write([]byte(",\n"))
 			}
 
-			_ = jsonx.EncodeJSONPB(c.OutWriter, u, opts)
+			_ = jsonx.EncodeJSONPB(c.UI.Output(), u, opts)
 
 			count++
 		}
@@ -78,7 +78,7 @@ func (cmd *ListUsersCmd) Run(c *cc.CommonCtx) error {
 		token = resp.Page.NextToken
 	}
 
-	_, _ = c.OutWriter.Write([]byte("\n]\n"))
+	_, _ = c.UI.Output().Write([]byte("\n]\n"))
 
 	return nil
 }
@@ -93,7 +93,7 @@ func (cmd *GetIdentityCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	return jsonx.OutputJSONPB(c.OutWriter, identity)
+	return jsonx.OutputJSONPB(c.UI.Output(), identity)
 }
 
 type GetUserCmd struct {
@@ -115,5 +115,5 @@ func (cmd *GetUserCmd) Run(c *cc.CommonCtx) error {
 		return errors.Wrapf(err, "get user")
 	}
 
-	return jsonx.OutputJSONPB(c.OutWriter, resp)
+	return jsonx.OutputJSONPB(c.UI.Output(), resp)
 }

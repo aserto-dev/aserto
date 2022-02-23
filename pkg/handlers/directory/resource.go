@@ -31,7 +31,7 @@ func (cmd *GetResCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	return jsonx.OutputJSON(c.OutWriter, resp.Value)
+	return jsonx.OutputJSON(c.UI.Output(), resp.Value)
 }
 
 type SetResCmd struct {
@@ -50,7 +50,7 @@ func (cmd *SetResCmd) Run(c *cc.CommonCtx) error {
 
 	switch {
 	case cmd.Stdin:
-		fmt.Fprintf(c.ErrWriter, "reading stdin\n")
+		fmt.Fprintf(c.UI.Err(), "reading stdin\n")
 		buf = os.Stdin
 
 		value, err = pb.BufToValue(buf)
@@ -59,7 +59,7 @@ func (cmd *SetResCmd) Run(c *cc.CommonCtx) error {
 		}
 
 	case cmd.File != "":
-		fmt.Fprintf(c.ErrWriter, "reading file [%s]\n", cmd.File)
+		fmt.Fprintf(c.UI.Err(), "reading file [%s]\n", cmd.File)
 		buf, err = os.Open(cmd.File)
 		if err != nil {
 			return errors.Wrapf(err, "opening file [%s]", cmd.File)
@@ -81,7 +81,7 @@ func (cmd *SetResCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	fmt.Fprintf(c.ErrWriter, "set resource [%s]=[%s]\n", cmd.Key, value.String())
+	fmt.Fprintf(c.UI.Err(), "set resource [%s]=[%s]\n", cmd.Key, value.String())
 	resp, err := client.Directory.SetResource(c.Context, &dir.SetResourceRequest{
 		Key:   cmd.Key,
 		Value: structValue,
@@ -90,7 +90,7 @@ func (cmd *SetResCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	return jsonx.OutputJSON(c.OutWriter, resp)
+	return jsonx.OutputJSON(c.UI.Output(), resp)
 }
 
 type DelResCmd struct {
@@ -127,5 +127,5 @@ func (cmd *ListResCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	return jsonx.OutputJSON(c.OutWriter, resp)
+	return jsonx.OutputJSON(c.UI.Output(), resp)
 }

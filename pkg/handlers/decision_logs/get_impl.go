@@ -64,7 +64,7 @@ func (impl *getImpl) run() error {
 	}
 
 	if impl.info {
-		return jsonx.OutputJSONPBMap(impl.c.OutWriter, items)
+		return jsonx.OutputJSONPBMap(impl.c.UI.Output(), items)
 	}
 
 	itemCh := make(chan item)

@@ -1,7 +1,6 @@
 package directory
 
 import (
-	"github.com/aserto-dev/aserto-tenant/pkg/app/providers"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/dirx"
 	"github.com/aserto-dev/aserto/pkg/dirx/auth0"
@@ -55,21 +54,27 @@ func auth0ConfigFromConnection(c *cc.CommonCtx) (*auth0.Config, error) {
 		return nil, err
 	}
 
+	const (
+		confKeyAuth0Domain       string = "domain"
+		confKeyAuth0ClientID     string = "client_id"
+		confKeyAuth0ClientSecret string = "client_secret"
+	)
+
 	var ok bool
 	connConfigMap := connResp.Result.Config.AsMap()
-	cfg.Domain, ok = connConfigMap[providers.ConfKeyAuth0Domain].(string)
+	cfg.Domain, ok = connConfigMap[confKeyAuth0Domain].(string)
 	if !ok {
-		return nil, errors.Errorf("config key not found [%s]", providers.ConfKeyAuth0Domain)
+		return nil, errors.Errorf("config key not found [%s]", confKeyAuth0Domain)
 	}
 
-	cfg.ClientID, ok = connConfigMap[providers.ConfKeyAuth0ClientID].(string)
+	cfg.ClientID, ok = connConfigMap[confKeyAuth0ClientID].(string)
 	if !ok {
-		return nil, errors.Errorf("config key not found [%s]", providers.ConfKeyAuth0ClientID)
+		return nil, errors.Errorf("config key not found [%s]", confKeyAuth0ClientID)
 	}
 
-	cfg.ClientSecret, ok = connConfigMap[providers.ConfKeyAuth0ClientSecret].(string)
+	cfg.ClientSecret, ok = connConfigMap[confKeyAuth0ClientSecret].(string)
 	if !ok {
-		return nil, errors.Errorf("config key not found [%s]", providers.ConfKeyAuth0ClientSecret)
+		return nil, errors.Errorf("config key not found [%s]", confKeyAuth0ClientSecret)
 	}
 
 	return &cfg, nil

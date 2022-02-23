@@ -32,7 +32,7 @@ func (userLoader *UserLoader) Load(c *cc.CommonCtx, requestFactory dirx.LoadUser
 	}
 	go func() {
 		for e := range userSubscriber.ErrorChannel {
-			fmt.Fprintf(c.ErrWriter, "%s\n", e.Error())
+			fmt.Fprintf(c.UI.Err(), "%s\n", e.Error())
 		}
 	}()
 
@@ -42,7 +42,7 @@ func (userLoader *UserLoader) Load(c *cc.CommonCtx, requestFactory dirx.LoadUser
 	case providerJSON:
 		p := jsonproducer.NewProducer(userLoader.File)
 		p.Producer(userSubscriber.SourceChannel, userSubscriber.ErrorChannel)
-		fmt.Fprintf(c.ErrWriter, "produced %d\n", p.Count())
+		fmt.Fprintf(c.UI.Err(), "produced %d\n", p.Count())
 
 	case providerAuth0:
 		var cfg *auth0.Config
@@ -65,7 +65,7 @@ func (userLoader *UserLoader) Load(c *cc.CommonCtx, requestFactory dirx.LoadUser
 
 		p := auth0.NewProducer(cfg)
 		p.Producer(userSubscriber.SourceChannel, userSubscriber.ErrorChannel)
-		fmt.Fprintf(c.ErrWriter, "produced %d\n", p.Count())
+		fmt.Fprintf(c.UI.Err(), "produced %d\n", p.Count())
 
 	default:
 		return errors.Errorf("unknown load user provider %s", userLoader.Provider)
@@ -80,11 +80,11 @@ func (userLoader *UserLoader) Load(c *cc.CommonCtx, requestFactory dirx.LoadUser
 	// close error channel as the last action before returning
 	close(userSubscriber.ErrorChannel)
 
-	fmt.Fprintf(c.ErrWriter, "received %d\n", result.Counts.Received)
-	fmt.Fprintf(c.ErrWriter, "created  %d\n", result.Counts.Created)
-	fmt.Fprintf(c.ErrWriter, "updated  %d\n", result.Counts.Updated)
-	fmt.Fprintf(c.ErrWriter, "deleted  %d\n", result.Counts.Deleted)
-	fmt.Fprintf(c.ErrWriter, "errors   %d\n", result.Counts.Errors)
+	fmt.Fprintf(c.UI.Err(), "received %d\n", result.Counts.Received)
+	fmt.Fprintf(c.UI.Err(), "created  %d\n", result.Counts.Created)
+	fmt.Fprintf(c.UI.Err(), "updated  %d\n", result.Counts.Updated)
+	fmt.Fprintf(c.UI.Err(), "deleted  %d\n", result.Counts.Deleted)
+	fmt.Fprintf(c.UI.Err(), "errors   %d\n", result.Counts.Errors)
 
 	return result.Err
 }

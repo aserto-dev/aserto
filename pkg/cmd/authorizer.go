@@ -14,8 +14,8 @@ type AuthorizerCmd struct {
 	AuthorizerOverrides AuthorizerOptions `embed:"" envprefix:"ASERTO_AUTHORIZER_"`
 }
 
-func (cmd *AuthorizerCmd) AfterApply(co ConnectionOverrides) error {
-	co.Override(x.AuthorizerService, &cmd.AuthorizerOverrides)
+func (cmd *AuthorizerCmd) AfterApply(so ServiceOptions) error {
+	so.Override(x.AuthorizerService, &cmd.AuthorizerOverrides)
 
 	return nil
 }

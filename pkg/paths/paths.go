@@ -37,7 +37,7 @@ func (p *Paths) LocalConfig() string {
 	return path.Join(p.Config, localConfigFile)
 }
 
-func (p *Paths) LocaEDS() string {
+func (p *Paths) LocalEDS() string {
 	return path.Join(p.EDS, localEDS)
 }
 

@@ -26,8 +26,8 @@ type ConfigureCmd struct {
 }
 
 func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
-	fmt.Fprintf(c.ErrWriter, ">>> configure policy...\n")
-	fmt.Fprintf(c.ErrWriter, "tenant id: %s\n", c.TenantID())
+	fmt.Fprintf(c.UI.Err(), ">>> configure policy...\n")
+	fmt.Fprintf(c.UI.Err(), "tenant id: %s\n", c.TenantID())
 
 	client, err := c.TenantClient()
 	if err != nil {
@@ -56,12 +56,12 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 		return errors.Errorf("missing $ASERTO_TENANT_KEY env var")
 	}
 
-	fmt.Fprintf(c.ErrWriter, "policy id: %s\n", params.PolicyID)
+	fmt.Fprintf(c.UI.Err(), "policy id: %s\n", params.PolicyID)
 
 	var w io.Writer
 
 	if cmd.Stdout {
-		w = c.OutWriter
+		w = c.UI.Output()
 	} else {
 		w, err = ConfigFileWriter(params.PolicyName)
 		if err != nil {

@@ -8,12 +8,10 @@ import (
 
 	aserto "github.com/aserto-dev/aserto-go/client"
 	"github.com/aserto-dev/aserto-go/client/tenant"
-	"github.com/aserto-dev/aserto/pkg/auth0"
 	auth0api "github.com/aserto-dev/aserto/pkg/auth0/api"
 	"github.com/aserto-dev/aserto/pkg/auth0/pkce"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/keyring"
-	"github.com/aserto-dev/aserto/pkg/x"
 
 	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
 	account "github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"
@@ -26,9 +24,7 @@ import (
 type LoginCmd struct{}
 
 func (d *LoginCmd) Run(c *cc.CommonCtx) error {
-	env := c.Environment()
-
-	settings := auth0.GetSettings(env)
+	settings := c.Auth
 	scopes := []string{"openid", "email", "profile"}
 
 	ru, err := url.Parse(settings.RedirectURL)
@@ -80,14 +76,9 @@ func (d *LoginCmd) Run(c *cc.CommonCtx) error {
 
 	tok.ExpiresAt = time.Now().UTC().Add(time.Second * time.Duration(tok.ExpiresIn))
 
-	svcs, err := x.Environment(env)
-	if err != nil {
-		return err
-	}
-
 	conn, err := tenant.New(
 		c.Context,
-		aserto.WithAddr(svcs.TenantService),
+		aserto.WithAddr(c.Environment.TenantService.Address),
 		aserto.WithTokenAuth(tok.Access),
 	)
 	if err != nil {
@@ -102,7 +93,7 @@ func (d *LoginCmd) Run(c *cc.CommonCtx) error {
 		return errors.Wrapf(err, "get connection keys")
 	}
 
-	kr, err := keyring.NewKeyRing(env)
+	kr, err := keyring.NewKeyRing(c.Auth.Issuer)
 	if err != nil {
 		return err
 	}
@@ -110,7 +101,7 @@ func (d *LoginCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	fmt.Fprint(c.ErrWriter, "login successful\n")
+	fmt.Fprint(c.UI.Err(), "login successful\n")
 
 	return nil
 }

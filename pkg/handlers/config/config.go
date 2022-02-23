@@ -9,7 +9,6 @@ import (
 	"github.com/aserto-dev/aserto/pkg/keyring"
 	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
 	account "github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"
-	"github.com/aserto-dev/go-lib/ids"
 
 	"github.com/pkg/errors"
 )
@@ -17,7 +16,7 @@ import (
 type GetEnvCmd struct{}
 
 func (cmd *GetEnvCmd) Run(c *cc.CommonCtx) error {
-	return jsonx.OutputJSON(c.OutWriter, c.Services)
+	return jsonx.OutputJSON(c.UI.Output(), c.Environment)
 }
 
 type GetTenantCmd struct{}
@@ -56,7 +55,7 @@ func (cmd *GetTenantCmd) Run(c *cc.CommonCtx) error {
 		tenants[i] = &tt
 	}
 
-	return jsonx.OutputJSON(c.OutWriter, tenants)
+	return jsonx.OutputJSON(c.UI.Output(), tenants)
 }
 
 type SetTenantCmd struct {
@@ -65,10 +64,6 @@ type SetTenantCmd struct {
 }
 
 func (cmd *SetTenantCmd) Run(c *cc.CommonCtx) error {
-	if err := ids.CheckTenantID(cmd.ID); err != nil {
-		return errors.Errorf("argument is not a valid tenant id")
-	}
-
 	conn, err := c.TenantClient()
 	if err != nil {
 		return err
@@ -91,7 +86,7 @@ func (cmd *SetTenantCmd) Run(c *cc.CommonCtx) error {
 		return errors.Errorf("tenant id does not exist in users tenant collection [%s]", cmd.ID)
 	}
 
-	fmt.Fprintf(c.ErrWriter, "tenant %s - %s\n", tnt.Id, tnt.Name)
+	fmt.Fprintf(c.UI.Err(), "tenant %s - %s\n", tnt.Id, tnt.Name)
 
 	tok := c.Token()
 	tok.TenantID = tnt.Id
@@ -100,7 +95,7 @@ func (cmd *SetTenantCmd) Run(c *cc.CommonCtx) error {
 		return errors.Wrapf(err, "get connection keys")
 	}
 
-	kr, err := keyring.NewKeyRing(c.Environment())
+	kr, err := keyring.NewKeyRing(c.Auth.Issuer)
 	if err != nil {
 		return err
 	}
@@ -109,7 +104,7 @@ func (cmd *SetTenantCmd) Run(c *cc.CommonCtx) error {
 	}
 
 	if cmd.Default {
-		fmt.Fprintf(c.ErrWriter, "set default tenant to [%s]\n", cmd.ID)
+		fmt.Fprintf(c.UI.Err(), "set default tenant to [%s]\n", cmd.ID)
 
 		req := &account.UpdateAccountRequest{
 			Account: &api.Account{DefaultTenant: cmd.ID},

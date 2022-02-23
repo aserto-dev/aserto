@@ -6,7 +6,6 @@ import (
 	"os/user"
 
 	"github.com/aserto-dev/aserto/pkg/auth0/api"
-	x "github.com/aserto-dev/aserto/pkg/x"
 	"github.com/pkg/errors"
 	"github.com/zalando/go-keyring"
 )
@@ -16,22 +15,15 @@ type KeyRing struct {
 	user    string
 }
 
-func NewKeyRing(env string) (*KeyRing, error) {
+func NewKeyRing(key string) (*KeyRing, error) {
 	u, err := user.Current()
 	if err != nil {
 		return nil, errors.Wrapf(err, "get username")
 	}
 	return &KeyRing{
-		service: key(env),
+		service: key,
 		user:    u.Username,
 	}, nil
-}
-
-func key(env string) string {
-	if env == x.EnvProduction {
-		return x.Aserto
-	}
-	return x.Aserto + "-" + env
 }
 
 func (kr *KeyRing) GetToken() (*api.Token, error) {

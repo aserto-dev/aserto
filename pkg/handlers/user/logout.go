@@ -10,9 +10,7 @@ type LogoutCmd struct {
 }
 
 func (cmd *LogoutCmd) Run(c *cc.CommonCtx) error {
-	env := c.Environment()
-
-	kr, err := keyring.NewKeyRing(env)
+	kr, err := keyring.NewKeyRing(c.Auth.Issuer)
 	if err != nil {
 		return errors.Wrapf(err, "instantiate keyring")
 	}

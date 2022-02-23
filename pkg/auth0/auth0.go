@@ -1,10 +1,9 @@
 package auth0
 
-import "github.com/aserto-dev/aserto/pkg/x"
+import "fmt"
 
 type Settings struct {
-	Environment            string
-	Domain                 string
+	Issuer                 string
 	Audience               string
 	ClientID               string
 	RedirectURL            string
@@ -17,25 +16,25 @@ type Settings struct {
 	JWKS                   string
 }
 
-func GetSettings(env string) *Settings {
+const (
+	IssuerProduction   = "aserto.us.auth0.com"
+	ClientIDProduction = "98ofxNoUdgVu7vuYAddWW2WpglFM4til"
 
-	switch env {
-	case x.EnvProduction:
-		return &Settings{
-			Environment:            x.EnvProduction,
-			Domain:                 "aserto.us.auth0.com",
-			Audience:               "https://console.aserto.com",
-			ClientID:               "98ofxNoUdgVu7vuYAddWW2WpglFM4til",
-			RedirectURL:            "http://localhost:3987",
-			LogoutURL:              "http://localhost:3987",
-			AuthorizationURL:       "https://aserto.us.auth0.com/authorize",
-			DeviceAuthorizationURL: "https://aserto.us.auth0.com/oauth/device/code",
-			TokenURL:               "https://aserto.us.auth0.com/oauth/token",
-			UserInfoURL:            "https://aserto.us.auth0.com/userinfo",
-			OpenIDConfiguration:    "https://aserto.us.auth0.com/.well-known/openid-configuration",
-			JWKS:                   "https://aserto.us.auth0.com/.well-known/jwks.json",
-		}
-	default:
-		return nil
+	Audience = "https://console.aserto.com"
+)
+
+func GetSettings(issuer, clientID, audience string) *Settings {
+	return &Settings{
+		Issuer:                 issuer,
+		Audience:               audience,
+		ClientID:               clientID,
+		RedirectURL:            "http://localhost:3987",
+		LogoutURL:              "http://localhost:3987",
+		AuthorizationURL:       fmt.Sprintf("https://%s/authorize", issuer),
+		DeviceAuthorizationURL: fmt.Sprintf("https://%s/oauth/device/code", issuer),
+		TokenURL:               fmt.Sprintf("https://%s/oauth/token", issuer),
+		UserInfoURL:            fmt.Sprintf("https://%s/userinfo", issuer),
+		OpenIDConfiguration:    fmt.Sprintf("https://%s/.well-known/openid-configuration", issuer),
+		JWKS:                   fmt.Sprintf("https://%s/.well-known/jwks.json", issuer),
 	}
 }

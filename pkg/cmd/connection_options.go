@@ -1,10 +1,5 @@
 package cmd
 
-import (
-	"github.com/aserto-dev/aserto/pkg/client"
-	"github.com/aserto-dev/aserto/pkg/x"
-)
-
 type ConnectionOptions struct {
 	APIKey   string `xor:"creds" env:"KEY" help:"service api key"`
 	NoAuth   bool   `xor:"creds" help:"do not provide any credentials"`
@@ -35,9 +30,4 @@ type AuthorizerOptions struct {
 
 func (ao *AuthorizerOptions) Address() string {
 	return ao.AddressOverride
-}
-
-type ConnectionOverrides interface {
-	Override(svc x.Service, overrides client.Overrides)
-	RequireToken()
 }

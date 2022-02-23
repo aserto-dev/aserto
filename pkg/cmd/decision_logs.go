@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/alecthomas/kong"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/handlers/decision_logs"
 	"github.com/aserto-dev/aserto/pkg/x"
@@ -16,8 +15,8 @@ type DecisionLogsCmd struct {
 	SvcOpts ConnectionOptions `embed:"" envprefix:"ASERTO_DECISION_LOGS_"`
 }
 
-func (cmd *DecisionLogsCmd) AfterApply(kctx *kong.Context, co ConnectionOverrides) error {
-	co.Override(x.DecisionLogsService, &cmd.SvcOpts)
+func (cmd *DecisionLogsCmd) AfterApply(so ServiceOptions) error {
+	so.Override(x.DecisionLogsService, &cmd.SvcOpts)
 
 	return nil
 }

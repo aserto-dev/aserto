@@ -50,7 +50,7 @@ func (cmd *SetUserCmd) Run(c *cc.CommonCtx) error {
 	}
 
 	if cmd.Output {
-		return jsonx.OutputJSONPB(c.OutWriter, updResp.Result)
+		return jsonx.OutputJSONPB(c.UI.Output(), updResp.Result)
 	}
 
 	return nil
