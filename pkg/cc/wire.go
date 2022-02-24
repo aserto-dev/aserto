@@ -5,6 +5,7 @@ package cc
 
 import (
 	"context"
+	"io"
 
 	"github.com/aserto-dev/aserto/pkg/auth0"
 	"github.com/aserto-dev/aserto/pkg/cc/clients"
@@ -15,9 +16,8 @@ import (
 )
 
 var (
-	ccSet = wire.NewSet(
-		context.Background,
-		config.NewConfig,
+	commonSet = wire.NewSet(
+		clui.NewUI,
 
 		GetCacheKey,
 		token.NewCachedToken,
@@ -25,11 +25,23 @@ var (
 		NewAuthSettings,
 		clients.NewClientFactory,
 
-		clui.NewUI,
-
 		wire.Bind(new(clients.Factory), new(*clients.AsertoFactory)),
 		wire.FieldsOf(new(*config.Config), "Services", "Auth"),
 		wire.Struct(new(CommonCtx), "*"),
+	)
+
+	ccSet = wire.NewSet(
+		commonSet,
+
+		context.Background,
+		config.NewConfig,
+	)
+
+	ccTestSet = wire.NewSet(
+		commonSet,
+
+		context.TODO,
+		config.NewTestConfig,
 	)
 )
 
@@ -39,6 +51,15 @@ func BuildCommonCtx(
 	svcOptions *clients.ServiceOptions,
 ) (*CommonCtx, error) {
 	wire.Build(ccSet)
+	return &CommonCtx{}, nil
+}
+
+func BuildTestCtx(
+	configReader io.Reader,
+	overrides config.Overrider,
+	svcOptions *clients.ServiceOptions,
+) (*CommonCtx, error) {
+	wire.Build(ccTestSet)
 	return &CommonCtx{}, nil
 }
 
