@@ -1,6 +1,7 @@
 package config
 
 import (
+	"io"
 	"strings"
 
 	"github.com/aserto-dev/aserto/pkg/auth0"
@@ -36,6 +37,35 @@ type Config struct {
 type Path string
 
 func NewConfig(path Path, overrides Overrider) (*Config, error) {
+	configFile := string(path)
+
+	return newConfig(
+		func(v *viper.Viper) error {
+			if configFile != "" {
+				v.SetConfigFile(configFile)
+				if err := v.ReadInConfig(); err != nil {
+					return errors.Wrapf(err, "failed to read config file [%s]", configFile)
+				}
+			}
+
+			return nil
+		},
+		overrides,
+	)
+}
+
+func NewTestConfig(reader io.Reader, overrides Overrider) (*Config, error) {
+	return newConfig(
+		func(v *viper.Viper) error {
+			return v.ReadConfig(reader)
+		},
+		overrides,
+	)
+}
+
+type configReader func(*viper.Viper) error
+
+func newConfig(reader configReader, overrides Overrider) (*Config, error) {
 	cfg := new(Config)
 
 	v := viper.New()
@@ -47,15 +77,11 @@ func NewConfig(path Path, overrides Overrider) (*Config, error) {
 	v.SetDefault("auth.client_id", auth0.ClientIDProduction)
 	v.SetDefault("auth.audience", auth0.Audience)
 
-	configFile := string(path)
-	if path != "" {
-		v.SetConfigFile(configFile)
-		if err := v.ReadInConfig(); err != nil {
-			return nil, errors.Wrapf(err, "failed to read config file [%s]", configFile)
-		}
-	}
-
 	v.AutomaticEnv()
+
+	if err := reader(v); err != nil {
+		return nil, err
+	}
 
 	if err := v.UnmarshalExact(cfg, jsonDecoderConfig); err != nil {
 		return nil, errors.Wrap(err, "failed to parse config file")

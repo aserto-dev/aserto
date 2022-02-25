@@ -14,6 +14,7 @@ import (
 	"github.com/aserto-dev/aserto/pkg/cc/token"
 	"github.com/aserto-dev/clui"
 	"github.com/google/wire"
+	"io"
 )
 
 // Injectors from wire.go:
@@ -46,11 +47,47 @@ func BuildCommonCtx(configPath config.Path, overrides config.Overrider, svcOptio
 	return commonCtx, nil
 }
 
+func BuildTestCtx(configReader io.Reader, overrides config.Overrider, svcOptions *clients.ServiceOptions) (*CommonCtx, error) {
+	contextContext := context.TODO()
+	configConfig, err := config.NewTestConfig(configReader, overrides)
+	if err != nil {
+		return nil, err
+	}
+	services := &configConfig.Services
+	auth := configConfig.Auth
+	cacheKey := GetCacheKey(auth)
+	cachedToken := token.NewCachedToken(cacheKey)
+	tenantID := NewTenantID(configConfig, cachedToken)
+	asertoFactory, err := clients.NewClientFactory(contextContext, svcOptions, services, tenantID, cachedToken)
+	if err != nil {
+		return nil, err
+	}
+	settings := NewAuthSettings(auth)
+	ui := clui.NewUI()
+	commonCtx := &CommonCtx{
+		Factory:     asertoFactory,
+		Context:     contextContext,
+		Environment: services,
+		Auth:        settings,
+		CachedToken: cachedToken,
+		UI:          ui,
+	}
+	return commonCtx, nil
+}
+
 // wire.go:
 
 var (
-	ccSet = wire.NewSet(context.Background, config.NewConfig, GetCacheKey, token.NewCachedToken, NewTenantID,
-		NewAuthSettings, clients.NewClientFactory, clui.NewUI, wire.Bind(new(clients.Factory), new(*clients.AsertoFactory)), wire.FieldsOf(new(*config.Config), "Services", "Auth"), wire.Struct(new(CommonCtx), "*"),
+	commonSet = wire.NewSet(clui.NewUI, GetCacheKey, token.NewCachedToken, NewTenantID,
+		NewAuthSettings, clients.NewClientFactory, wire.Bind(new(clients.Factory), new(*clients.AsertoFactory)), wire.FieldsOf(new(*config.Config), "Services", "Auth"), wire.Struct(new(CommonCtx), "*"),
+	)
+
+	ccSet = wire.NewSet(
+		commonSet, context.Background, config.NewConfig,
+	)
+
+	ccTestSet = wire.NewSet(
+		commonSet, context.TODO, config.NewTestConfig,
 	)
 )
 
