@@ -57,6 +57,7 @@ func NewConfig(path Path, overrides Overrider) (*Config, error) {
 func NewTestConfig(reader io.Reader, overrides Overrider) (*Config, error) {
 	return newConfig(
 		func(v *viper.Viper) error {
+			v.SetConfigType("yaml")
 			return v.ReadConfig(reader)
 		},
 		overrides,

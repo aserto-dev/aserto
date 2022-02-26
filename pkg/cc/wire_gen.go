@@ -11,8 +11,8 @@ import (
 	"github.com/aserto-dev/aserto/pkg/auth0"
 	"github.com/aserto-dev/aserto/pkg/cc/clients"
 	"github.com/aserto-dev/aserto/pkg/cc/config"
+	"github.com/aserto-dev/aserto/pkg/cc/iostream"
 	"github.com/aserto-dev/aserto/pkg/cc/token"
-	"github.com/aserto-dev/clui"
 	"github.com/google/wire"
 	"io"
 )
@@ -28,14 +28,15 @@ func BuildCommonCtx(configPath config.Path, overrides config.Overrider, svcOptio
 	services := &configConfig.Services
 	auth := configConfig.Auth
 	cacheKey := GetCacheKey(auth)
-	cachedToken := token.NewCachedToken(cacheKey)
+	cachedToken := token.Load(cacheKey)
 	tenantID := NewTenantID(configConfig, cachedToken)
 	asertoFactory, err := clients.NewClientFactory(contextContext, svcOptions, services, tenantID, cachedToken)
 	if err != nil {
 		return nil, err
 	}
 	settings := NewAuthSettings(auth)
-	ui := clui.NewUI()
+	stdIO := iostream.DefaultIO()
+	ui := iostream.NewUI(stdIO)
 	commonCtx := &CommonCtx{
 		Factory:     asertoFactory,
 		Context:     contextContext,
@@ -47,7 +48,7 @@ func BuildCommonCtx(configPath config.Path, overrides config.Overrider, svcOptio
 	return commonCtx, nil
 }
 
-func BuildTestCtx(configReader io.Reader, overrides config.Overrider, svcOptions *clients.ServiceOptions) (*CommonCtx, error) {
+func BuildTestCtx(ioStreams iostream.IO, configReader io.Reader, overrides config.Overrider, svcOptions *clients.ServiceOptions) (*CommonCtx, error) {
 	contextContext := context.TODO()
 	configConfig, err := config.NewTestConfig(configReader, overrides)
 	if err != nil {
@@ -56,14 +57,14 @@ func BuildTestCtx(configReader io.Reader, overrides config.Overrider, svcOptions
 	services := &configConfig.Services
 	auth := configConfig.Auth
 	cacheKey := GetCacheKey(auth)
-	cachedToken := token.NewCachedToken(cacheKey)
+	cachedToken := token.Load(cacheKey)
 	tenantID := NewTenantID(configConfig, cachedToken)
 	asertoFactory, err := clients.NewClientFactory(contextContext, svcOptions, services, tenantID, cachedToken)
 	if err != nil {
 		return nil, err
 	}
 	settings := NewAuthSettings(auth)
-	ui := clui.NewUI()
+	ui := iostream.NewUI(ioStreams)
 	commonCtx := &CommonCtx{
 		Factory:     asertoFactory,
 		Context:     contextContext,
@@ -78,12 +79,12 @@ func BuildTestCtx(configReader io.Reader, overrides config.Overrider, svcOptions
 // wire.go:
 
 var (
-	commonSet = wire.NewSet(clui.NewUI, GetCacheKey, token.NewCachedToken, NewTenantID,
+	commonSet = wire.NewSet(iostream.NewUI, GetCacheKey, token.Load, NewTenantID,
 		NewAuthSettings, clients.NewClientFactory, wire.Bind(new(clients.Factory), new(*clients.AsertoFactory)), wire.FieldsOf(new(*config.Config), "Services", "Auth"), wire.Struct(new(CommonCtx), "*"),
 	)
 
 	ccSet = wire.NewSet(
-		commonSet, context.Background, config.NewConfig,
+		commonSet, iostream.DefaultIO, context.Background, config.NewConfig, wire.Bind(new(iostream.IO), new(*iostream.StdIO)),
 	)
 
 	ccTestSet = wire.NewSet(

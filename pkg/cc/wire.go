@@ -10,17 +10,16 @@ import (
 	"github.com/aserto-dev/aserto/pkg/auth0"
 	"github.com/aserto-dev/aserto/pkg/cc/clients"
 	"github.com/aserto-dev/aserto/pkg/cc/config"
+	"github.com/aserto-dev/aserto/pkg/cc/iostream"
 	"github.com/aserto-dev/aserto/pkg/cc/token"
-	"github.com/aserto-dev/clui"
 	"github.com/google/wire"
 )
 
 var (
 	commonSet = wire.NewSet(
-		clui.NewUI,
-
+		iostream.NewUI,
 		GetCacheKey,
-		token.NewCachedToken,
+		token.Load,
 		NewTenantID,
 		NewAuthSettings,
 		clients.NewClientFactory,
@@ -33,8 +32,11 @@ var (
 	ccSet = wire.NewSet(
 		commonSet,
 
+		iostream.DefaultIO,
 		context.Background,
 		config.NewConfig,
+
+		wire.Bind(new(iostream.IO), new(*iostream.StdIO)),
 	)
 
 	ccTestSet = wire.NewSet(
@@ -55,6 +57,7 @@ func BuildCommonCtx(
 }
 
 func BuildTestCtx(
+	ioStreams iostream.IO,
 	configReader io.Reader,
 	overrides config.Overrider,
 	svcOptions *clients.ServiceOptions,

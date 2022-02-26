@@ -45,7 +45,7 @@ func main() {
 
 	ctx, err := cc.BuildCommonCtx(
 		config.Path(cli.Cfg),
-		configOverrider(&cli),
+		cli.ConfigOverrider,
 		serviceOptions,
 	)
 	if err != nil {
@@ -55,13 +55,5 @@ func main() {
 
 	if err := kongCtx.Run(ctx); err != nil {
 		kongCtx.FatalIfErrorf(err)
-	}
-}
-
-func configOverrider(cli *cmd.CLI) config.Overrider {
-	return func(conf *config.Config) {
-		if cli.TenantOverride != "" {
-			conf.TenantID = cli.TenantOverride
-		}
 	}
 }
