@@ -20,8 +20,8 @@ import (
 type InstallCmd struct {
 	TrustCert bool `optional:"" default:"false" help:"add onebox certificate to the system's trusted CAs"`
 
-	ContainerName    string `optional:""  default:"authorizer-onebox" help:"container name"`
-	ContainerVersion string `optional:""  default:"latest" help:"container version" `
+	ImageName    string `optional:""  default:"authorizer-onebox" help:"image name"`
+	ImageVersion string `optional:""  default:"latest" help:"image version" `
 }
 
 func (cmd InstallCmd) Run(c *cc.CommonCtx) error {
@@ -53,10 +53,10 @@ func (cmd InstallCmd) Run(c *cc.CommonCtx) error {
 	}
 
 	return dockerx.DockerWith(map[string]string{
-		"CONTAINER_NAME":    cmd.ContainerName,
-		"CONTAINER_VERSION": cmd.ContainerVersion,
+		"IMAGE_NAME":    cmd.ImageName,
+		"IMAGE_VERSION": cmd.ImageVersion,
 	},
-		"pull", "ghcr.io/aserto-dev/$CONTAINER_NAME:$CONTAINER_VERSION",
+		"pull", "ghcr.io/aserto-dev/$IMAGE_NAME:$IMAGE_VERSION",
 	)
 }
 
