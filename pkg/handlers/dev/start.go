@@ -1,8 +1,6 @@
 package dev
 
 import (
-	"fmt"
-	"os"
 	"path"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
@@ -43,7 +41,7 @@ func (cmd *StartCmd) Run(c *cc.CommonCtx) error {
 	}
 
 	if cmd.Name == local {
-		if err := setupLocalRun(c, paths, cmd.SrcPath); err != nil {
+		if err := verifySrcPath(cmd.SrcPath); err != nil {
 			return err
 		}
 	} else if !filex.FileExists(path.Join(paths.Config, cmd.Name+".yaml")) {
@@ -136,35 +134,13 @@ func (cmd *StartCmd) env(paths *localpaths.Paths) map[string]string {
 	}
 }
 
-func setupLocalRun(c *cc.CommonCtx, paths *localpaths.Paths, srcPath string) error {
+func verifySrcPath(srcPath string) error {
 	if srcPath == "" {
 		return errors.Errorf("mode local requires source path argument to be set")
 	}
 
 	if !filex.DirExists(srcPath) {
 		return errors.Errorf("source path directory %s does not exist", srcPath)
-	}
-
-	cfgLocal := paths.LocalConfig()
-	if !filex.FileExists(cfgLocal) {
-		fmt.Fprintf(c.UI.Output(), "creating %s\n", cfgLocal)
-		f, err := os.OpenFile(cfgLocal, os.O_WRONLY|os.O_CREATE, 0600)
-		if err != nil {
-			return errors.Wrapf(err, "creating %s", cfgLocal)
-		}
-
-		if err := WriteConfig(f, configTemplateLocal, &templateParams{TenantID: c.TenantID()}); err != nil {
-			return errors.Wrapf(err, "writing %s", cfgLocal)
-		}
-
-	}
-
-	edsFile := paths.LocalEDS()
-	if !filex.FileExists(edsFile) {
-		fmt.Fprintf(c.UI.Output(), "creating %s\n", edsFile)
-		if err := createDefaultEds(edsFile); err != nil {
-			return errors.Wrap(err, "create default eds")
-		}
 	}
 
 	return nil

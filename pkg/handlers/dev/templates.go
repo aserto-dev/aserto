@@ -8,6 +8,9 @@ type templateParams struct {
 	TenantKey    string
 }
 
+// Tenant ID used in local eds store and onebox console.
+const localTenantID = "5d7cccc6-1657-11ec-a291-00001df0866c"
+
 const configTemplate = templatePreamble + `
 opa:
   instance_id: {{ .TenantID }}

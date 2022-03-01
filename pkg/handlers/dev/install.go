@@ -7,6 +7,7 @@ import (
 
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/dockerx"
+	"github.com/aserto-dev/aserto/pkg/filex"
 	"github.com/aserto-dev/aserto/pkg/handlers/dev/certs"
 	"github.com/aserto-dev/aserto/pkg/orasx"
 	localpaths "github.com/aserto-dev/aserto/pkg/paths"
@@ -40,6 +41,22 @@ func (cmd InstallCmd) Run(c *cc.CommonCtx) error {
 		return errors.Wrap(err, "failed to create configuration directory")
 	}
 
+	cfgLocal := paths.LocalConfig()
+	if !filex.FileExists(cfgLocal) {
+		fmt.Fprintf(c.UI.Output(), "creating %s\n", cfgLocal)
+		if err := createLocalConfig(cfgLocal); err != nil {
+			return errors.Wrap(err, "create local configuration")
+		}
+	}
+
+	edsFile := paths.LocalEDS()
+	if !filex.FileExists(edsFile) {
+		fmt.Fprintf(c.UI.Output(), "creating %s\n", edsFile)
+		if err := createDefaultEds(edsFile); err != nil {
+			return errors.Wrap(err, "create default eds")
+		}
+	}
+
 	// Create onebox certs if none exist.
 	if err := certs.GenerateCerts(c.UI.Output(), c.UI.Err(), paths.Certs.GRPC, paths.Certs.Gateway); err != nil {
 		return errors.Wrap(err, "failed to create dev certificates")
@@ -58,6 +75,15 @@ func (cmd InstallCmd) Run(c *cc.CommonCtx) error {
 	},
 		"pull", "ghcr.io/aserto-dev/$IMAGE_NAME:$IMAGE_VERSION",
 	)
+}
+
+func createLocalConfig(path string) error {
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0600)
+	if err != nil {
+		return errors.Wrapf(err, "creating %s", path)
+	}
+
+	return WriteConfig(f, configTemplateLocal, &templateParams{TenantID: localTenantID})
 }
 
 func createDefaultEds(edsFile string) error {
