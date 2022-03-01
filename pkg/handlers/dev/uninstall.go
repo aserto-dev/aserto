@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/dockerx"
@@ -71,7 +72,10 @@ func (cmd UninstallCmd) Run(c *cc.CommonCtx) error {
 
 	if str != "" {
 		fmt.Fprintf(c.UI.Output(), "removing %s\n", "aserto-dev/authorizer-onebox")
-		err = dockerx.DockerRun("rmi", str)
+		images := strings.Split(str, "\n")
+		for _, image := range images {
+			err = dockerx.DockerRun("rmi", image)
+		}
 	}
 
 	return err
