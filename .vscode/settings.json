@@ -37,8 +37,6 @@
         "nolint",
         "onebox",
         "openid",
-        "oras",
-        "orasx",
         "pb",
         "pkce",
         "protobuf",

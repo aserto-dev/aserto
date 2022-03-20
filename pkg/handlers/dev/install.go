@@ -1,20 +1,15 @@
 package dev
 
 import (
-	"context"
 	"fmt"
-	"os"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/dockerx"
 	"github.com/aserto-dev/aserto/pkg/handlers/dev/certs"
-	"github.com/aserto-dev/aserto/pkg/orasx"
 	localpaths "github.com/aserto-dev/aserto/pkg/paths"
 
 	"github.com/fatih/color"
 	"github.com/pkg/errors"
-	"oras.land/oras-go/pkg/content"
-	"oras.land/oras-go/pkg/oras"
 )
 
 type InstallCmd struct {
@@ -58,29 +53,4 @@ func (cmd InstallCmd) Run(c *cc.CommonCtx) error {
 	},
 		"pull", "ghcr.io/aserto-dev/$CONTAINER_NAME:$CONTAINER_VERSION",
 	)
-}
-
-func createDefaultEds(edsFile string) error {
-	ctx := context.Background()
-
-	resolver := orasx.NewResolver("", "", false, false, []string{}...)
-
-	fileStore := content.NewFileStore(edsFile)
-	defer fileStore.Close()
-
-	allowedMediaTypes := []string{content.DefaultBlobMediaType, content.DefaultBlobDirMediaType}
-
-	pullOpts := []oras.PullOpt{
-		oras.WithAllowedMediaTypes(allowedMediaTypes),
-		oras.WithPullStatusTrack(os.Stdout),
-	}
-
-	ref := "ghcr.io/aserto-demo/assets/eds:v9"
-
-	_, _, err := oras.Pull(ctx, resolver, ref, fileStore, pullOpts...)
-	if err != nil {
-		return errors.Wrap(err, "pull assets/eds:v9")
-	}
-
-	return nil
 }
