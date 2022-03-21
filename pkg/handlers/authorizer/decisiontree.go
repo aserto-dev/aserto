@@ -8,7 +8,7 @@ import (
 )
 
 type DecisionTreeCmd struct {
-	PolicyID  string
+	PolicyID  string `name:"policy_id" required:"" help:"policy id"`
 	Path      string
 	Decisions []string
 }
