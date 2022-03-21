@@ -12,12 +12,14 @@ type CachedToken struct {
 	token *api.Token
 }
 
+func New(token *api.Token) CachedToken {
+	return CachedToken{token: token}
+}
+
 type CacheKey string
 
-func NewCachedToken(key CacheKey) CachedToken {
-	token := loadToken(key)
-
-	return CachedToken{token: token}
+func Load(key CacheKey) CachedToken {
+	return CachedToken{token: loadToken(key)}
 }
 
 func (t CachedToken) Get() *api.Token {

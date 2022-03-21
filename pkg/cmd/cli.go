@@ -5,6 +5,7 @@ import (
 
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/cc/clients"
+	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/cc/token"
 	"github.com/aserto-dev/aserto/pkg/handlers/user"
 	"github.com/aserto-dev/aserto/pkg/version"
@@ -40,6 +41,12 @@ func (cli *CLI) TenantID(cachedToken token.CachedToken) string {
 	}
 
 	return cachedToken.TenantID()
+}
+
+func (cli *CLI) ConfigOverrider(conf *config.Config) {
+	if cli.TenantOverride != "" {
+		conf.TenantID = cli.TenantOverride
+	}
 }
 
 type VersionCmd struct{}
