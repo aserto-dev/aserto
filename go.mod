@@ -8,7 +8,7 @@ go 1.17
 
 require (
 	github.com/alecthomas/kong v0.5.0
-	github.com/aserto-dev/aserto-go v0.8.3
+	github.com/aserto-dev/aserto-go v0.8.4
 	github.com/aserto-dev/clui v0.8.0
 	github.com/aserto-dev/go-grpc v0.8.6
 	github.com/aserto-dev/go-grpc-authz v0.8.0
