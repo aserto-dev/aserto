@@ -8,7 +8,7 @@ go 1.17
 
 require (
 	github.com/alecthomas/kong v0.5.0
-	github.com/aserto-dev/aserto-go v0.8.3
+	github.com/aserto-dev/aserto-go v0.8.4
 	github.com/aserto-dev/clui v0.8.0
 	github.com/aserto-dev/go-grpc v0.8.6
 	github.com/aserto-dev/go-grpc-authz v0.8.0
@@ -25,7 +25,7 @@ require (
 	github.com/rs/zerolog v1.26.1
 	github.com/spf13/viper v1.10.0
 	github.com/stretchr/testify v1.7.0
-	github.com/zalando/go-keyring v0.2.0
+	github.com/zalando/go-keyring v0.1.1
 	github.com/zenizh/go-capturer v0.0.0-20211219060012-52ea6c8fed04
 	google.golang.org/genproto v0.0.0-20220317150908-0efb43f6373e
 	google.golang.org/grpc v1.45.0
@@ -35,7 +35,6 @@ require (
 
 require (
 	github.com/PuerkitoBio/rehttp v1.0.0 // indirect
-	github.com/alessio/shellescape v1.4.1 // indirect
 	github.com/benbjohnson/clock v1.1.0 // indirect
 	github.com/danieljoos/wincred v1.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
