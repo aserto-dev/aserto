@@ -14,7 +14,7 @@ import (
 
 type StreamCmd struct {
 	Policy string `arg:"" help:"ID of policy to open stream for"`
-	Since  string `optional:"" help:"UTC time to start streaming events from in RFC3339 format"`
+	Since  string `optional:"" help:"time to start streaming events from in RFC3339 format"`
 }
 
 func (cmd StreamCmd) Run(c *cc.CommonCtx) error {
