@@ -11,6 +11,7 @@ type DecisionLogsCmd struct {
 	Get       decision_logs.GetCmd       `cmd:"" help:"download one or more decision log files" group:"decision-logs"`
 	ListUsers decision_logs.ListUsersCmd `cmd:"" help:"list available user data files" group:"decision-logs"`
 	GetUser   decision_logs.GetUserCmd   `cmd:"" help:"download one or more user data files" group:"decision-logs"`
+	Stream    decision_logs.StreamCmd    `cmd:"" help:"stream decision log events to stdout" group:"decision-logs"`
 
 	SvcOpts ConnectionOptions `embed:"" envprefix:"ASERTO_DECISION_LOGS_"`
 }
