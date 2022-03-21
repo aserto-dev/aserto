@@ -17,7 +17,6 @@ const (
 	edsSubdir  = "eds"
 
 	localConfigFile = "local.yaml"
-	localEDS        = "eds-acmecorp-v9.db"
 )
 
 type Certs struct {
@@ -35,10 +34,6 @@ type Paths struct {
 
 func (p *Paths) LocalConfig() string {
 	return path.Join(p.Config, localConfigFile)
-}
-
-func (p *Paths) LocalEDS() string {
-	return path.Join(p.EDS, localEDS)
 }
 
 func New() (*Paths, error) {

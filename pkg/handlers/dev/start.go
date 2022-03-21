@@ -159,13 +159,5 @@ func setupLocalRun(c *cc.CommonCtx, paths *localpaths.Paths, srcPath string) err
 
 	}
 
-	edsFile := paths.LocalEDS()
-	if !filex.FileExists(edsFile) {
-		fmt.Fprintf(c.UI.Output(), "creating %s\n", edsFile)
-		if err := createDefaultEds(edsFile); err != nil {
-			return errors.Wrap(err, "create default eds")
-		}
-	}
-
 	return nil
 }
