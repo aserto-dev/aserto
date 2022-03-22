@@ -33,19 +33,20 @@ type TenantID string
 
 func NewClientFactory(
 	ctx context.Context,
-	opts *ServiceOptions,
 	services *x.Services,
 	tenantID TenantID,
 	token *token_.CachedToken,
 ) (*AsertoFactory, error) {
 	tenant := string(tenantID)
 
+	defaultEnv := x.DefaultEnvironment()
+
 	options := map[x.Service]OptionsBuilder{}
 	for _, svc := range x.AllServices {
 		cfg := &optionsBuilder{
-			Overrides:   opts.serviceOverrides(svc),
 			service:     svc,
-			defaultAddr: services.AddressOf(svc),
+			options:     services.Get(svc),
+			defaultAddr: defaultEnv.Get(svc).Address,
 			tenantID:    tenant,
 			token:       token,
 		}

@@ -36,7 +36,7 @@ type Config struct {
 
 type Path string
 
-func NewConfig(path Path, overrides Overrider) (*Config, error) {
+func NewConfig(path Path, overrides ...Overrider) (*Config, error) {
 	configFile := string(path)
 
 	return newConfig(
@@ -50,23 +50,23 @@ func NewConfig(path Path, overrides Overrider) (*Config, error) {
 
 			return nil
 		},
-		overrides,
+		overrides...,
 	)
 }
 
-func NewTestConfig(reader io.Reader, overrides Overrider) (*Config, error) {
+func NewTestConfig(reader io.Reader, overrides ...Overrider) (*Config, error) {
 	return newConfig(
 		func(v *viper.Viper) error {
 			v.SetConfigType("yaml")
 			return v.ReadConfig(reader)
 		},
-		overrides,
+		overrides...,
 	)
 }
 
 type configReader func(*viper.Viper) error
 
-func newConfig(reader configReader, overrides Overrider) (*Config, error) {
+func newConfig(reader configReader, overrides ...Overrider) (*Config, error) {
 	cfg := new(Config)
 
 	v := viper.New()
@@ -88,8 +88,8 @@ func newConfig(reader configReader, overrides Overrider) (*Config, error) {
 		return nil, errors.Wrap(err, "failed to parse config file")
 	}
 
-	if overrides != nil {
-		overrides(cfg)
+	for _, override := range overrides {
+		override(cfg)
 	}
 
 	return cfg, nil

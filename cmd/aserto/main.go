@@ -46,7 +46,7 @@ func main() {
 	ctx, err := cc.BuildCommonCtx(
 		config.Path(cli.Cfg),
 		cli.ConfigOverrider,
-		serviceOptions,
+		serviceOptions.ConfigOverrider,
 	)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())

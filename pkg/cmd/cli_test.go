@@ -31,7 +31,7 @@ func TestVersionCmd(t *testing.T) {
 		ios,
 		bytes.NewReader([]byte{}),
 		cli.ConfigOverrider,
-		clients.NewServiceOptions(),
+		clients.NewServiceOptions().ConfigOverrider,
 	)
 	assert.NoError(err)
 	assert.NoError(kongCtx.Run(c))

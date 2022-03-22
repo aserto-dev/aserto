@@ -4,6 +4,7 @@ import (
 	"log"
 
 	aserto "github.com/aserto-dev/aserto-go/client"
+	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/cc/errors"
 	"github.com/aserto-dev/aserto/pkg/cc/token"
 	"github.com/aserto-dev/aserto/pkg/paths"
@@ -51,6 +52,13 @@ func (b *ServiceOptions) serviceOverrides(svc x.Service) Overrides {
 	return overrides
 }
 
+func (b *ServiceOptions) ConfigOverrider(cfg *config.Config) {
+	// for svc, overrides := range b.overrides {
+	//     options := cfg.Services.Get(svc)
+
+	// }
+}
+
 type noOverrides struct{}
 
 func (o *noOverrides) Address() string {
@@ -70,9 +78,8 @@ func (o *noOverrides) IsInsecure() bool {
 }
 
 type optionsBuilder struct {
-	Overrides
-
 	service     x.Service
+	options     *x.ServiceOptions
 	defaultAddr string
 	tenantID    string
 	token       *token.CachedToken
@@ -102,7 +109,7 @@ func (c *optionsBuilder) ConnectionOptions() ([]aserto.ConnectionOption, error) 
 
 	return []aserto.ConnectionOption{
 		aserto.WithAddr(c.address()),
-		aserto.WithInsecure(c.IsInsecure()),
+		aserto.WithInsecure(c.options.Insecure),
 		authOption,
 		tenantOption,
 		caCertPathOption,
@@ -110,7 +117,7 @@ func (c *optionsBuilder) ConnectionOptions() ([]aserto.ConnectionOption, error) 
 }
 
 func (c *optionsBuilder) address() string {
-	addr := c.Address()
+	addr := c.options.Address
 	if addr != "" {
 		return addr
 	}
@@ -119,12 +126,12 @@ func (c *optionsBuilder) address() string {
 }
 
 func (c *optionsBuilder) authOption() (aserto.ConnectionOption, error) {
-	if c.IsAnonymous() {
+	if c.options.Anonymous {
 		return nilOption, nil
 	}
 
-	if c.Key() != "" {
-		return aserto.WithAPIKeyAuth(c.Key()), nil
+	if c.options.APIKey != "" {
+		return aserto.WithAPIKeyAuth(c.options.APIKey), nil
 	}
 
 	if err := c.token.Verify(); err != nil {
