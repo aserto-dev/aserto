@@ -75,7 +75,7 @@ type optionsBuilder struct {
 	service     x.Service
 	defaultAddr string
 	tenantID    string
-	token       token.CachedToken
+	token       *token.CachedToken
 }
 
 func (c *optionsBuilder) ConnectionOptions() ([]aserto.ConnectionOption, error) {
@@ -131,7 +131,11 @@ func (c *optionsBuilder) authOption() (aserto.ConnectionOption, error) {
 		return nil, err
 	}
 
-	return aserto.WithTokenAuth(c.token.Get().Access), nil
+	tkn, err := c.token.Get()
+	if err != nil {
+		return nil, err
+	}
+	return aserto.WithTokenAuth(tkn.Access), nil
 }
 
 func (c *optionsBuilder) tenantOption() (aserto.ConnectionOption, error) {

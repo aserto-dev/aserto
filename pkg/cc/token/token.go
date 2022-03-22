@@ -2,6 +2,7 @@ package token
 
 import (
 	"log"
+	"sync"
 
 	"github.com/aserto-dev/aserto/pkg/auth0/api"
 	"github.com/aserto-dev/aserto/pkg/cc/errors"
@@ -10,23 +11,30 @@ import (
 
 type CachedToken struct {
 	token *api.Token
+
+	verifyOnce sync.Once
+	errVerify  error
 }
 
-func New(token *api.Token) CachedToken {
-	return CachedToken{token: token}
+func New(token *api.Token) *CachedToken {
+	return &CachedToken{token: token}
 }
 
 type CacheKey string
 
-func Load(key CacheKey) CachedToken {
-	return CachedToken{token: loadToken(key)}
+func Load(key CacheKey) *CachedToken {
+	return &CachedToken{token: loadToken(key)}
 }
 
-func (t CachedToken) Get() *api.Token {
-	return t.token
+func (t *CachedToken) Get() (*api.Token, error) {
+	t.verifyOnce.Do(func() {
+		t.errVerify = t.Verify()
+	})
+
+	return t.token, t.errVerify
 }
 
-func (t CachedToken) Verify() error {
+func (t *CachedToken) Verify() error {
 	if t.token == nil || t.token.Access == "" {
 		return errors.NeedLoginErr
 	}
@@ -38,12 +46,13 @@ func (t CachedToken) Verify() error {
 	return nil
 }
 
-func (t CachedToken) TenantID() string {
-	if t.token != nil && !t.token.IsExpired() {
-		return t.token.TenantID
+func (t *CachedToken) TenantID() string {
+	token, err := t.Get()
+	if err != nil {
+		return ""
 	}
 
-	return ""
+	return token.TenantID
 }
 
 func loadToken(key CacheKey) *api.Token {

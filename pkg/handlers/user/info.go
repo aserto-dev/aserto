@@ -36,7 +36,11 @@ func getInfo(c *cc.CommonCtx) (*Info, error) {
 		return nil, err
 	}
 
-	req.Header.Add("Authorization", c.Token().Type+" "+c.Token().Access)
+	token, err := c.Token()
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("Authorization", token.Type+" "+token.Access)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

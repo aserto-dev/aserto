@@ -88,7 +88,11 @@ func (cmd *SetTenantCmd) Run(c *cc.CommonCtx) error {
 
 	fmt.Fprintf(c.UI.Err(), "tenant %s - %s\n", tnt.Id, tnt.Name)
 
-	tok := c.Token()
+	tok, err := c.Token()
+	if err != nil {
+		return err
+	}
+
 	tok.TenantID = tnt.Id
 
 	if err = user.GetConnectionKeys(c.Context, conn, tok); err != nil {

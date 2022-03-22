@@ -92,7 +92,7 @@ var (
 	)
 )
 
-func NewTenantID(cfg *config.Config, cachedToken token.CachedToken) clients.TenantID {
+func NewTenantID(cfg *config.Config, cachedToken *token.CachedToken) clients.TenantID {
 	id := cfg.TenantID
 	if id == "" {
 		id = cachedToken.TenantID()

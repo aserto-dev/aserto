@@ -36,15 +36,8 @@ func NewClientFactory(
 	opts *ServiceOptions,
 	services *x.Services,
 	tenantID TenantID,
-	token token_.CachedToken,
+	token *token_.CachedToken,
 ) (*AsertoFactory, error) {
-	if opts.needsToken {
-		log.Print("command requires token. verifying...")
-		if err := token.Verify(); err != nil {
-			return nil, err
-		}
-	}
-
 	tenant := string(tenantID)
 
 	options := map[x.Service]OptionsBuilder{}

@@ -21,18 +21,30 @@ func (cmd *GetCmd) Run(c *cc.CommonCtx) error {
 		return errors.Errorf("no property flag provided")
 	}
 
-	var propValue string
+	var (
+		propValue string
+		err       error
+	)
+
 	switch {
 	case cmd.AccessToken:
-		propValue = c.AccessToken()
+		propValue, err = c.AccessToken()
 	case cmd.TenantID:
 		propValue = c.TenantID()
 	case cmd.AuthorizerAPIKey:
-		propValue = c.AuthorizerAPIKey()
+		propValue, err = c.AuthorizerAPIKey()
 	case cmd.DecisionLogsKey:
-		propValue = c.DecisionLogsKey()
+		propValue, err = c.DecisionLogsKey()
 	case cmd.Token:
-		return jsonx.OutputJSON(c.UI.Output(), c.Token())
+		token, tokenErr := c.Token()
+		if tokenErr != nil {
+			return tokenErr
+		}
+		return jsonx.OutputJSON(c.UI.Output(), token)
+	}
+
+	if err != nil {
+		return err
 	}
 
 	fmt.Fprintf(c.UI.Output(), "%s\n", propValue)
