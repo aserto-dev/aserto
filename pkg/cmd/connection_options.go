@@ -1,9 +1,9 @@
 package cmd
 
 type ConnectionOptions struct {
-	APIKey   string `xor:"creds" env:"KEY" help:"service api key"`
-	NoAuth   *bool  `xor:"creds" help:"do not provide any credentials"`
-	Insecure *bool  `help:"skip TLS verification"`
+	APIKey   string `env:"KEY" help:"service api key" placeholder:"key"`
+	NoAuth   bool   `help:"do not provide any credentials"`
+	Insecure bool   `help:"skip TLS verification" default:"false"`
 }
 
 func (so *ConnectionOptions) Address() string {
@@ -15,15 +15,15 @@ func (so *ConnectionOptions) Key() string {
 }
 
 func (so *ConnectionOptions) IsAnonymous() bool {
-	return so.NoAuth == nil || *so.NoAuth
+	return so.NoAuth
 }
 
 func (so *ConnectionOptions) IsInsecure() bool {
-	return so.Insecure == nil || *so.Insecure
+	return so.Insecure
 }
 
 type AuthorizerOptions struct {
-	AddressOverride string `name:"authorizer" env:"ADDRESS" help:"authorizer override"`
+	AddressOverride string `name:"authorizer" env:"ADDRESS" help:"authorizer override" default:""`
 
 	ConnectionOptions
 }

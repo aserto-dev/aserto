@@ -43,38 +43,14 @@ func (b *ServiceOptions) RequireToken() {
 	b.needsToken = true
 }
 
-func (b *ServiceOptions) serviceOverrides(svc x.Service) Overrides {
-	overrides, ok := b.overrides[svc]
-	if !ok {
-		return &noOverrides{}
-	}
-
-	return overrides
-}
-
 func (b *ServiceOptions) ConfigOverrider(cfg *config.Config) {
-	// for svc, overrides := range b.overrides {
-	//     options := cfg.Services.Get(svc)
-
-	// }
-}
-
-type noOverrides struct{}
-
-func (o *noOverrides) Address() string {
-	return ""
-}
-
-func (o *noOverrides) Key() string {
-	return ""
-}
-
-func (o *noOverrides) IsAnonymous() bool {
-	return false
-}
-
-func (o *noOverrides) IsInsecure() bool {
-	return false
+	for svc, overrides := range b.overrides {
+		options := cfg.Services.Get(svc)
+		options.Address = overrides.Address()
+		options.APIKey = overrides.Key()
+		options.Anonymous = overrides.IsAnonymous()
+		options.Insecure = overrides.IsInsecure()
+	}
 }
 
 type optionsBuilder struct {
