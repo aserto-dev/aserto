@@ -19,9 +19,9 @@ import (
 
 // Injectors from wire.go:
 
-func BuildCommonCtx(configPath config.Path, overrides config.Overrider, svcOptions *clients.ServiceOptions) (*CommonCtx, error) {
+func BuildCommonCtx(configPath config.Path, overrides ...config.Overrider) (*CommonCtx, error) {
 	contextContext := context.Background()
-	configConfig, err := config.NewConfig(configPath, overrides)
+	configConfig, err := config.NewConfig(configPath, overrides...)
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +30,7 @@ func BuildCommonCtx(configPath config.Path, overrides config.Overrider, svcOptio
 	cacheKey := GetCacheKey(auth)
 	cachedToken := token.Load(cacheKey)
 	tenantID := NewTenantID(configConfig, cachedToken)
-	asertoFactory, err := clients.NewClientFactory(contextContext, svcOptions, services, tenantID, cachedToken)
+	asertoFactory, err := clients.NewClientFactory(contextContext, services, tenantID, cachedToken)
 	if err != nil {
 		return nil, err
 	}
@@ -48,9 +48,9 @@ func BuildCommonCtx(configPath config.Path, overrides config.Overrider, svcOptio
 	return commonCtx, nil
 }
 
-func BuildTestCtx(ioStreams iostream.IO, configReader io.Reader, overrides config.Overrider, svcOptions *clients.ServiceOptions) (*CommonCtx, error) {
+func BuildTestCtx(ioStreams iostream.IO, configReader io.Reader, overrides ...config.Overrider) (*CommonCtx, error) {
 	contextContext := context.TODO()
-	configConfig, err := config.NewTestConfig(configReader, overrides)
+	configConfig, err := config.NewTestConfig(configReader, overrides...)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func BuildTestCtx(ioStreams iostream.IO, configReader io.Reader, overrides confi
 	cacheKey := GetCacheKey(auth)
 	cachedToken := token.Load(cacheKey)
 	tenantID := NewTenantID(configConfig, cachedToken)
-	asertoFactory, err := clients.NewClientFactory(contextContext, svcOptions, services, tenantID, cachedToken)
+	asertoFactory, err := clients.NewClientFactory(contextContext, services, tenantID, cachedToken)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +92,7 @@ var (
 	)
 )
 
-func NewTenantID(cfg *config.Config, cachedToken token.CachedToken) clients.TenantID {
+func NewTenantID(cfg *config.Config, cachedToken *token.CachedToken) clients.TenantID {
 	id := cfg.TenantID
 	if id == "" {
 		id = cachedToken.TenantID()

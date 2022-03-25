@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
+	"sync"
 
 	"github.com/alecthomas/kong"
 	"github.com/aserto-dev/aserto/pkg/cc"
@@ -39,6 +41,7 @@ func main() {
 			Indenter:            kong.SpaceIndenter,
 			NoExpandSubcommands: false,
 		}),
+		kong.Resolvers(ConfigResolver()),
 		kong.NamedMapper("conf", conf.ConfigFileMapper(configDir)), // attach to tag `type:"conf"`
 		kong.BindTo(serviceOptions, (*cmd.ServiceOptions)(nil)),
 	)
@@ -46,7 +49,7 @@ func main() {
 	ctx, err := cc.BuildCommonCtx(
 		config.Path(cli.Cfg),
 		cli.ConfigOverrider,
-		serviceOptions,
+		serviceOptions.ConfigOverrider,
 	)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
@@ -56,4 +59,65 @@ func main() {
 	if err := kongCtx.Run(ctx); err != nil {
 		kongCtx.FatalIfErrorf(err)
 	}
+}
+
+var (
+	tmpConfig  *config.Config
+	configOnce sync.Once
+)
+
+// ConfigResolver loads the config file, if present, and populates default values for service connection options like
+// address, api-key, insecure, etc.
+func ConfigResolver() kong.Resolver {
+	var f kong.ResolverFunc = func(context *kong.Context, parent *kong.Path, flag *kong.Flag) (resolved interface{}, err error) {
+		configOnce.Do(func() {
+			tmpConfig, err = loadConfig(context)
+		})
+
+		if err != nil || flag.Tag == nil || flag.Tag.EnvPrefix == "" {
+			return
+		}
+
+		var svcOptions *x.ServiceOptions = nil
+
+		// Only the authorizer and decision logs services have CLI flags to override service options.
+		switch flag.Tag.EnvPrefix {
+		case "ASERTO_AUTHORIZER_":
+			svcOptions = &tmpConfig.Services.AuthorizerService
+		case "ASERTO_DECISION_LOGS_":
+			svcOptions = &tmpConfig.Services.DecisionLogsService
+		default:
+			return
+		}
+
+		switch flag.Name {
+		case "api-key":
+			resolved = svcOptions.APIKey
+		case "no-auth":
+			flag.Default = strconv.FormatBool(svcOptions.Anonymous)
+			resolved = flag.Default
+		case "insecure":
+			flag.Default = strconv.FormatBool(svcOptions.Insecure)
+			resolved = flag.Default
+		case "authorizer":
+			flag.Default = svcOptions.Address
+			resolved = flag.Default
+		}
+
+		return
+	}
+
+	return f
+}
+
+func loadConfig(context *kong.Context) (*config.Config, error) {
+	allFlags := context.Flags()
+	for _, f := range allFlags {
+		if f.Name == "config" {
+			configPath := context.FlagValue(f).(string)
+			return config.NewConfig(config.Path(configPath))
+		}
+	}
+
+	return nil, nil
 }

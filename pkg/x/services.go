@@ -48,19 +48,19 @@ type Services struct {
 	TenantService       ServiceOptions `json:"tenant"`
 }
 
-func (s *Services) AddressOf(svc Service) string {
+func (s *Services) Get(svc Service) *ServiceOptions {
 	switch svc {
 	case AuthorizerService:
-		return s.AuthorizerService.Address
+		return &s.AuthorizerService
 	case DecisionLogsService:
-		return s.DecisionLogsService.Address
+		return &s.DecisionLogsService
 	case TenantService:
-		return s.TenantService.Address
+		return &s.TenantService
 	default:
 		log.Panicf("unknown service [%d]\n", svc)
 	}
 
-	return ""
+	return &ServiceOptions{}
 }
 
 func (s *Services) SetAddress(svc Service, address string) error {

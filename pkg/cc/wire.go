@@ -49,8 +49,7 @@ var (
 
 func BuildCommonCtx(
 	configPath config.Path,
-	overrides config.Overrider,
-	svcOptions *clients.ServiceOptions,
+	overrides ...config.Overrider,
 ) (*CommonCtx, error) {
 	wire.Build(ccSet)
 	return &CommonCtx{}, nil
@@ -59,14 +58,13 @@ func BuildCommonCtx(
 func BuildTestCtx(
 	ioStreams iostream.IO,
 	configReader io.Reader,
-	overrides config.Overrider,
-	svcOptions *clients.ServiceOptions,
+	overrides ...config.Overrider,
 ) (*CommonCtx, error) {
 	wire.Build(ccTestSet)
 	return &CommonCtx{}, nil
 }
 
-func NewTenantID(cfg *config.Config, cachedToken token.CachedToken) clients.TenantID {
+func NewTenantID(cfg *config.Config, cachedToken *token.CachedToken) clients.TenantID {
 	id := cfg.TenantID
 	if id == "" {
 		id = cachedToken.TenantID()

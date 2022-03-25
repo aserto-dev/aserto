@@ -5,15 +5,12 @@ import (
 	"fmt"
 	"io"
 	"testing"
-	"time"
 
 	"github.com/alecthomas/kong"
-	"github.com/aserto-dev/aserto/pkg/auth0/api"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/cc/clients"
 	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/cc/iostream"
-	"github.com/aserto-dev/aserto/pkg/cc/token"
 	"github.com/aserto-dev/aserto/pkg/cmd"
 	"github.com/aserto-dev/aserto/pkg/version"
 	"github.com/aserto-dev/aserto/pkg/x"
@@ -34,7 +31,7 @@ func TestVersionCmd(t *testing.T) {
 		ios,
 		bytes.NewReader([]byte{}),
 		cli.ConfigOverrider,
-		clients.NewServiceOptions(),
+		clients.NewServiceOptions().ConfigOverrider,
 	)
 	assert.NoError(err)
 	assert.NoError(kongCtx.Run(c))
@@ -43,29 +40,6 @@ func TestVersionCmd(t *testing.T) {
 		fmt.Sprintf("%s - %s (%s)\n", x.AppName, version.GetInfo().String(), x.AppVersionTag),
 		ios.Out.String(),
 	)
-}
-
-func TestTenantID(t *testing.T) {
-	tests := []struct {
-		Name     string
-		TenantID string
-		Token    *api.Token
-		Expected string
-	}{
-		{"override with no cached token", "testID", nil, "testID"},
-		{"override with cached token", "testID", newToken("cached", false), "testID"},
-		{"cached token with no override", "", newToken("cached", false), "cached"},
-		{"expired token and no override", "", newToken("cached", true), ""},
-		{"no token and no override", "", nil, ""},
-	}
-
-	for _, test := range tests {
-		t.Run(test.Name, func(tt *testing.T) {
-			assert := require.New(tt)
-			cli := &cmd.CLI{TenantOverride: test.TenantID}
-			assert.Equal(test.Expected, cli.TenantID(token.New(test.Token)))
-		})
-	}
 }
 
 func TestConfigOverrider(t *testing.T) {
@@ -90,16 +64,4 @@ func TestConfigOverrider(t *testing.T) {
 			assert.Equal(test.Expected, conf.TenantID)
 		})
 	}
-}
-
-func newToken(tenantID string, expired bool) *api.Token {
-	expiresAt := time.Now().UTC()
-	offset := 24 * time.Hour
-	if expired {
-		expiresAt = expiresAt.Add(-offset)
-	} else {
-		expiresAt = expiresAt.Add(offset)
-	}
-
-	return &api.Token{TenantID: tenantID, ExpiresAt: expiresAt}
 }

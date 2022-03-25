@@ -18,25 +18,37 @@ type CommonCtx struct {
 	Context     context.Context
 	Environment *x.Services
 	Auth        *auth0.Settings
-	CachedToken token.CachedToken
+	CachedToken *token.CachedToken
 
 	UI *clui.UI
 }
 
-func (ctx *CommonCtx) AccessToken() string {
-	return ctx.Token().Access
+func (ctx *CommonCtx) AccessToken() (string, error) {
+	tkn, err := ctx.Token()
+	if err != nil {
+		return "", err
+	}
+	return tkn.Access, nil
 }
 
-func (ctx *CommonCtx) Token() *api.Token {
+func (ctx *CommonCtx) Token() (*api.Token, error) {
 	return ctx.CachedToken.Get()
 }
 
-func (ctx *CommonCtx) AuthorizerAPIKey() string {
-	return ctx.Token().AuthorizerAPIKey
+func (ctx *CommonCtx) AuthorizerAPIKey() (string, error) {
+	tkn, err := ctx.Token()
+	if err != nil {
+		return "", err
+	}
+	return tkn.AuthorizerAPIKey, nil
 }
 
-func (ctx *CommonCtx) DecisionLogsKey() string {
-	return ctx.Token().DecisionLogsKey
+func (ctx *CommonCtx) DecisionLogsKey() (string, error) {
+	tkn, err := ctx.Token()
+	if err != nil {
+		return "", err
+	}
+	return tkn.DecisionLogsKey, nil
 }
 
 func (ctx *CommonCtx) Logf(format string, v ...interface{}) {
