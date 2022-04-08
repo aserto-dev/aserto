@@ -1,7 +1,6 @@
 package directory
 
 import (
-	"fmt"
 	"io"
 	"os"
 
@@ -50,7 +49,6 @@ func (cmd *SetResCmd) Run(c *cc.CommonCtx) error {
 
 	switch {
 	case cmd.Stdin:
-		fmt.Fprintf(c.UI.Err(), "reading stdin\n")
 		buf = os.Stdin
 
 		value, err = pb.BufToValue(buf)
@@ -59,7 +57,6 @@ func (cmd *SetResCmd) Run(c *cc.CommonCtx) error {
 		}
 
 	case cmd.File != "":
-		fmt.Fprintf(c.UI.Err(), "reading file [%s]\n", cmd.File)
 		buf, err = os.Open(cmd.File)
 		if err != nil {
 			return errors.Wrapf(err, "opening file [%s]", cmd.File)
@@ -81,8 +78,7 @@ func (cmd *SetResCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	fmt.Fprintf(c.UI.Err(), "set resource [%s]=[%s]\n", cmd.Key, value.String())
-	resp, err := client.Directory.SetResource(c.Context, &dir.SetResourceRequest{
+	_, err = client.Directory.SetResource(c.Context, &dir.SetResourceRequest{
 		Key:   cmd.Key,
 		Value: structValue,
 	})
@@ -90,7 +86,7 @@ func (cmd *SetResCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	return jsonx.OutputJSON(c.UI.Output(), resp)
+	return nil
 }
 
 type DelResCmd struct {
