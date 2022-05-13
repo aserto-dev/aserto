@@ -3,20 +3,23 @@ module github.com/aserto-dev/aserto
 go 1.17
 
 // replace github.com/aserto-dev/go-grpc => ../go-grpc
+
 // replace github.com/aserto-dev/go-grpc-authz => ../go-grpc-authz
+
 // replace github.com/aserto-dev/aserto-go => ../aserto-go
 
 require (
 	github.com/alecthomas/kong v0.5.0
 	github.com/aserto-dev/aserto-go v0.8.5
 	github.com/aserto-dev/clui v0.8.1
-	github.com/aserto-dev/go-grpc v0.8.12
+	github.com/aserto-dev/go-grpc v0.8.19
 	github.com/aserto-dev/go-grpc-authz v0.8.0
 	github.com/aserto-dev/go-utils v0.8.5
-	github.com/aserto-dev/mage-loot v0.8.4
+	github.com/aserto-dev/mage-loot v0.8.7
 	github.com/cli/browser v1.1.0
 	github.com/fatih/color v1.13.0
 	github.com/google/wire v0.5.0
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/joho/godotenv v1.4.0
 	github.com/magefile/mage v1.13.0
@@ -44,7 +47,6 @@ require (
 	github.com/godbus/dbus/v5 v5.0.6 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/subcommands v1.2.0 // indirect
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-hclog v1.2.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
