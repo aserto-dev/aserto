@@ -21,7 +21,6 @@ func (cmd ClientCertCmd) Run(c *cc.CommonCtx) error {
 	resp, err := cli.Connections.GetConnection(c.Context, &connection.GetConnectionRequest{
 		Id: cmd.ID,
 	})
-
 	if err != nil {
 		return err
 	}
