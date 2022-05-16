@@ -6,6 +6,12 @@ type templateParams struct {
 	PolicyID     string
 	DiscoveryURL string
 	TenantKey    string
+	ControlPlane struct {
+		Enabled        bool
+		Address        string
+		ClientCertPath string
+		ClientKeyPath  string
+	}
 }
 
 const configTemplate = templatePreamble + `
@@ -28,6 +34,18 @@ opa:
     discovery:
       name: "opa/discovery"
       prefix: "{{ .PolicyID }}"
+controller: 
+{{ if .ControlPlane.Enabled }}
+  enabled: true
+  server:
+    address: {{ .ControlPlane.Address }}
+    client_cert_path: {{ .ControlPlane.ClientCertPath }}
+    client_key_path: {{ .ControlPlane.ClientKeyPath }}
+  tenant_id: {{ .TenantID }}
+  policy_id: {{ .PolicyID }}
+{{ else }}
+  enabled: false
+{{ end }}
 `
 
 const configTemplateLocal = templatePreamble + `
