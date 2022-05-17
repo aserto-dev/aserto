@@ -60,15 +60,15 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 	}
 
 	if cmd.Satellite != "" {
-		certPath, keyPath, errCerts := getSatelliteCerts(c.Context, client, cmd.Satellite, configDir)
+		certFile, keyFile, errCerts := getSatelliteCerts(c.Context, client, cmd.Satellite, configDir)
 		if errCerts != nil {
 			return err
 		}
 
 		params.ControlPlane.Enabled = true
 		params.ControlPlane.Address = c.Environment.Get(x.ControlPlaneService).Address
-		params.ControlPlane.ClientCertPath = certPath
-		params.ControlPlane.ClientKeyPath = keyPath
+		params.ControlPlane.ClientCertPath = path.Join("/app/cfg", certFile)
+		params.ControlPlane.ClientKeyPath = path.Join("/app/cfg", keyFile)
 	}
 
 	if params.TenantKey == "" {
@@ -150,7 +150,7 @@ func getDiscoveryConfig(ctx context.Context, client *tenant.Client) (*discoveryC
 	return nil, errors.Errorf("cannot find discovery configuration")
 }
 
-func getSatelliteCerts(ctx context.Context, client *tenant.Client, connID, configDir string) (certPath, keyPath string, err error) {
+func getSatelliteCerts(ctx context.Context, client *tenant.Client, connID, configDir string) (certFile, keyFile string, err error) {
 	resp, err := client.Connections.GetConnection(ctx, &connection.GetConnectionRequest{
 		Id: connID,
 	})
@@ -177,43 +177,43 @@ func getSatelliteCerts(ctx context.Context, client *tenant.Client, connID, confi
 		return "", "", errors.New("invalid configuration: api_cert")
 	}
 
-	certPath, err = fileFromConfigField(structVal, "certificate", configDir, "client.crt")
+	err = fileFromConfigField(structVal, "certificate", configDir, "client.crt")
 	if err != nil {
 		return "", "", err
 	}
 
-	keyPath, err = fileFromConfigField(structVal, "private_key", configDir, "client.key")
+	err = fileFromConfigField(structVal, "private_key", configDir, "client.key")
 	if err != nil {
 		return "", "", err
 	}
 
-	return certPath, keyPath, nil
+	return "client.crt", "client.key", nil
 }
 
-func fileFromConfigField(structVal *structpb.Struct, field, configDir, fileName string) (string, error) {
+func fileFromConfigField(structVal *structpb.Struct, field, configDir, fileName string) error {
 	val, ok := structVal.Fields[field]
 	if !ok {
-		return "", errors.Errorf("missing field: %s", field)
+		return errors.Errorf("missing field: %s", field)
 	}
 
 	strVal := val.GetStringValue()
 	if strVal == "" {
-		return "", errors.Errorf("empty field: %s", field)
+		return errors.Errorf("empty field: %s", field)
 	}
 
 	filePath := path.Join(configDir, fileName)
 	file, err := os.Create(filePath)
 	if err != nil {
-		return "", err
+		return err
 	}
 	defer file.Close()
 
 	_, err = file.WriteString(strVal)
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	return filePath, nil
+	return nil
 }
 
 func CreateConfigDir() (string, error) {
