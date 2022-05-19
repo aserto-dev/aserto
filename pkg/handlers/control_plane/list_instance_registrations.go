@@ -1,9 +1,9 @@
 package controlplane
 
 import (
-	"github.com/aserto-dev/aserto/pkg/api/management/v2"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
+	"github.com/aserto-dev/go-grpc/management/v2"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
