@@ -12,7 +12,7 @@ require (
 	github.com/alecthomas/kong v0.5.0
 	github.com/aserto-dev/aserto-go v0.8.5
 	github.com/aserto-dev/clui v0.8.1
-	github.com/aserto-dev/go-grpc v0.8.22
+	github.com/aserto-dev/go-grpc v0.8.24
 	github.com/aserto-dev/go-grpc-authz v0.8.0
 	github.com/aserto-dev/go-utils v0.8.5
 	github.com/aserto-dev/mage-loot v0.8.7
