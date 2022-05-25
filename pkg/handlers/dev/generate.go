@@ -1,7 +1,6 @@
 package dev
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"net/url"
@@ -10,6 +9,7 @@ import (
 
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/pkg/errors"
 )
 
 type GenerateFromOpenAPI struct {
@@ -46,12 +46,13 @@ func (cmd *GenerateFromOpenAPI) Run(c *cc.CommonCtx) error {
 	specURL, err := url.Parse(cmd.URL)
 	if err != nil {
 		log.Fatal("Failed to parse spec URL", err)
+		return errors.Wrapf(err, "Failed to parse spec URL [%s]", cmd.URL)
 	}
 
 	doc, err := openapi3.NewLoader().LoadFromURI(specURL)
 
 	if err != nil {
-		log.Fatal("Failed to load spec from URL", err)
+		return errors.Wrapf(err, "Failed to load spec from URL [%s]", cmd.URL)
 	}
 
 	root := ""
@@ -90,22 +91,22 @@ func (cmd *GenerateFromOpenAPI) Run(c *cc.CommonCtx) error {
 		err := os.MkdirAll(policiesDirectoryName, os.ModePerm)
 
 		if err != nil {
-			log.Fatal(err)
+			return errors.Wrapf(err, "Failed to create the directory [%s]", policiesDirectoryName)
 		}
 	}
 
 	for _, pkg := range packages {
 		policy := fmt.Sprintf(packageTemplate, pkg)
 		filename := pkg + ".rego"
-		destination, err := os.Create(policiesDirectoryName + "/" + filename)
+		path := policiesDirectoryName + "/" + filename
+		destination, err := os.Create(path)
 		if err != nil {
-			log.Println("Error creating a policy module file: ", err)
-			return err
+			return errors.Wrapf(err, "Error creating the policy module file [%s]", path)
 		}
 
 		_, writeErr := fmt.Fprint(destination, policy)
 		if writeErr != nil {
-			log.Fatal("Error writing policy to file: ", writeErr)
+			return errors.Wrapf(writeErr, "Error writing to the policy module file [%s]", path)
 		}
 
 		destination.Close()
