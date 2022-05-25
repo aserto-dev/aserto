@@ -17,6 +17,7 @@ type CLI struct {
 	Directory    DirectoryCmd    `cmd:"" aliases:"d" help:"directory commands"`
 	DecisionLogs DecisionLogsCmd `cmd:"" aliases:"l" help:"decision logs commands"`
 	Developer    DeveloperCmd    `cmd:"" aliases:"x" help:"developer commands"`
+	ControlPlane ControlPlaneCmd `cmd:"" aliases:"p" help:"control plane commands"`
 	User         UserCmd         `cmd:"" aliases:"u" help:"user commands"`
 	Login        user.LoginCmd   `cmd:"" help:"login"`
 	Logout       user.LogoutCmd  `cmd:"" help:"logout"`

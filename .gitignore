@@ -11,5 +11,6 @@
 
 .env
 cover.out
+config-dev*.yaml
 
 VERSION.txt

@@ -3,17 +3,19 @@ module github.com/aserto-dev/aserto
 go 1.17
 
 // replace github.com/aserto-dev/go-grpc => ../go-grpc
+
 // replace github.com/aserto-dev/go-grpc-authz => ../go-grpc-authz
+
 // replace github.com/aserto-dev/aserto-go => ../aserto-go
 
 require (
 	github.com/alecthomas/kong v0.5.0
 	github.com/aserto-dev/aserto-go v0.8.5
 	github.com/aserto-dev/clui v0.8.1
-	github.com/aserto-dev/go-grpc v0.8.12
+	github.com/aserto-dev/go-grpc v0.8.24
 	github.com/aserto-dev/go-grpc-authz v0.8.0
 	github.com/aserto-dev/go-utils v0.8.5
-	github.com/aserto-dev/mage-loot v0.8.4
+	github.com/aserto-dev/mage-loot v0.8.7
 	github.com/cli/browser v1.1.0
 	github.com/fatih/color v1.13.0
 	github.com/getkin/kin-openapi v0.94.0

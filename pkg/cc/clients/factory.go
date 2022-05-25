@@ -10,6 +10,7 @@ import (
 	token_ "github.com/aserto-dev/aserto/pkg/cc/token"
 	"github.com/aserto-dev/aserto/pkg/x"
 	dl "github.com/aserto-dev/go-grpc/aserto/decision_logs/v1"
+	"github.com/aserto-dev/go-grpc/management/v2"
 	"github.com/pkg/errors"
 )
 
@@ -19,6 +20,7 @@ type Factory interface {
 	TenantClient() (*tenant_.Client, error)
 	AuthorizerClient() (*authorizer.Client, error)
 	DecisionLogsClient() (dl.DecisionLogsClient, error)
+	ControlPlaneClient() (management.ControlPlaneClient, error)
 }
 
 type OptionsBuilder func() ([]aserto.ConnectionOption, error)
@@ -93,6 +95,20 @@ func (c *AsertoFactory) DecisionLogsClient() (dl.DecisionLogsClient, error) {
 	}
 
 	return dl.NewDecisionLogsClient(conn.Conn), nil
+}
+
+func (c *AsertoFactory) ControlPlaneClient() (management.ControlPlaneClient, error) {
+	options, err := c.options(x.ControlPlaneService)
+	if err != nil {
+		return nil, err
+	}
+
+	conn, err := aserto.NewConnection(c.ctx, options...)
+	if err != nil {
+		return nil, err
+	}
+
+	return management.NewControlPlaneClient(conn.Conn), nil
 }
 
 func (c *AsertoFactory) options(svc x.Service) ([]aserto.ConnectionOption, error) {

@@ -11,6 +11,7 @@ import (
 	"github.com/aserto-dev/aserto-go/client/tenant"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/filex"
+	"github.com/aserto-dev/aserto/pkg/x"
 	"google.golang.org/protobuf/types/known/structpb"
 
 	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
@@ -21,13 +22,19 @@ import (
 )
 
 type ConfigureCmd struct {
-	Name   string `arg:"" required:"" help:"policy name"`
-	Stdout bool   `short:"p" help:"generated configuration is printed to stdout but not saved"`
+	Name      string `arg:"" required:"" help:"policy name"`
+	Stdout    bool   `short:"p" help:"generated configuration is printed to stdout but not saved"`
+	Satellite string `optional:"" help:"id of satellite connection used to register with the Aserto control plane"`
 }
 
 func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 	fmt.Fprintf(c.UI.Err(), ">>> configure policy...\n")
 	fmt.Fprintf(c.UI.Err(), "tenant id: %s\n", c.TenantID())
+
+	configDir, err := CreateConfigDir()
+	if err != nil {
+		return err
+	}
 
 	client, err := c.TenantClient()
 	if err != nil {
@@ -52,6 +59,18 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 		TenantKey:    discoveryConf.APIKey,
 	}
 
+	if cmd.Satellite != "" {
+		certFile, keyFile, errCerts := getSatelliteCerts(c.Context, client, cmd.Satellite, configDir)
+		if errCerts != nil {
+			return err
+		}
+
+		params.ControlPlane.Enabled = true
+		params.ControlPlane.Address = c.Environment.Get(x.ControlPlaneService).Address
+		params.ControlPlane.ClientCertPath = path.Join("/app/cfg", certFile)
+		params.ControlPlane.ClientKeyPath = path.Join("/app/cfg", keyFile)
+	}
+
 	if params.TenantKey == "" {
 		return errors.Errorf("missing $ASERTO_TENANT_KEY env var")
 	}
@@ -63,7 +82,7 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 	if cmd.Stdout {
 		w = c.UI.Output()
 	} else {
-		w, err = ConfigFileWriter(params.PolicyName)
+		w, err = os.Create(path.Join(configDir, params.PolicyName+".yaml"))
 		if err != nil {
 			return err
 		}
@@ -131,13 +150,70 @@ func getDiscoveryConfig(ctx context.Context, client *tenant.Client) (*discoveryC
 	return nil, errors.Errorf("cannot find discovery configuration")
 }
 
-func ConfigFileWriter(policyName string) (io.Writer, error) {
-	configDir, err := CreateConfigDir()
+func getSatelliteCerts(ctx context.Context, client *tenant.Client, connID, configDir string) (certFile, keyFile string, err error) {
+	resp, err := client.Connections.GetConnection(ctx, &connection.GetConnectionRequest{
+		Id: connID,
+	})
 	if err != nil {
-		return nil, err
+		return "", "", err
 	}
 
-	return os.Create(path.Join(configDir, policyName+".yaml"))
+	conn := resp.Result
+	if conn == nil {
+		return "", "", errors.New("invalid empty connection")
+	}
+
+	if conn.Kind != api.ProviderKind_PROVIDER_KIND_SATELLITE {
+		return "", "", errors.New("not a satellite connection")
+	}
+
+	certs := conn.Config.Fields["api_cert"].GetListValue().GetValues()
+	if len(certs) == 0 {
+		return "", "", errors.New("invalid configuration: api_cert")
+	}
+
+	structVal := certs[len(certs)-1].GetStructValue()
+	if structVal == nil {
+		return "", "", errors.New("invalid configuration: api_cert")
+	}
+
+	err = fileFromConfigField(structVal, "certificate", configDir, "client.crt")
+	if err != nil {
+		return "", "", err
+	}
+
+	err = fileFromConfigField(structVal, "private_key", configDir, "client.key")
+	if err != nil {
+		return "", "", err
+	}
+
+	return "client.crt", "client.key", nil
+}
+
+func fileFromConfigField(structVal *structpb.Struct, field, configDir, fileName string) error {
+	val, ok := structVal.Fields[field]
+	if !ok {
+		return errors.Errorf("missing field: %s", field)
+	}
+
+	strVal := val.GetStringValue()
+	if strVal == "" {
+		return errors.Errorf("empty field: %s", field)
+	}
+
+	filePath := path.Join(configDir, fileName)
+	file, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	_, err = file.WriteString(strVal)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func CreateConfigDir() (string, error) {
