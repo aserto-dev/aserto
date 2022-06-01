@@ -2,7 +2,6 @@ package dev
 
 import (
 	"fmt"
-	"log"
 	"net/url"
 	"os"
 	"strings"
@@ -45,7 +44,6 @@ func (cmd *GenerateFromOpenAPI) Run(c *cc.CommonCtx) error {
 
 	specURL, err := url.Parse(cmd.URL)
 	if err != nil {
-		log.Fatal("Failed to parse spec URL", err)
 		return errors.Wrapf(err, "Failed to parse spec URL [%s]", cmd.URL)
 	}
 
@@ -55,20 +53,14 @@ func (cmd *GenerateFromOpenAPI) Run(c *cc.CommonCtx) error {
 		return errors.Wrapf(err, "Failed to load spec from URL [%s]", cmd.URL)
 	}
 
-	root := ""
-	// If a package name was provided, use that for the policy root
-	if cmd.Name != "" {
-		root = cmd.Name
-	} else {
-		// Otherwise, use the title of the spec as the root
+	root := cmd.Name
+	if cmd.Name == "" {
 		root = strings.Replace(strings.ToLower(doc.Info.Title), " ", "_", -1)
 	}
 
-	paths := doc.Paths
-
 	packages := []string{}
 
-	for uri, path := range paths {
+	for uri, path := range doc.Paths {
 		if path.Get != nil {
 			packages = append(packages, generatePackageName(root, "GET", uri))
 		}
@@ -109,7 +101,7 @@ func (cmd *GenerateFromOpenAPI) Run(c *cc.CommonCtx) error {
 			return errors.Wrapf(writeErr, "Error writing to the policy module file [%s]", path)
 		}
 
-		destination.Close()
+		defer destination.Close()
 	}
 
 	return nil
