@@ -11,7 +11,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-type GenerateFromOpenAPI struct {
+type PolicyFromOpenAPI struct {
 	URL  string `arg:"" required:"" help:"URL of the openapi.yaml"`
 	Name string `arg:"" optional:"" help:"The name for the policy"`
 }
@@ -40,7 +40,21 @@ func generatePackageName(root, verb, uri string) string {
 	return strings.Join(parts, ".")
 }
 
-func (cmd *GenerateFromOpenAPI) Run(c *cc.CommonCtx) error {
+func savePolicy(path, content string) error {
+	file, err := os.Create(path)
+	if err != nil {
+		return errors.Wrapf(err, "Error creating the policy module file [%s]", path)
+	}
+	defer file.Close()
+
+	if _, err := fmt.Fprint(file, content); err != nil {
+		return errors.Wrap(err, "failed to write policy")
+	}
+
+	return nil
+}
+
+func (cmd *PolicyFromOpenAPI) Run(c *cc.CommonCtx) error {
 
 	specURL, err := url.Parse(cmd.URL)
 	if err != nil {
@@ -91,17 +105,9 @@ func (cmd *GenerateFromOpenAPI) Run(c *cc.CommonCtx) error {
 		policy := fmt.Sprintf(packageTemplate, pkg)
 		filename := pkg + ".rego"
 		path := policiesDirectoryName + "/" + filename
-		destination, err := os.Create(path)
-		if err != nil {
-			return errors.Wrapf(err, "Error creating the policy module file [%s]", path)
+		if err := savePolicy(path, policy); err != nil {
+			return err
 		}
-
-		_, writeErr := fmt.Fprint(destination, policy)
-		if writeErr != nil {
-			return errors.Wrapf(writeErr, "Error writing to the policy module file [%s]", path)
-		}
-
-		defer destination.Close()
 	}
 
 	return nil
