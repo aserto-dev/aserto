@@ -9,7 +9,7 @@ import (
 )
 
 type ClientCertCmd struct {
-	ID string `arg:"" help:"satellite connection ID"`
+	ID string `arg:"" help:"edge authorizer connection ID"`
 }
 
 func (cmd ClientCertCmd) Run(c *cc.CommonCtx) error {
@@ -30,8 +30,8 @@ func (cmd ClientCertCmd) Run(c *cc.CommonCtx) error {
 		return errors.New("invalid empty connection")
 	}
 
-	if conn.Kind != api.ProviderKind_PROVIDER_KIND_SATELLITE {
-		return errors.New("not a satellite connection")
+	if conn.Kind != api.ProviderKind_PROVIDER_KIND_EDGE_AUTHORIZER {
+		return errors.New("not an edge authorizer connection")
 	}
 
 	certs := conn.Config.Fields["api_cert"].GetListValue().GetValues()

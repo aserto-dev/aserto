@@ -6,8 +6,8 @@ import (
 )
 
 type ControlPlaneCmd struct {
-	ListConnections           controlplane.ListConnectionsCmd           `cmd:"" help:"list satellite connections" group:"control-plane"`
-	ClientCert                controlplane.ClientCertCmd                `cmd:"" help:"get client certificates for a satellite connection" group:"control-plane"`
+	ListConnections           controlplane.ListConnectionsCmd           `cmd:"" help:"list edge authorizer connections" group:"control-plane"`
+	ClientCert                controlplane.ClientCertCmd                `cmd:"" help:"get client certificates for an edge authorizer connection" group:"control-plane"`
 	ListInstanceRegistrations controlplane.ListInstanceRegistrationsCmd `cmd:"" help:"list instance registrations" group:"control-plane"`
 	Discovery                 controlplane.DiscoveryCmd                 `cmd:"" help:"run discovery on a registered instance" group:"control-plane"`
 	EdgeDirSync               controlplane.EdgeDirSyncCmd               `cmd:"" help:"sync the directory on an edge authorizer" group:"control-plane"`
