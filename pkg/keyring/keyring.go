@@ -45,6 +45,10 @@ func (kr *KeyRing) SetToken(tok *api.Token) error {
 		return errors.Wrapf(err, "marshal token")
 	}
 
+	if err := keyring.Delete(kr.service, kr.user); err != nil {
+		return errors.Wrapf(err, "set token")
+	}
+
 	tokenStr := string(tokenBytes)
 	if err := keyring.Set(kr.service, kr.user, tokenStr); err != nil {
 		return errors.Wrapf(err, "set token")
