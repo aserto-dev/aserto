@@ -28,7 +28,7 @@ require (
 	github.com/rs/zerolog v1.26.1
 	github.com/spf13/viper v1.11.0
 	github.com/stretchr/testify v1.7.1
-	github.com/zalando/go-keyring v0.2.1
+	github.com/zalando/go-keyring v0.1.1
 	github.com/zenizh/go-capturer v0.0.0-20211219060012-52ea6c8fed04
 	google.golang.org/genproto v0.0.0-20220422154200-b37d22cd5731
 	google.golang.org/grpc v1.46.0
