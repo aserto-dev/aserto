@@ -19,7 +19,7 @@ func (cmd ListConnectionsCmd) Run(c *cc.CommonCtx) error {
 	}
 
 	resp, err := cli.Connections.ListConnections(c.Context, &connection.ListConnectionsRequest{
-		Kind: api.ProviderKind_PROVIDER_KIND_SATELLITE,
+		Kind: api.ProviderKind_PROVIDER_KIND_EDGE_AUTHORIZER,
 	})
 
 	if err != nil {
@@ -28,7 +28,7 @@ func (cmd ListConnectionsCmd) Run(c *cc.CommonCtx) error {
 
 	conns := resp.Results
 	if len(conns) == 0 {
-		return errors.New("no satellite connections")
+		return errors.New("no edge authorizer connections")
 	}
 
 	var connsOut []protoreflect.ProtoMessage

@@ -22,9 +22,9 @@ import (
 )
 
 type ConfigureCmd struct {
-	Name      string `arg:"" required:"" help:"policy name"`
-	Stdout    bool   `short:"p" help:"generated configuration is printed to stdout but not saved"`
-	Satellite string `optional:"" help:"id of satellite connection used to register with the Aserto control plane"`
+	Name           string `arg:"" required:"" help:"policy name"`
+	Stdout         bool   `short:"p" help:"generated configuration is printed to stdout but not saved"`
+	EdgeAuthorizer string `optional:"" help:"id of edge authorizer connection used to register with the Aserto control plane"`
 }
 
 func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
@@ -59,8 +59,8 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 		TenantKey:    discoveryConf.APIKey,
 	}
 
-	if cmd.Satellite != "" {
-		certFile, keyFile, errCerts := getSatelliteCerts(c.Context, client, cmd.Satellite, configDir)
+	if cmd.EdgeAuthorizer != "" {
+		certFile, keyFile, errCerts := getEdgeAuthorizerCerts(c.Context, client, cmd.EdgeAuthorizer, configDir)
 		if errCerts != nil {
 			return err
 		}
@@ -150,7 +150,7 @@ func getDiscoveryConfig(ctx context.Context, client *tenant.Client) (*discoveryC
 	return nil, errors.Errorf("cannot find discovery configuration")
 }
 
-func getSatelliteCerts(ctx context.Context, client *tenant.Client, connID, configDir string) (certFile, keyFile string, err error) {
+func getEdgeAuthorizerCerts(ctx context.Context, client *tenant.Client, connID, configDir string) (certFile, keyFile string, err error) {
 	resp, err := client.Connections.GetConnection(ctx, &connection.GetConnectionRequest{
 		Id: connID,
 	})
@@ -163,8 +163,8 @@ func getSatelliteCerts(ctx context.Context, client *tenant.Client, connID, confi
 		return "", "", errors.New("invalid empty connection")
 	}
 
-	if conn.Kind != api.ProviderKind_PROVIDER_KIND_SATELLITE {
-		return "", "", errors.New("not a satellite connection")
+	if conn.Kind != api.ProviderKind_PROVIDER_KIND_EDGE_AUTHORIZER {
+		return "", "", errors.New("not an edge authorizer connection")
 	}
 
 	certs := conn.Config.Fields["api_cert"].GetListValue().GetValues()

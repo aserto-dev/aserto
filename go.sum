@@ -89,8 +89,8 @@ github.com/aserto-dev/clui v0.8.0/go.mod h1:XpJxwNzSQaGN6rqXONZJEaeez4MUaCPikM2l
 github.com/aserto-dev/clui v0.8.1 h1:5IW9OnFZoIWjvnmTE4FNTXrjP1wnMzd39qKAcRnRHt8=
 github.com/aserto-dev/clui v0.8.1/go.mod h1:XpJxwNzSQaGN6rqXONZJEaeez4MUaCPikM2lKSngrXM=
 github.com/aserto-dev/go-grpc v0.8.0/go.mod h1:hog+zu5jE3+Y6t7m5PIBlavosmbd2qdF0BGZ9ueWK74=
-github.com/aserto-dev/go-grpc v0.8.24 h1:DLf8GkCbQXJkF8+cgkX3+3Qzz17V6Xv63RamgG+nej0=
-github.com/aserto-dev/go-grpc v0.8.24/go.mod h1:ZHKobEadfjzb39dKhc/iy8JyQDRuB/IsSwVa8YuWkQY=
+github.com/aserto-dev/go-grpc v0.8.35 h1:xgTy5SmKGxI/5GFbCRZ73rXQmX44piH5S/RgFgUuTpI=
+github.com/aserto-dev/go-grpc v0.8.35/go.mod h1:ZHKobEadfjzb39dKhc/iy8JyQDRuB/IsSwVa8YuWkQY=
 github.com/aserto-dev/go-grpc-authz v0.8.0 h1:D/D/DJAWdshIIF6BYFKT9ILh0/ClAGrb64zpsGP8vuQ=
 github.com/aserto-dev/go-grpc-authz v0.8.0/go.mod h1:ssdQrzxQf+IZ+jy8ATz9S6Ys+nqsTMZyKmPpdj0kwHo=
 github.com/aserto-dev/go-utils v0.8.5 h1:75rTmrWaWzHILqyoUo51XjNT2+0JvriYJ5Dcht70DvM=

@@ -10,7 +10,7 @@ import (
 	token_ "github.com/aserto-dev/aserto/pkg/cc/token"
 	"github.com/aserto-dev/aserto/pkg/x"
 	dl "github.com/aserto-dev/go-grpc/aserto/decision_logs/v1"
-	"github.com/aserto-dev/go-grpc/management/v2"
+	"github.com/aserto-dev/go-grpc/aserto/management/v2"
 	"github.com/pkg/errors"
 )
 
