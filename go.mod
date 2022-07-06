@@ -12,7 +12,7 @@ require (
 	github.com/alecthomas/kong v0.5.0
 	github.com/aserto-dev/aserto-go v0.8.5
 	github.com/aserto-dev/clui v0.8.1
-	github.com/aserto-dev/go-grpc v0.8.35
+	github.com/aserto-dev/go-grpc v0.8.37
 	github.com/aserto-dev/go-grpc-authz v0.8.0
 	github.com/aserto-dev/go-utils v0.8.5
 	github.com/aserto-dev/mage-loot v0.8.7
@@ -38,7 +38,6 @@ require (
 
 require (
 	github.com/PuerkitoBio/rehttp v1.0.0 // indirect
-	github.com/alessio/shellescape v1.4.1 // indirect
 	github.com/benbjohnson/clock v1.1.0 // indirect
 	github.com/danieljoos/wincred v1.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
