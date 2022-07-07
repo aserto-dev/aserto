@@ -24,6 +24,7 @@ type StartCmd struct {
 	Interactive      bool   `optional:""  help:"interactive execution mode instead of the default daemon mode"`
 	ContainerName    string `optional:""  default:"authorizer-onebox" help:"container name"`
 	ContainerVersion string `optional:""  default:"latest" help:"container version" `
+	Hostname         string `optional:""  help:"hostname for docker to set"`
 }
 
 func (cmd *StartCmd) Run(c *cc.CommonCtx) error {
@@ -106,6 +107,10 @@ var (
 	containerName = []string{
 		"ghcr.io/aserto-dev/$CONTAINER_NAME:$CONTAINER_VERSION",
 	}
+
+	hostname = []string{
+		"--hostname", "$CONTAINER_HOSTNAME",
+	}
 )
 
 func (cmd *StartCmd) dockerArgs() []string {
@@ -122,17 +127,22 @@ func (cmd *StartCmd) dockerArgs() []string {
 		args = append(args, srcVolume...)
 	}
 
+	if cmd.Hostname != "" {
+		args = append(args, hostname...)
+	}
+
 	return append(args, containerName...)
 }
 
 func (cmd *StartCmd) env(paths *localpaths.Paths) map[string]string {
 	return map[string]string{
-		"ASERTO_CERTS_DIR":  paths.Certs.Root,
-		"ASERTO_CFG_DIR":    paths.Config,
-		"ASERTO_EDS_DIR":    paths.EDS,
-		"ASERTO_SRC_DIR":    cmd.SrcPath,
-		"CONTAINER_NAME":    cmd.ContainerName,
-		"CONTAINER_VERSION": cmd.ContainerVersion,
+		"ASERTO_CERTS_DIR":   paths.Certs.Root,
+		"ASERTO_CFG_DIR":     paths.Config,
+		"ASERTO_EDS_DIR":     paths.EDS,
+		"ASERTO_SRC_DIR":     cmd.SrcPath,
+		"CONTAINER_NAME":     cmd.ContainerName,
+		"CONTAINER_VERSION":  cmd.ContainerVersion,
+		"CONTAINER_HOSTNAME": cmd.Hostname,
 	}
 }
 
