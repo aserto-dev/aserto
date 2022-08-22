@@ -7,6 +7,7 @@ import (
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	"github.com/aserto-dev/aserto/pkg/pb"
+	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
 	dir "github.com/aserto-dev/go-grpc/aserto/authorizer/directory/v1"
 
 	"github.com/pkg/errors"
@@ -110,7 +111,9 @@ func (cmd *DelResCmd) Run(c *cc.CommonCtx) error {
 	return nil
 }
 
-type ListResCmd struct{}
+type ListResCmd struct {
+	Count bool `name:"count" optional:"" help:"only return resource count"`
+}
 
 func (cmd *ListResCmd) Run(c *cc.CommonCtx) error {
 	client, err := c.AuthorizerClient()
@@ -118,10 +121,36 @@ func (cmd *ListResCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	resp, err := client.Directory.ListResources(c.Context, &dir.ListResourcesRequest{})
-	if err != nil {
-		return err
+	token := ""
+	pageSize := int32(100)
+	var apiRes []string
+
+	if cmd.Count {
+		pageSize = int32(-2)
 	}
 
-	return jsonx.OutputJSON(c.UI.Output(), resp)
+	for {
+		resp, err := client.Directory.ListResources(c.Context, &dir.ListResourcesRequest{
+			Page: &api.PaginationRequest{
+				Size:  pageSize,
+				Token: token,
+			},
+		})
+		if err != nil {
+			return err
+		}
+
+		if cmd.Count {
+			return jsonx.OutputJSONPB(c.UI.Output(), resp.Page)
+		}
+
+		apiRes = append(apiRes, resp.Results...)
+		if resp.Page.NextToken == "" {
+			break
+		}
+
+		token = resp.Page.NextToken
+	}
+
+	return jsonx.OutputJSON(c.UI.Output(), apiRes)
 }
