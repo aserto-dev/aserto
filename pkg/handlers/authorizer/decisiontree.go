@@ -8,13 +8,18 @@ import (
 )
 
 type DecisionTreeCmd struct {
-	PolicyID  string `name:"policy_id" required:"" help:"policy id"`
-	Path      string
-	Decisions []string
+	AuthParams `embed:""`
+	Path       string
+	Decisions  []string
 }
 
 func (cmd *DecisionTreeCmd) Run(c *cc.CommonCtx) error {
 	client, err := c.AuthorizerClient()
+	if err != nil {
+		return err
+	}
+
+	resource, err := cmd.ResourceContext()
 	if err != nil {
 		return err
 	}
@@ -25,10 +30,8 @@ func (cmd *DecisionTreeCmd) Run(c *cc.CommonCtx) error {
 			Path:      cmd.Path,
 			Decisions: cmd.Decisions,
 		},
-		IdentityContext: &api.IdentityContext{
-			Identity: "",
-			Type:     api.IdentityType_IDENTITY_TYPE_NONE,
-		},
+		IdentityContext: cmd.IdentityContext(),
+		ResourceContext: resource,
 		Options: &authz.DecisionTreeOptions{
 			PathSeparator: authz.PathSeparator_PATH_SEPARATOR_DOT,
 		},

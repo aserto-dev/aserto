@@ -5,17 +5,21 @@ import (
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	authz "github.com/aserto-dev/go-grpc-authz/aserto/authorizer/authorizer/v1"
 	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
-	"github.com/aserto-dev/go-utils/pb"
 )
 
 type EvalDecisionCmd struct {
-	PolicyID  string `name:"policy_id" required:"" help:"policy id"`
-	Path      string
-	Decisions []string
+	AuthParams `embed:""`
+	Path       string   `name:"path" required:"" help:"policy package to evaluate"`
+	Decisions  []string `name:"decisions" required:"" help:"policy decisions to return"`
 }
 
 func (cmd *EvalDecisionCmd) Run(c *cc.CommonCtx) error {
 	client, err := c.AuthorizerClient()
+	if err != nil {
+		return err
+	}
+
+	resource, err := cmd.ResourceContext()
 	if err != nil {
 		return err
 	}
@@ -26,11 +30,8 @@ func (cmd *EvalDecisionCmd) Run(c *cc.CommonCtx) error {
 			Path:      cmd.Path,
 			Decisions: cmd.Decisions,
 		},
-		IdentityContext: &api.IdentityContext{
-			Identity: "",
-			Type:     api.IdentityType_IDENTITY_TYPE_NONE,
-		},
-		ResourceContext: pb.NewStruct(),
+		IdentityContext: cmd.IdentityContext(),
+		ResourceContext: resource,
 	})
 	if err != nil {
 		return err
