@@ -10,7 +10,8 @@ import (
 type ExecQueryCmd struct {
 	AuthParams `embed:""`
 	Statement  string `arg:"stmt" name:"stmt" required:"" help:"query statement"`
-	Input      string `name:"input" optional:"" help:"query input context"`
+	Path       string `name:"path" help:"policy package to evaluate"`
+	Input      string `name:"input" help:"query input context"`
 }
 
 func (cmd *ExecQueryCmd) Run(c *cc.CommonCtx) error {
@@ -29,7 +30,8 @@ func (cmd *ExecQueryCmd) Run(c *cc.CommonCtx) error {
 		Input:           cmd.Input,
 		IdentityContext: cmd.IdentityContext(),
 		PolicyContext: &api.PolicyContext{
-			Id: cmd.PolicyID,
+			Id:   cmd.PolicyID,
+			Path: cmd.Path,
 		},
 		ResourceContext: resource,
 		Options: &authz.QueryOptions{

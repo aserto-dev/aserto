@@ -9,8 +9,8 @@ import (
 
 type DecisionTreeCmd struct {
 	AuthParams `embed:""`
-	Path       string
-	Decisions  []string
+	Path       string   `name:"path" help:"policy package to evaluate"`
+	Decisions  []string `name:"decisions" required:"" help:"policy decisions to return"`
 }
 
 func (cmd *DecisionTreeCmd) Run(c *cc.CommonCtx) error {
