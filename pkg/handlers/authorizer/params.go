@@ -24,17 +24,19 @@ type AuthParams struct {
 }
 
 func (a AuthParams) IdentityContext() *api.IdentityContext {
-	id_type := api.IdentityType_IDENTITY_TYPE_NONE
+	var idType api.IdentityType
 	switch a.IdentityType {
 	case IdentityTypeSub:
-		id_type = api.IdentityType_IDENTITY_TYPE_SUB
+		idType = api.IdentityType_IDENTITY_TYPE_SUB
 	case IdentityTypeJwt:
-		id_type = api.IdentityType_IDENTITY_TYPE_JWT
+		idType = api.IdentityType_IDENTITY_TYPE_JWT
+	case IdentityTypeNone:
+		idType = api.IdentityType_IDENTITY_TYPE_NONE
 	}
 
 	return &api.IdentityContext{
 		Identity: a.Identity,
-		Type:     id_type,
+		Type:     idType,
 	}
 }
 
