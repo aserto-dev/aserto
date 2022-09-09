@@ -5,13 +5,13 @@ import (
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	authz "github.com/aserto-dev/go-grpc-authz/aserto/authorizer/authorizer/v1"
 	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
-	"google.golang.org/protobuf/types/known/structpb"
 )
 
 type ExecQueryCmd struct {
-	PolicyID  string `name:"policy_id" required:"" help:"policy id"`
-	Statement string `arg:"stmt" name:"stmt" required:"" help:"query statement"`
-	Input     string `name:"input" optional:"" help:"query input context"`
+	AuthParams `embed:""`
+	Statement  string `arg:"stmt" name:"stmt" required:"" help:"query statement"`
+	Path       string `name:"path" help:"policy package to evaluate"`
+	Input      string `name:"input" help:"query input context"`
 }
 
 func (cmd *ExecQueryCmd) Run(c *cc.CommonCtx) error {
@@ -20,17 +20,20 @@ func (cmd *ExecQueryCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
+	resource, err := cmd.ResourceContext()
+	if err != nil {
+		return err
+	}
+
 	resp, err := client.Authorizer.Query(c.Context, &authz.QueryRequest{
-		Query: cmd.Statement,
-		Input: cmd.Input,
-		IdentityContext: &api.IdentityContext{
-			Identity: "",
-			Type:     api.IdentityType_IDENTITY_TYPE_NONE,
-		},
+		Query:           cmd.Statement,
+		Input:           cmd.Input,
+		IdentityContext: cmd.IdentityContext(),
 		PolicyContext: &api.PolicyContext{
-			Id: cmd.PolicyID,
+			Id:   cmd.PolicyID,
+			Path: cmd.Path,
 		},
-		ResourceContext: &structpb.Struct{},
+		ResourceContext: resource,
 		Options: &authz.QueryOptions{
 			Metrics:      false,
 			Instrument:   false,
