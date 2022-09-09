@@ -10,7 +10,7 @@ import (
 type DecisionTreeCmd struct {
 	AuthParams `embed:""`
 	Path       string   `name:"path" help:"policy package to evaluate"`
-	Decisions  []string `name:"decisions" help:"policy decisions to return"`
+	Decisions  []string `name:"decisions" default:"*" help:"policy decisions to return"`
 }
 
 func (cmd *DecisionTreeCmd) Run(c *cc.CommonCtx) error {
