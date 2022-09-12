@@ -28,6 +28,7 @@ type Certs struct {
 type Paths struct {
 	Config string
 	EDS    string
+	Data   string
 
 	Certs Certs
 }
@@ -37,12 +38,26 @@ func (p *Paths) LocalConfig() string {
 }
 
 func New() (*Paths, error) {
+	return newPaths("")
+}
+
+func NewWithDataRoot(dataRoot string) (*Paths, error) {
+	return newPaths(dataRoot)
+}
+
+func newPaths(dataRoot string) (*Paths, error) {
 	confRoot, cacheRoot, err := DefaultRoots()
 	if err != nil {
 		return nil, err
 	}
 
-	return NewIn(confRoot, cacheRoot), nil
+	if dataRoot == "" {
+		dataRoot = cacheRoot
+	} else if !filex.DirExists(dataRoot) {
+		return nil, errors.Wrapf(os.ErrNotExist, "directory '%s' does not exist", dataRoot)
+	}
+
+	return NewIn(confRoot, cacheRoot, dataRoot), nil
 }
 
 func DefaultRoots() (confRoot, cacheRoot string, err error) {
@@ -54,12 +69,14 @@ func DefaultRoots() (confRoot, cacheRoot string, err error) {
 	return path.Join(home, DefaultConfigRoot), path.Join(home, DefaultCacheRoot), nil
 }
 
-func NewIn(confRoot, cacheRoot string) *Paths {
+func NewIn(confRoot, cacheRoot, dataRoot string) *Paths {
 	certDir := CertDir(confRoot)
 
 	return &Paths{
 		Config: ConfigDir(confRoot),
 		EDS:    EdsDir(cacheRoot),
+		Data:   dataRoot,
+
 		Certs: Certs{
 			Root:    certDir,
 			GRPC:    GRPCCerts(certDir),
@@ -79,7 +96,7 @@ func Create() (*Paths, error) {
 }
 
 func CreateIn(confRoot, cacheRoot string) (*Paths, error) {
-	paths := NewIn(confRoot, cacheRoot)
+	paths := NewIn(confRoot, cacheRoot, "")
 	for _, confDir := range []string{
 		paths.Config,
 		paths.Certs.Root,

@@ -6,6 +6,7 @@ import (
 	"path"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
+	decisionlogger "github.com/aserto-dev/aserto/pkg/decision_logger"
 	"github.com/aserto-dev/aserto/pkg/dockerx"
 	"github.com/aserto-dev/aserto/pkg/filex"
 	localpaths "github.com/aserto-dev/aserto/pkg/paths"
@@ -25,6 +26,7 @@ type StartCmd struct {
 	ContainerName    string `optional:""  default:"authorizer-onebox" help:"container name"`
 	ContainerVersion string `optional:""  default:"latest" help:"container version" `
 	Hostname         string `optional:""  help:"hostname for docker to set"`
+	DataPath         string `optional:""  type:"path" help:"path for non-ephemeral data storage"`
 }
 
 func (cmd *StartCmd) Run(c *cc.CommonCtx) error {
@@ -38,7 +40,7 @@ func (cmd *StartCmd) Run(c *cc.CommonCtx) error {
 
 	color.Green(">>> starting onebox...")
 
-	paths, err := localpaths.New()
+	paths, err := localpaths.NewWithDataRoot(cmd.DataPath)
 	if err != nil {
 		return err
 	}
@@ -90,6 +92,7 @@ var (
 		"-v", "$ASERTO_CERTS_DIR:/certs:rw",
 		"-v", "$ASERTO_CFG_DIR:/app/cfg:ro",
 		"-v", "$ASERTO_EDS_DIR:/app/db:rw",
+		"-v", "$ASERTO_DECISION_LOGS_DIR:/app/decision_logs:rw",
 	}
 
 	interactiveArgs = []string{
@@ -143,6 +146,7 @@ func (cmd *StartCmd) env(paths *localpaths.Paths) map[string]string {
 		"CONTAINER_NAME":     cmd.ContainerName,
 		"CONTAINER_VERSION":  cmd.ContainerVersion,
 		"CONTAINER_HOSTNAME": cmd.Hostname,
+		"DECISION_LOGS_DIR":  path.Join(paths.Data, decisionlogger.Dir),
 	}
 }
 

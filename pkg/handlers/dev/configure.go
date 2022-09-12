@@ -10,6 +10,7 @@ import (
 
 	"github.com/aserto-dev/aserto-go/client/tenant"
 	"github.com/aserto-dev/aserto/pkg/cc"
+	decisionlogger "github.com/aserto-dev/aserto/pkg/decision_logger"
 	"github.com/aserto-dev/aserto/pkg/filex"
 	"github.com/aserto-dev/aserto/pkg/x"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -69,6 +70,11 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 		params.ControlPlane.Address = c.Environment.Get(x.ControlPlaneService).Address
 		params.ControlPlane.ClientCertPath = path.Join("/app/cfg", certFile)
 		params.ControlPlane.ClientKeyPath = path.Join("/app/cfg", keyFile)
+
+		params.DecisionLogger.EMSAddress = c.DecisionLogger.EMSAddress
+		params.DecisionLogger.StorePath = decisionlogger.ContainerPath
+		params.DecisionLogger.ClientCertPath = path.Join("/app/cfg", certFile)
+		params.DecisionLogger.ClientKeyPath = path.Join("/app/cfg", keyFile)
 	}
 
 	if params.TenantKey == "" {

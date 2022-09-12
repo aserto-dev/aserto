@@ -50,11 +50,13 @@ func (cmd StreamCmd) Run(c *cc.CommonCtx) error {
 			resp, errRcv := stream.Recv()
 			if errRcv != nil {
 				errCh <- errRcv
+				return
 			}
 
 			errRcv = jsonx.OutputJSON(c.UI.Output(), resp.Decision)
 			if err != nil {
 				errCh <- errRcv
+				return
 			}
 		}
 	}()

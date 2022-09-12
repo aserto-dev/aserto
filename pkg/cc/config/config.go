@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/aserto-dev/aserto/pkg/auth0"
+	decisionlogger "github.com/aserto-dev/aserto/pkg/decision_logger"
 	"github.com/aserto-dev/aserto/pkg/x"
 	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
@@ -29,9 +30,10 @@ func (auth *Auth) GetSettings() *auth0.Settings {
 }
 
 type Config struct {
-	TenantID string     `json:"tenant_id"`
-	Services x.Services `json:"services"`
-	Auth     *Auth      `json:"auth"`
+	TenantID       string                `json:"tenant_id"`
+	Services       x.Services            `json:"services"`
+	Auth           *Auth                 `json:"auth"`
+	DecisionLogger decisionlogger.Config `json:"decision_logger"`
 }
 
 type Path string
