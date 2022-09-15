@@ -13,6 +13,7 @@ import (
 	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/cc/iostream"
 	"github.com/aserto-dev/aserto/pkg/cc/token"
+	"github.com/aserto-dev/aserto/pkg/decision_logger"
 	"github.com/google/wire"
 	"io"
 )
@@ -35,15 +36,18 @@ func BuildCommonCtx(configPath config.Path, overrides ...config.Overrider) (*Com
 		return nil, err
 	}
 	settings := NewAuthSettings(auth)
+	decisionloggerConfig := &configConfig.DecisionLogger
+	decisionloggerSettings := decisionlogger.NewSettings(decisionloggerConfig)
 	stdIO := iostream.DefaultIO()
 	ui := iostream.NewUI(stdIO)
 	commonCtx := &CommonCtx{
-		Factory:     asertoFactory,
-		Context:     contextContext,
-		Environment: services,
-		Auth:        settings,
-		CachedToken: cachedToken,
-		UI:          ui,
+		Factory:        asertoFactory,
+		Context:        contextContext,
+		Environment:    services,
+		Auth:           settings,
+		CachedToken:    cachedToken,
+		DecisionLogger: decisionloggerSettings,
+		UI:             ui,
 	}
 	return commonCtx, nil
 }
@@ -64,14 +68,17 @@ func BuildTestCtx(ioStreams iostream.IO, configReader io.Reader, overrides ...co
 		return nil, err
 	}
 	settings := NewAuthSettings(auth)
+	decisionloggerConfig := &configConfig.DecisionLogger
+	decisionloggerSettings := decisionlogger.NewSettings(decisionloggerConfig)
 	ui := iostream.NewUI(ioStreams)
 	commonCtx := &CommonCtx{
-		Factory:     asertoFactory,
-		Context:     contextContext,
-		Environment: services,
-		Auth:        settings,
-		CachedToken: cachedToken,
-		UI:          ui,
+		Factory:        asertoFactory,
+		Context:        contextContext,
+		Environment:    services,
+		Auth:           settings,
+		CachedToken:    cachedToken,
+		DecisionLogger: decisionloggerSettings,
+		UI:             ui,
 	}
 	return commonCtx, nil
 }
@@ -80,7 +87,7 @@ func BuildTestCtx(ioStreams iostream.IO, configReader io.Reader, overrides ...co
 
 var (
 	commonSet = wire.NewSet(iostream.NewUI, GetCacheKey, token.Load, NewTenantID,
-		NewAuthSettings, clients.NewClientFactory, wire.Bind(new(clients.Factory), new(*clients.AsertoFactory)), wire.FieldsOf(new(*config.Config), "Services", "Auth"), wire.Struct(new(CommonCtx), "*"),
+		NewAuthSettings, decisionlogger.NewSettings, clients.NewClientFactory, wire.Bind(new(clients.Factory), new(*clients.AsertoFactory)), wire.FieldsOf(new(*config.Config), "Services", "Auth", "DecisionLogger"), wire.Struct(new(CommonCtx), "*"),
 	)
 
 	ccSet = wire.NewSet(

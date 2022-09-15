@@ -12,6 +12,13 @@ type templateParams struct {
 		ClientCertPath string
 		ClientKeyPath  string
 	}
+	DecisionLogging bool
+	DecisionLogger  struct {
+		EMSAddress     string
+		StorePath      string
+		ClientCertPath string
+		ClientKeyPath  string
+	}
 }
 
 const configTemplate = templatePreamble + `
@@ -34,6 +41,7 @@ opa:
     discovery:
       name: "opa/discovery"
       prefix: "{{ .PolicyID }}"
+
 controller: 
 {{ if .ControlPlane.Enabled }}
   enabled: true
@@ -45,6 +53,21 @@ controller:
   policy_id: {{ .PolicyID }}
 {{ else }}
   enabled: false
+{{ end }}
+{{ if .DecisionLogging }}
+decision_logger:
+  type: self
+  config:
+    store_directory: {{ .DecisionLogger.StorePath }}
+    scribe:
+      address: {{ .DecisionLogger.EMSAddress }}
+      client_cert_path: {{ .DecisionLogger.ClientCertPath }}
+      client_key_path: {{ .DecisionLogger.ClientKeyPath }}
+      ack_wait_seconds: 30
+      headers:
+        Aserto-Tenant-Id: {{ .TenantID }}
+    shipper:
+      publish_timeout_seconds: 2
 {{ end }}
 `
 

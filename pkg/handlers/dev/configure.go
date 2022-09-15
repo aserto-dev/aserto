@@ -10,6 +10,7 @@ import (
 
 	"github.com/aserto-dev/aserto-go/client/tenant"
 	"github.com/aserto-dev/aserto/pkg/cc"
+	decisionlogger "github.com/aserto-dev/aserto/pkg/decision_logger"
 	"github.com/aserto-dev/aserto/pkg/filex"
 	"github.com/aserto-dev/aserto/pkg/x"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -22,9 +23,18 @@ import (
 )
 
 type ConfigureCmd struct {
-	Name           string `arg:"" required:"" help:"policy name"`
-	Stdout         bool   `short:"p" help:"generated configuration is printed to stdout but not saved"`
-	EdgeAuthorizer string `optional:"" help:"id of edge authorizer connection used to register with the Aserto control plane"`
+	Name            string `arg:"" required:"" help:"policy name"`
+	Stdout          bool   `short:"p" help:"generated configuration is printed to stdout but not saved"`
+	EdgeAuthorizer  string `optional:"" help:"id of edge authorizer connection used to register with the Aserto control plane"`
+	DecisionLogging bool   `optional:"" help:"enable decision logging"`
+}
+
+func (cmd ConfigureCmd) Validate() error {
+	if cmd.DecisionLogging && cmd.EdgeAuthorizer == "" {
+		return errors.New("decision logging requires an edge authorizer to be configured")
+	}
+
+	return nil
 }
 
 func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
@@ -52,11 +62,12 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 	}
 
 	params := templateParams{
-		TenantID:     c.TenantID(),
-		PolicyName:   policyRef.Name,
-		PolicyID:     policyRef.Id,
-		DiscoveryURL: discoveryConf.URL,
-		TenantKey:    discoveryConf.APIKey,
+		TenantID:        c.TenantID(),
+		PolicyName:      policyRef.Name,
+		PolicyID:        policyRef.Id,
+		DiscoveryURL:    discoveryConf.URL,
+		TenantKey:       discoveryConf.APIKey,
+		DecisionLogging: cmd.DecisionLogging,
 	}
 
 	if cmd.EdgeAuthorizer != "" {
@@ -69,6 +80,11 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 		params.ControlPlane.Address = c.Environment.Get(x.ControlPlaneService).Address
 		params.ControlPlane.ClientCertPath = path.Join("/app/cfg", certFile)
 		params.ControlPlane.ClientKeyPath = path.Join("/app/cfg", keyFile)
+
+		params.DecisionLogger.EMSAddress = c.DecisionLogger.EMSAddress
+		params.DecisionLogger.StorePath = decisionlogger.ContainerPath
+		params.DecisionLogger.ClientCertPath = path.Join("/app/cfg", certFile)
+		params.DecisionLogger.ClientKeyPath = path.Join("/app/cfg", keyFile)
 	}
 
 	if params.TenantKey == "" {

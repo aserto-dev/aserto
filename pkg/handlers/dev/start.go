@@ -6,9 +6,11 @@ import (
 	"path"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
+	decisionlogger "github.com/aserto-dev/aserto/pkg/decision_logger"
 	"github.com/aserto-dev/aserto/pkg/dockerx"
 	"github.com/aserto-dev/aserto/pkg/filex"
 	localpaths "github.com/aserto-dev/aserto/pkg/paths"
+	"github.com/spf13/viper"
 
 	"github.com/fatih/color"
 	"github.com/pkg/errors"
@@ -21,10 +23,11 @@ const (
 type StartCmd struct {
 	Name             string `arg:"" required:"" help:"policy name"`
 	SrcPath          string `optional:"" type:"path" help:"path to source or bundle file"`
-	Interactive      bool   `optional:""  help:"interactive execution mode instead of the default daemon mode"`
-	ContainerName    string `optional:""  default:"authorizer-onebox" help:"container name"`
-	ContainerVersion string `optional:""  default:"latest" help:"container version" `
-	Hostname         string `optional:""  help:"hostname for docker to set"`
+	Interactive      bool   `optional:"" help:"interactive execution mode instead of the default daemon mode"`
+	ContainerName    string `optional:"" default:"authorizer-onebox" help:"container name"`
+	ContainerVersion string `optional:"" default:"latest" help:"container version" `
+	Hostname         string `optional:"" help:"hostname for docker to set"`
+	DataPath         string `optional:"" type:"path" help:"path for non-ephemeral data storage"`
 }
 
 func (cmd *StartCmd) Run(c *cc.CommonCtx) error {
@@ -38,17 +41,14 @@ func (cmd *StartCmd) Run(c *cc.CommonCtx) error {
 
 	color.Green(">>> starting onebox...")
 
-	paths, err := localpaths.New()
+	paths, err := localpaths.NewWithDataRoot(cmd.DataPath)
 	if err != nil {
 		return err
 	}
 
-	if cmd.Name == local {
-		if err := setupLocalRun(c, paths, cmd.SrcPath); err != nil {
-			return err
-		}
-	} else if !filex.FileExists(path.Join(paths.Config, cmd.Name+".yaml")) {
-		return errors.Errorf("config for policy [%s] not found\nplease ensure the name is correct or\n run \"aserto developer configure <name>\" to create or update the policy configuration file", cmd.Name)
+	err = cmd.validateConfig(c, paths)
+	if err != nil {
+		return err
 	}
 
 	args := cmd.dockerArgs()
@@ -90,6 +90,7 @@ var (
 		"-v", "$ASERTO_CERTS_DIR:/certs:rw",
 		"-v", "$ASERTO_CFG_DIR:/app/cfg:ro",
 		"-v", "$ASERTO_EDS_DIR:/app/db:rw",
+		"-v", "$ASERTO_DECISION_LOGS_DIR:/app/decision_logs:rw",
 	}
 
 	interactiveArgs = []string{
@@ -136,13 +137,14 @@ func (cmd *StartCmd) dockerArgs() []string {
 
 func (cmd *StartCmd) env(paths *localpaths.Paths) map[string]string {
 	return map[string]string{
-		"ASERTO_CERTS_DIR":   paths.Certs.Root,
-		"ASERTO_CFG_DIR":     paths.Config,
-		"ASERTO_EDS_DIR":     paths.EDS,
-		"ASERTO_SRC_DIR":     cmd.SrcPath,
-		"CONTAINER_NAME":     cmd.ContainerName,
-		"CONTAINER_VERSION":  cmd.ContainerVersion,
-		"CONTAINER_HOSTNAME": cmd.Hostname,
+		"ASERTO_CERTS_DIR":         paths.Certs.Root,
+		"ASERTO_CFG_DIR":           paths.Config,
+		"ASERTO_EDS_DIR":           paths.EDS,
+		"ASERTO_SRC_DIR":           cmd.SrcPath,
+		"CONTAINER_NAME":           cmd.ContainerName,
+		"CONTAINER_VERSION":        cmd.ContainerVersion,
+		"CONTAINER_HOSTNAME":       cmd.Hostname,
+		"ASERTO_DECISION_LOGS_DIR": path.Join(paths.Data, decisionlogger.Dir),
 	}
 }
 
@@ -167,6 +169,33 @@ func setupLocalRun(c *cc.CommonCtx, paths *localpaths.Paths, srcPath string) err
 			return errors.Wrapf(err, "writing %s", cfgLocal)
 		}
 
+	}
+
+	return nil
+}
+
+func (cmd *StartCmd) validateConfig(c *cc.CommonCtx, paths *localpaths.Paths) error {
+	if cmd.Name == local {
+		if err := setupLocalRun(c, paths, cmd.SrcPath); err != nil {
+			return err
+		}
+	} else if !filex.FileExists(path.Join(paths.Config, cmd.Name+".yaml")) {
+		return errors.Errorf("config for policy [%s] not found\nplease ensure the name is correct or\n run \"aserto developer configure <name>\" to create or update the policy configuration file", cmd.Name)
+	}
+
+	cfgPath := path.Join(paths.Config, cmd.Name+".yaml")
+	v := viper.New()
+	v.SetConfigType("yaml")
+	v.SetConfigFile(cfgPath)
+
+	err := v.ReadInConfig()
+	if err != nil {
+		return errors.Wrapf(err, "error reading config file '%s'", cfgPath)
+	}
+
+	cfg := v.GetStringMap("decision_logger")
+	if cfg != nil && cmd.DataPath == "" {
+		return errors.Errorf("policy '%s' has decision logging configured, please specify a destination for logs using --data-path", cmd.Name)
 	}
 
 	return nil

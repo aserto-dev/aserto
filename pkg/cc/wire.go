@@ -12,6 +12,7 @@ import (
 	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/cc/iostream"
 	"github.com/aserto-dev/aserto/pkg/cc/token"
+	decisionlogger "github.com/aserto-dev/aserto/pkg/decision_logger"
 	"github.com/google/wire"
 )
 
@@ -22,10 +23,11 @@ var (
 		token.Load,
 		NewTenantID,
 		NewAuthSettings,
+		decisionlogger.NewSettings,
 		clients.NewClientFactory,
 
 		wire.Bind(new(clients.Factory), new(*clients.AsertoFactory)),
-		wire.FieldsOf(new(*config.Config), "Services", "Auth"),
+		wire.FieldsOf(new(*config.Config), "Services", "Auth", "DecisionLogger"),
 		wire.Struct(new(CommonCtx), "*"),
 	)
 
