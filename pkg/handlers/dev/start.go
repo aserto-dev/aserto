@@ -137,14 +137,14 @@ func (cmd *StartCmd) dockerArgs() []string {
 
 func (cmd *StartCmd) env(paths *localpaths.Paths) map[string]string {
 	return map[string]string{
-		"ASERTO_CERTS_DIR":   paths.Certs.Root,
-		"ASERTO_CFG_DIR":     paths.Config,
-		"ASERTO_EDS_DIR":     paths.EDS,
-		"ASERTO_SRC_DIR":     cmd.SrcPath,
-		"CONTAINER_NAME":     cmd.ContainerName,
-		"CONTAINER_VERSION":  cmd.ContainerVersion,
-		"CONTAINER_HOSTNAME": cmd.Hostname,
-		"DECISION_LOGS_DIR":  path.Join(paths.Data, decisionlogger.Dir),
+		"ASERTO_CERTS_DIR":         paths.Certs.Root,
+		"ASERTO_CFG_DIR":           paths.Config,
+		"ASERTO_EDS_DIR":           paths.EDS,
+		"ASERTO_SRC_DIR":           cmd.SrcPath,
+		"CONTAINER_NAME":           cmd.ContainerName,
+		"CONTAINER_VERSION":        cmd.ContainerVersion,
+		"CONTAINER_HOSTNAME":       cmd.Hostname,
+		"ASERTO_DECISION_LOGS_DIR": path.Join(paths.Data, decisionlogger.Dir),
 	}
 }
 
@@ -183,14 +183,14 @@ func (cmd *StartCmd) validateConfig(c *cc.CommonCtx, paths *localpaths.Paths) er
 		return errors.Errorf("config for policy [%s] not found\nplease ensure the name is correct or\n run \"aserto developer configure <name>\" to create or update the policy configuration file", cmd.Name)
 	}
 
-	path := path.Join(paths.Config, cmd.Name+".yaml")
+	cfgPath := path.Join(paths.Config, cmd.Name+".yaml")
 	v := viper.New()
 	v.SetConfigType("yaml")
-	v.SetConfigFile(path)
+	v.SetConfigFile(cfgPath)
 
 	err := v.ReadInConfig()
 	if err != nil {
-		return errors.Wrapf(err, "error reading config file '%s'", path)
+		return errors.Wrapf(err, "error reading config file '%s'", cfgPath)
 	}
 
 	cfg := v.GetStringMap("decision_logger")
