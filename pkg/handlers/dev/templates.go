@@ -12,7 +12,8 @@ type templateParams struct {
 		ClientCertPath string
 		ClientKeyPath  string
 	}
-	DecisionLogger struct {
+	DecisionLogging bool
+	DecisionLogger  struct {
 		EMSAddress     string
 		StorePath      string
 		ClientCertPath string
@@ -53,7 +54,7 @@ controller:
 {{ else }}
   enabled: false
 {{ end }}
-{{ if .ControlPlane.Enabled }}
+{{ if .DecisionLogging }}
 decision_logger:
   type: self
   config:

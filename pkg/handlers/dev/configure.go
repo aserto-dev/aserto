@@ -23,9 +23,18 @@ import (
 )
 
 type ConfigureCmd struct {
-	Name           string `arg:"" required:"" help:"policy name"`
-	Stdout         bool   `short:"p" help:"generated configuration is printed to stdout but not saved"`
-	EdgeAuthorizer string `optional:"" help:"id of edge authorizer connection used to register with the Aserto control plane"`
+	Name            string `arg:"" required:"" help:"policy name"`
+	Stdout          bool   `short:"p" help:"generated configuration is printed to stdout but not saved"`
+	EdgeAuthorizer  string `optional:"" help:"id of edge authorizer connection used to register with the Aserto control plane"`
+	DecisionLogging bool   `optional:"" help:"enable decision logging"`
+}
+
+func (cmd ConfigureCmd) Validate() error {
+	if cmd.DecisionLogging && cmd.EdgeAuthorizer == "" {
+		return errors.New("decision logging requires an edge authorizer to be configured")
+	}
+
+	return nil
 }
 
 func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
@@ -53,11 +62,12 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 	}
 
 	params := templateParams{
-		TenantID:     c.TenantID(),
-		PolicyName:   policyRef.Name,
-		PolicyID:     policyRef.Id,
-		DiscoveryURL: discoveryConf.URL,
-		TenantKey:    discoveryConf.APIKey,
+		TenantID:        c.TenantID(),
+		PolicyName:      policyRef.Name,
+		PolicyID:        policyRef.Id,
+		DiscoveryURL:    discoveryConf.URL,
+		TenantKey:       discoveryConf.APIKey,
+		DecisionLogging: cmd.DecisionLogging,
 	}
 
 	if cmd.EdgeAuthorizer != "" {

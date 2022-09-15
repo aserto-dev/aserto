@@ -51,9 +51,7 @@ func newPaths(dataRoot string) (*Paths, error) {
 		return nil, err
 	}
 
-	if dataRoot == "" {
-		dataRoot = cacheRoot
-	} else if !filex.DirExists(dataRoot) {
+	if dataRoot != "" && !filex.DirExists(dataRoot) {
 		return nil, errors.Wrapf(os.ErrNotExist, "directory '%s' does not exist", dataRoot)
 	}
 
@@ -83,7 +81,6 @@ func NewIn(confRoot, cacheRoot, dataRoot string) *Paths {
 			Gateway: GatewayCerts(certDir),
 		},
 	}
-
 }
 
 func Create() (*Paths, error) {

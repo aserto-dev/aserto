@@ -9,7 +9,7 @@ go 1.17
 // replace github.com/aserto-dev/aserto-go => ../aserto-go
 
 require (
-	github.com/alecthomas/kong v0.5.0
+	github.com/alecthomas/kong v0.6.1
 	github.com/aserto-dev/aserto-go v0.8.5
 	github.com/aserto-dev/clui v0.8.1
 	github.com/aserto-dev/go-grpc v0.8.48
