@@ -81,7 +81,6 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 		params.ControlPlane.ClientCertPath = path.Join("/app/cfg", certFile)
 		params.ControlPlane.ClientKeyPath = path.Join("/app/cfg", keyFile)
 
-		//params.DecisionLogger.EMSAddress = c.DecisionLogger.EMSAddress
 		params.DecisionLogger.EMSAddress = c.Environment.Get(x.EMSService).Address
 		params.DecisionLogger.StorePath = decisionlogger.ContainerPath
 		params.DecisionLogger.ClientCertPath = path.Join("/app/cfg", certFile)
