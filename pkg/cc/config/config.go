@@ -16,7 +16,7 @@ var (
 	EnvironmentErr = errors.New("unknown environment")
 )
 
-// Overrider is a func that mutates configuration
+// Overrider is a func that mutates configuration.
 type Overrider func(*Config)
 
 type Auth struct {

@@ -5,8 +5,8 @@ import (
 	"io"
 
 	"github.com/aserto-dev/aserto/pkg/paths"
-	"github.com/aserto-dev/go-utils/certs"
-	"github.com/aserto-dev/go-utils/logger"
+	"github.com/aserto-dev/certs"
+	"github.com/aserto-dev/logger"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 )

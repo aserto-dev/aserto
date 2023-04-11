@@ -1,4 +1,4 @@
-package pkce
+package pkce //nolint: testpackage
 
 import (
 	"bytes"

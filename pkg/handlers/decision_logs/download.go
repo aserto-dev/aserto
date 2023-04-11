@@ -2,7 +2,6 @@ package decision_logs //nolint // prefer standardizing name over removing _
 
 import (
 	"context"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path"
@@ -31,7 +30,7 @@ func download(ctx context.Context, name, url, downloadDir string) error {
 	}
 	defer httpResp.Body.Close()
 
-	tmpFile, err := ioutil.TempFile(os.TempDir(), "aserto-")
+	tmpFile, err := os.CreateTemp("", "aserto-")
 	if err != nil {
 		return err
 	}

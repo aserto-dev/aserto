@@ -39,7 +39,7 @@ func (s *localServer) Close() error {
 }
 
 func (s *localServer) Serve() error {
-	return http.Serve(s.listener, s)
+	return http.Serve(s.listener, s) //nolint: gosec
 }
 
 func (s *localServer) WaitForCode() (CodeResponse, error) {
