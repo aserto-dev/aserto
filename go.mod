@@ -28,7 +28,7 @@ require (
 	github.com/rs/zerolog v1.29.0
 	github.com/spf13/viper v1.15.0
 	github.com/stretchr/testify v1.8.2
-	github.com/zalando/go-keyring v0.1.1
+	github.com/zalando/go-keyring v0.2.2
 	github.com/zenizh/go-capturer v0.0.0-20211219060012-52ea6c8fed04
 	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1
 	google.golang.org/grpc v1.54.0
@@ -38,8 +38,9 @@ require (
 
 require (
 	github.com/PuerkitoBio/rehttp v1.0.0 // indirect
+	github.com/alessio/shellescape v1.4.1 // indirect
 	github.com/benbjohnson/clock v1.1.0 // indirect
-	github.com/danieljoos/wincred v1.1.0 // indirect
+	github.com/danieljoos/wincred v1.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.6 // indirect
