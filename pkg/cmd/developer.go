@@ -6,9 +6,9 @@ import (
 )
 
 type DeveloperCmd struct {
-	Start             dev.StartCmd          `cmd:"" group:"developer" help:"start aserto-one instance"`
-	Stop              dev.StopCmd           `cmd:"" group:"developer" help:"stop aserto-one instance"`
-	Status            dev.StatusCmd         `cmd:"" group:"developer" help:"status of aserto-one instance"`
+	Start             dev.StartCmd          `cmd:"" group:"developer" help:"start sidecar instance"`
+	Stop              dev.StopCmd           `cmd:"" group:"developer" help:"stop sidecar instance"`
+	Status            dev.StatusCmd         `cmd:"" group:"developer" help:"status of sidecar instance"`
 	Update            dev.UpdateCmd         `cmd:"" group:"developer" help:"download the latest aserto onebox image"`
 	Console           dev.ConsoleCmd        `cmd:"" group:"developer" help:"launch web console"`
 	Configure         dev.ConfigureCmd      `cmd:"" group:"developer" help:"configure a policy"`

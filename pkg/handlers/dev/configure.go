@@ -239,7 +239,7 @@ func CreateConfigDir() (string, error) {
 		return "", err
 	}
 
-	configDir := path.Join(home, "/.config/aserto/aserto-one/cfg")
+	configDir := path.Join(home, "/.config/aserto/sidecar/cfg")
 	if filex.DirExists(configDir) {
 		return configDir, nil
 	}

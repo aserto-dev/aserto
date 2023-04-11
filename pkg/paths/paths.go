@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	DefaultConfigRoot = ".config/aserto/aserto-one"
-	DefaultCacheRoot  = ".cache/aserto/aserto-one"
+	DefaultConfigRoot = ".config/aserto/sidecar"
+	DefaultCacheRoot  = ".cache/aserto/sidecar"
 
 	cfgSubdir  = "cfg"
 	certSubdir = "certs"
