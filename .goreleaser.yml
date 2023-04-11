@@ -28,15 +28,13 @@ builds:
 
 archives:
   - format: zip
-    replacements:
-      darwin: darwin
-      linux: linux
-      windows: windows
-      amd64: x86_64
+    rlcp: true
     files:
       - LICENSE.md
       - README.md
-    name_template: "aserto_{{ .Os }}_{{ .Arch }}"
+    name_template: >-
+      aserto_{{ .Os }}_{{- if eq .Arch "amd64" }}x86_64{{- else }}{{ .Arch }}{{ end }}
+
 
 checksum:
   name_template: 'checksums.txt'

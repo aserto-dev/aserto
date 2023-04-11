@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	AsertoOne = "aserto-one"
+	AsertoOne = "sidecar"
 )
 
 var (

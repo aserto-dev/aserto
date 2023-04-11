@@ -18,12 +18,12 @@ var ConfigNotFoundErr = errors.New("cannot find configuration file")
 //
 // When applied to a CLI flag, it attempts to find a configuration file that best matches the specified name using
 // the following rules:
-// 1. If the value is a full or relative path to an existing file, that file is chosen.
-// 2. If the value is a file name (without a path separator) with an extension (e.g. "config.yaml") and a file with that
-//    name exists in the config directory, that file is chosen.
-// 3. If the value is a string without an dot (e.g. "eng") and a file with that name (i.e. "eng.*") exists in the
-//    config directory, that file is chosen. If multiple files match, the first one is chosen and a warning is printed
-//    to stderr.
+//  1. If the value is a full or relative path to an existing file, that file is chosen.
+//  2. If the value is a file name (without a path separator) with an extension (e.g. "config.yaml") and a file with that
+//     name exists in the config directory, that file is chosen.
+//  3. If the value is a string without an dot (e.g. "eng") and a file with that name (i.e. "eng.*") exists in the
+//     config directory, that file is chosen. If multiple files match, the first one is chosen and a warning is printed
+//     to stderr.
 type ConfigFileMapper string
 
 func (m ConfigFileMapper) Decode(ctx *kong.DecodeContext, target reflect.Value) error {

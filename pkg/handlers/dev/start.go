@@ -87,6 +87,7 @@ var (
 		"-p", "8282:8282",
 		"-p", "8383:8383",
 		"-p", "8484:8484",
+		"-p", "9292:9292",
 		"-v", "$ASERTO_CERTS_DIR:/certs:rw",
 		"-v", "$ASERTO_CFG_DIR:/app/cfg:ro",
 		"-v", "$ASERTO_EDS_DIR:/app/db:rw",

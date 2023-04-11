@@ -78,9 +78,9 @@ decision-logs
   decision-logs (l) get-user      download one or more user data files
 
 developer
-  developer (x) start        start aserto-one instance
-  developer (x) stop         stop aserto-one instance
-  developer (x) status       status of aserto-one instance
+  developer (x) start        start sidecar instance
+  developer (x) stop         stop sidecar instance
+  developer (x) status       status of sidecar instance
   developer (x) update       download the latest aserto onebox image
   developer (x) console      launch web console
   developer (x) configure    configure a policy
