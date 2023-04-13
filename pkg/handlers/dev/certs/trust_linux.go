@@ -32,7 +32,7 @@ func RemoveTrustedCert(certPath string) error {
 	}
 
 	if err := sh.RunV("rm", "-rf", CaCertsDir); err != nil {
-		return errors.Wrap(err, "unable to remove onebox cert")
+		return errors.Wrap(err, "unable to remove sidecar cert")
 	}
 
 	return updateCaCerts()

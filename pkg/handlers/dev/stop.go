@@ -16,7 +16,7 @@ func (cmd StopCmd) Run(c *cc.CommonCtx) error {
 	}
 
 	if running {
-		color.Green(">>> stopping onebox...")
+		color.Green(">>> stopping sidecar...")
 		return dockerx.DockerRun("stop", dockerx.AsertoOne)
 	}
 

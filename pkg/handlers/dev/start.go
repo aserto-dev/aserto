@@ -24,7 +24,7 @@ type StartCmd struct {
 	Name             string `arg:"" required:"" help:"policy name"`
 	SrcPath          string `optional:"" type:"path" help:"path to source or bundle file"`
 	Interactive      bool   `optional:"" help:"interactive execution mode instead of the default daemon mode"`
-	ContainerName    string `optional:"" default:"authorizer-onebox" help:"container name"`
+	ContainerName    string `optional:"" default:"sidecar" help:"container name"`
 	ContainerVersion string `optional:"" default:"latest" help:"container version" `
 	Hostname         string `optional:"" help:"hostname for docker to set"`
 	DataPath         string `optional:"" type:"path" help:"path for non-ephemeral data storage"`
@@ -35,11 +35,11 @@ func (cmd *StartCmd) Run(c *cc.CommonCtx) error {
 		if err != nil {
 			return err
 		}
-		color.Yellow("!!! onebox is already running")
+		color.Yellow("!!! sidecar is already running")
 		return nil
 	}
 
-	color.Green(">>> starting onebox...")
+	color.Green(">>> starting sidecar...")
 
 	paths, err := localpaths.NewWithDataRoot(cmd.DataPath)
 	if err != nil {

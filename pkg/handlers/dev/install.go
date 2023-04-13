@@ -13,9 +13,9 @@ import (
 )
 
 type InstallCmd struct {
-	TrustCert bool `optional:"" default:"false" help:"add onebox certificate to the system's trusted CAs"`
+	TrustCert bool `optional:"" default:"false" help:"add sidecar certificate to the system's trusted CAs"`
 
-	ContainerName    string `optional:""  default:"authorizer-onebox" help:"container name"`
+	ContainerName    string `optional:""  default:"sidecar" help:"container name"`
 	ContainerVersion string `optional:""  default:"latest" help:"container version" `
 }
 
@@ -24,18 +24,18 @@ func (cmd InstallCmd) Run(c *cc.CommonCtx) error {
 		if err != nil {
 			return err
 		}
-		color.Yellow("!!! onebox is already running")
+		color.Yellow("!!! sidecar is already running")
 		return nil
 	}
 
-	color.Green(">>> installing onebox...")
+	color.Green(">>> installing sidecar...")
 
 	paths, err := localpaths.Create()
 	if err != nil {
 		return errors.Wrap(err, "failed to create configuration directory")
 	}
 
-	// Create onebox certs if none exist.
+	// Create sidecar certs if none exist.
 	if err := certs.GenerateCerts(c.UI.Output(), c.UI.Err(), paths.Certs.GRPC, paths.Certs.Gateway); err != nil {
 		return errors.Wrap(err, "failed to create dev certificates")
 	}

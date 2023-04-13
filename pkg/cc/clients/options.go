@@ -79,7 +79,7 @@ func (c *optionsBuilder) ConnectionOptions() ([]aserto.ConnectionOption, error) 
 		if err == nil {
 			caCertPathOption = aserto.WithCACertPath(p.Certs.GRPC.CA)
 		} else {
-			log.Println("Unable to locate onebox certificates.", err.Error())
+			log.Println("Unable to locate sidecar certificates.", err.Error())
 		}
 	}
 
