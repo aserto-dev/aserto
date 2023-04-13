@@ -20,7 +20,7 @@ func AddTrustedCert(certPath string) error {
 	keychain := path.Join(homedir, loginKeychain)
 
 	if err := sh.RunV("security", "add-trusted-cert", "-k", keychain, certPath); err != nil {
-		return errors.Wrap(err, "trusting onebox ca cert")
+		return errors.Wrap(err, "trusting sidecar ca cert")
 	}
 
 	return nil
@@ -41,7 +41,7 @@ func RemoveTrustedCert(certPath string) error {
 
 	fmt.Fprintln(os.Stderr, "Deleting dev certificate...")
 	if err := sh.RunV("security", "delete-certificate", "-c", "authorizer-gateway-ca", "-t", keychain); err != nil {
-		return errors.Wrap(err, "can't remove onebox ca cert")
+		return errors.Wrap(err, "can't remove sidecar ca cert")
 	}
 
 	return nil

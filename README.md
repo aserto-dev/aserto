@@ -81,11 +81,11 @@ developer
   developer (x) start        start sidecar instance
   developer (x) stop         stop sidecar instance
   developer (x) status       status of sidecar instance
-  developer (x) update       download the latest aserto onebox image
+  developer (x) update       download the latest aserto sidecar image
   developer (x) console      launch web console
   developer (x) configure    configure a policy
-  developer (x) install      install aserto onebox
-  developer (x) uninstall    uninstall aserto onebox, removes all locally
+  developer (x) install      install aserto sidecar
+  developer (x) uninstall    uninstall aserto sidecar, removes all locally
                              installed artifacts
 
 user

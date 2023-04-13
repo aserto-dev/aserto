@@ -15,9 +15,9 @@ func (cmd StatusCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 	if running {
-		color.Green(">>> onebox is running")
+		color.Green(">>> sidecar is running")
 	} else {
-		color.Yellow(">>> onebox is not running")
+		color.Yellow(">>> sidecar is not running")
 	}
 	return nil
 }

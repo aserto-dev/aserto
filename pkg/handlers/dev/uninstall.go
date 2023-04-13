@@ -18,7 +18,7 @@ import (
 type UninstallCmd struct{}
 
 func (cmd UninstallCmd) Run(c *cc.CommonCtx) error {
-	color.Green(">>> uninstalling onebox...")
+	color.Green(">>> uninstalling sidecar...")
 
 	var err error
 
@@ -46,11 +46,11 @@ func (cmd UninstallCmd) Run(c *cc.CommonCtx) error {
 	}
 
 	if err = os.RemoveAll(paths.Certs.Root); err != nil {
-		return errors.Wrap(err, "failed to delete onebox certificates")
+		return errors.Wrap(err, "failed to delete sidecar certificates")
 	}
 
 	str, err := dockerx.DockerWithOut(map[string]string{
-		"NAME": "authorizer-onebox",
+		"NAME": "sidecar",
 	},
 		"images",
 		"ghcr.io/aserto-dev/$NAME",
@@ -62,7 +62,7 @@ func (cmd UninstallCmd) Run(c *cc.CommonCtx) error {
 	}
 
 	if str != "" {
-		fmt.Fprintf(c.UI.Output(), "removing %s\n", "aserto-dev/authorizer-onebox")
+		fmt.Fprintf(c.UI.Output(), "removing %s\n", "aserto-dev/sidecar")
 		err = dockerx.DockerRun("rmi", str)
 	}
 
