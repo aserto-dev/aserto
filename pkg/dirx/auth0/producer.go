@@ -2,7 +2,7 @@ package auth0
 
 import (
 	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
-	"gopkg.in/auth0.v5/management"
+	"github.com/auth0/go-auth0/management"
 )
 
 // Producer api.User producer.
