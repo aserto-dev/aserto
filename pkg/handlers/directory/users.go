@@ -2,12 +2,8 @@ package directory
 
 import (
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/jsonx"
-	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
-	dir "github.com/aserto-dev/go-grpc/aserto/authorizer/directory/v1"
 
 	"github.com/pkg/errors"
-	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
 type ListUsersCmd struct {
@@ -17,70 +13,72 @@ type ListUsersCmd struct {
 }
 
 func (cmd *ListUsersCmd) Run(c *cc.CommonCtx) error {
-	client, err := c.AuthorizerClient()
-	if err != nil {
-		return err
-	}
-	mask, err := fieldmaskpb.New(&api.User{}, cmd.Fields...)
-	if err != nil {
-		return err
-	}
+	return errors.Errorf("NOT IMPLEMENTED")
 
-	pageSize := int32(100)
-	if cmd.Count {
-		pageSize = int32(-2)
-	}
+	// client, err := c.AuthorizerClient()
+	// if err != nil {
+	// 	return err
+	// }
+	// mask, err := fieldmaskpb.New(&api.User{}, cmd.Fields...)
+	// if err != nil {
+	// 	return err
+	// }
 
-	token := ""
-	first := true
-	count := int32(0)
+	// pageSize := int32(100)
+	// if cmd.Count {
+	// 	pageSize = int32(-2)
+	// }
 
-	opts := jsonx.MaskedMarshalOpts()
+	// token := ""
+	// first := true
+	// count := int32(0)
 
-	for {
-		resp, err := client.Directory.ListUsers(c.Context, &dir.ListUsersRequest{
-			Page: &api.PaginationRequest{
-				Size:  pageSize,
-				Token: token,
-			},
-			Fields: &api.Fields{
-				Mask: mask,
-			},
-			Base: cmd.Base,
-		})
-		if err != nil {
-			return errors.Wrapf(err, "list users")
-		}
+	// opts := jsonx.MaskedMarshalOpts()
 
-		if cmd.Count {
-			return jsonx.OutputJSONPB(c.UI.Output(), resp.Page, opts)
-		}
+	// for {
+	// 	resp, err := client.Directory.ListUsers(c.Context, &dir.ListUsersRequest{
+	// 		Page: &api.PaginationRequest{
+	// 			Size:  pageSize,
+	// 			Token: token,
+	// 		},
+	// 		Fields: &api.Fields{
+	// 			Mask: mask,
+	// 		},
+	// 		Base: cmd.Base,
+	// 	})
+	// 	if err != nil {
+	// 		return errors.Wrapf(err, "list users")
+	// 	}
 
-		if first {
-			_, _ = c.UI.Output().Write([]byte("[\n"))
-			first = false
-		}
+	// 	if cmd.Count {
+	// 		return jsonx.OutputJSONPB(c.UI.Output(), resp.Page, opts)
+	// 	}
 
-		for _, u := range resp.Results {
-			if count > 0 {
-				_, _ = c.UI.Output().Write([]byte(",\n"))
-			}
+	// 	if first {
+	// 		_, _ = c.UI.Output().Write([]byte("[\n"))
+	// 		first = false
+	// 	}
 
-			_ = jsonx.EncodeJSONPB(c.UI.Output(), u, opts)
+	// 	for _, u := range resp.Results {
+	// 		if count > 0 {
+	// 			_, _ = c.UI.Output().Write([]byte(",\n"))
+	// 		}
 
-			count++
-		}
+	// 		_ = jsonx.EncodeJSONPB(c.UI.Output(), u, opts)
 
-		if resp.Page.NextToken == "" {
-			break
-		}
+	// 		count++
+	// 	}
 
-		token = resp.Page.NextToken
-	}
+	// 	if resp.Page.NextToken == "" {
+	// 		break
+	// 	}
 
-	_, _ = c.UI.Output().Write([]byte("\n]\n"))
+	// 	token = resp.Page.NextToken
+	// }
 
-	return nil
+	// _, _ = c.UI.Output().Write([]byte("\n]\n"))
+
+	// return nil
 }
 
 type GetIdentityCmd struct {
@@ -88,12 +86,14 @@ type GetIdentityCmd struct {
 }
 
 func (cmd *GetIdentityCmd) Run(c *cc.CommonCtx) error {
-	_, identity, err := NewClientWithIdentity(c, cmd.Identity)
-	if err != nil {
-		return err
-	}
+	return errors.Errorf("NOT IMPLEMENTED")
 
-	return jsonx.OutputJSONPB(c.UI.Output(), identity)
+	// _, identity, err := NewClientWithIdentity(c, cmd.Identity)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// return jsonx.OutputJSONPB(c.UI.Output(), identity)
 }
 
 type GetUserCmd struct {
@@ -102,18 +102,20 @@ type GetUserCmd struct {
 }
 
 func (cmd *GetUserCmd) Run(c *cc.CommonCtx) error {
-	client, identity, err := NewClientWithIdentity(c, cmd.ID)
-	if err != nil {
-		return err
-	}
+	return errors.Errorf("NOT IMPLEMENTED")
 
-	resp, err := client.Directory.GetUser(c.Context, &dir.GetUserRequest{
-		Id:   identity.Id,
-		Base: cmd.Base,
-	})
-	if err != nil {
-		return errors.Wrapf(err, "get user")
-	}
+	// client, identity, err := NewClientWithIdentity(c, cmd.ID)
+	// if err != nil {
+	// 	return err
+	// }
 
-	return jsonx.OutputJSONPB(c.UI.Output(), resp)
+	// resp, err := client.Directory.GetUser(c.Context, &dir.GetUserRequest{
+	// 	Id:   identity.Id,
+	// 	Base: cmd.Base,
+	// })
+	// if err != nil {
+	// 	return errors.Wrapf(err, "get user")
+	// }
+
+	// return jsonx.OutputJSONPB(c.UI.Output(), resp)
 }

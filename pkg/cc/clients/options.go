@@ -3,12 +3,12 @@ package clients
 import (
 	"log"
 
-	aserto "github.com/aserto-dev/aserto-go/client"
 	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/cc/errors"
 	"github.com/aserto-dev/aserto/pkg/cc/token"
 	"github.com/aserto-dev/aserto/pkg/paths"
 	"github.com/aserto-dev/aserto/pkg/x"
+	aserto "github.com/aserto-dev/go-aserto/client"
 )
 
 // Overrides are options that modify the default behavior of connections to aserto services.

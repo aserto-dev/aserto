@@ -1,14 +1,7 @@
 package directory
 
 import (
-	"io"
-	"os"
-
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/jsonx"
-	"github.com/aserto-dev/aserto/pkg/pb"
-	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
-	dir "github.com/aserto-dev/go-grpc/aserto/authorizer/directory/v1"
 
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -19,19 +12,21 @@ type GetResCmd struct {
 }
 
 func (cmd *GetResCmd) Run(c *cc.CommonCtx) error {
-	client, err := c.AuthorizerClient()
-	if err != nil {
-		return err
-	}
+	return errors.Errorf("NOT IMPLEMENTED")
 
-	resp, err := client.Directory.GetResource(c.Context, &dir.GetResourceRequest{
-		Key: cmd.Key,
-	})
-	if err != nil {
-		return err
-	}
+	// client, err := c.AuthorizerClient()
+	// if err != nil {
+	// 	return err
+	// }
 
-	return jsonx.OutputJSON(c.UI.Output(), resp.Value)
+	// resp, err := client.Directory.GetResource(c.Context, &dir.GetResourceRequest{
+	// 	Key: cmd.Key,
+	// })
+	// if err != nil {
+	// 	return err
+	// }
+
+	// return jsonx.OutputJSON(c.UI.Output(), resp.Value)
 }
 
 type SetResCmd struct {
@@ -42,52 +37,54 @@ type SetResCmd struct {
 }
 
 func (cmd *SetResCmd) Run(c *cc.CommonCtx) error {
-	var (
-		value *structpb.Value
-		buf   io.Reader
-		err   error
-	)
+	return errors.Errorf("NOT IMPLEMENTED")
 
-	switch {
-	case cmd.Stdin:
-		buf = os.Stdin
+	// var (
+	// 	value *structpb.Value
+	// 	buf   io.Reader
+	// 	err   error
+	// )
 
-		value, err = pb.BufToValue(buf)
-		if err != nil {
-			return errors.Wrapf(err, "unmarshal stdin")
-		}
+	// switch {
+	// case cmd.Stdin:
+	// 	buf = os.Stdin
 
-	case cmd.File != "":
-		buf, err = os.Open(cmd.File)
-		if err != nil {
-			return errors.Wrapf(err, "opening file [%s]", cmd.File)
-		}
-		value, err = pb.BufToValue(buf)
-		if err != nil {
-			return errors.Wrapf(err, "unmarshal file [%s]", cmd.File)
-		}
+	// 	value, err = pb.BufToValue(buf)
+	// 	if err != nil {
+	// 		return errors.Wrapf(err, "unmarshal stdin")
+	// 	}
 
-	default:
-		value = &cmd.Value
-	}
+	// case cmd.File != "":
+	// 	buf, err = os.Open(cmd.File)
+	// 	if err != nil {
+	// 		return errors.Wrapf(err, "opening file [%s]", cmd.File)
+	// 	}
+	// 	value, err = pb.BufToValue(buf)
+	// 	if err != nil {
+	// 		return errors.Wrapf(err, "unmarshal file [%s]", cmd.File)
+	// 	}
 
-	structValue := pb.NewStruct()
-	structValue.Fields[cmd.Key] = value
+	// default:
+	// 	value = &cmd.Value
+	// }
 
-	client, err := c.AuthorizerClient()
-	if err != nil {
-		return err
-	}
+	// structValue := pb.NewStruct()
+	// structValue.Fields[cmd.Key] = value
 
-	_, err = client.Directory.SetResource(c.Context, &dir.SetResourceRequest{
-		Key:   cmd.Key,
-		Value: structValue,
-	})
-	if err != nil {
-		return err
-	}
+	// client, err := c.AuthorizerClient()
+	// if err != nil {
+	// 	return err
+	// }
 
-	return nil
+	// _, err = client.Directory.SetResource(c.Context, &dir.SetResourceRequest{
+	// 	Key:   cmd.Key,
+	// 	Value: structValue,
+	// })
+	// if err != nil {
+	// 	return err
+	// }
+
+	// return nil
 }
 
 type DelResCmd struct {
@@ -95,20 +92,22 @@ type DelResCmd struct {
 }
 
 func (cmd *DelResCmd) Run(c *cc.CommonCtx) error {
-	client, err := c.AuthorizerClient()
-	if err != nil {
-		return err
-	}
+	return errors.Errorf("NOT IMPLEMENTED")
 
-	_, err = client.Directory.DeleteResource(c.Context, &dir.DeleteResourceRequest{
-		Key: cmd.Key,
-	})
+	// client, err := c.AuthorizerClient()
+	// if err != nil {
+	// 	return err
+	// }
 
-	if err != nil {
-		return err
-	}
+	// _, err = client.Directory.DeleteResource(c.Context, &dir.DeleteResourceRequest{
+	// 	Key: cmd.Key,
+	// })
 
-	return nil
+	// if err != nil {
+	// 	return err
+	// }
+
+	// return nil
 }
 
 type ListResCmd struct {
@@ -116,41 +115,43 @@ type ListResCmd struct {
 }
 
 func (cmd *ListResCmd) Run(c *cc.CommonCtx) error {
-	client, err := c.AuthorizerClient()
-	if err != nil {
-		return err
-	}
+	return errors.Errorf("NOT IMPLEMENTED")
 
-	token := ""
-	pageSize := int32(100)
-	var apiRes []string
+	// client, err := c.AuthorizerClient()
+	// if err != nil {
+	// 	return err
+	// }
 
-	if cmd.Count {
-		pageSize = int32(-2)
-	}
+	// token := ""
+	// pageSize := int32(100)
+	// var apiRes []string
 
-	for {
-		resp, err := client.Directory.ListResources(c.Context, &dir.ListResourcesRequest{
-			Page: &api.PaginationRequest{
-				Size:  pageSize,
-				Token: token,
-			},
-		})
-		if err != nil {
-			return err
-		}
+	// if cmd.Count {
+	// 	pageSize = int32(-2)
+	// }
 
-		if cmd.Count {
-			return jsonx.OutputJSONPB(c.UI.Output(), resp.Page)
-		}
+	// for {
+	// 	resp, err := client.Directory.ListResources(c.Context, &dir.ListResourcesRequest{
+	// 		Page: &api.PaginationRequest{
+	// 			Size:  pageSize,
+	// 			Token: token,
+	// 		},
+	// 	})
+	// 	if err != nil {
+	// 		return err
+	// 	}
 
-		apiRes = append(apiRes, resp.Results...)
-		if resp.Page.NextToken == "" {
-			break
-		}
+	// 	if cmd.Count {
+	// 		return jsonx.OutputJSONPB(c.UI.Output(), resp.Page)
+	// 	}
 
-		token = resp.Page.NextToken
-	}
+	// 	apiRes = append(apiRes, resp.Results...)
+	// 	if resp.Page.NextToken == "" {
+	// 		break
+	// 	}
 
-	return jsonx.OutputJSON(c.UI.Output(), apiRes)
+	// 	token = resp.Page.NextToken
+	// }
+
+	// return jsonx.OutputJSON(c.UI.Output(), apiRes)
 }

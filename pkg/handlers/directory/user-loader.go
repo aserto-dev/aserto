@@ -1,13 +1,8 @@
 package directory
 
 import (
-	"fmt"
-
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/dirx"
-	"github.com/aserto-dev/aserto/pkg/dirx/auth0"
-	jsonproducer "github.com/aserto-dev/aserto/pkg/dirx/json"
-	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
 	"github.com/pkg/errors"
 )
 
@@ -18,73 +13,75 @@ type UserLoader struct {
 }
 
 func (userLoader *UserLoader) Load(c *cc.CommonCtx, requestFactory dirx.LoadUsersRequestFactory) error {
-	client, err := c.AuthorizerClient()
-	if err != nil {
-		return err
-	}
+	return errors.Errorf("NOT IMPLEMENTED")
 
-	userSubscriber := dirx.UserSubscriber{
-		Ctx:           c.Context,
-		DirClient:     client.Directory,
-		SourceChannel: make(chan *api.User, 10),
-		ResultChannel: make(chan *dirx.Result, 1),
-		ErrorChannel:  make(chan error, 1),
-	}
-	go func() {
-		for e := range userSubscriber.ErrorChannel {
-			fmt.Fprintf(c.UI.Err(), "%s\n", e.Error())
-		}
-	}()
+	// client, err := c.AuthorizerClient()
+	// if err != nil {
+	// 	return err
+	// }
 
-	go userSubscriber.Subscribe(requestFactory)
+	// userSubscriber := dirx.UserSubscriber{
+	// 	Ctx:           c.Context,
+	// 	DirClient:     client.Directory,
+	// 	SourceChannel: make(chan *api.User, 10),
+	// 	ResultChannel: make(chan *dirx.Result, 1),
+	// 	ErrorChannel:  make(chan error, 1),
+	// }
+	// go func() {
+	// 	for e := range userSubscriber.ErrorChannel {
+	// 		fmt.Fprintf(c.UI.Err(), "%s\n", e.Error())
+	// 	}
+	// }()
 
-	switch userLoader.Provider {
-	case providerJSON:
-		p := jsonproducer.NewProducer(userLoader.File)
-		p.Producer(userSubscriber.SourceChannel, userSubscriber.ErrorChannel)
-		fmt.Fprintf(c.UI.Err(), "produced %d\n", p.Count())
+	// go userSubscriber.Subscribe(requestFactory)
 
-	case providerAuth0:
-		var cfg *auth0.Config
+	// switch userLoader.Provider {
+	// case providerJSON:
+	// 	p := jsonproducer.NewProducer(userLoader.File)
+	// 	p.Producer(userSubscriber.SourceChannel, userSubscriber.ErrorChannel)
+	// 	fmt.Fprintf(c.UI.Err(), "produced %d\n", p.Count())
 
-		if userLoader.Profile != "" {
-			cfg, err = auth0.FromProfile(userLoader.Profile)
-			if err != nil {
-				return err
-			}
-		} else {
-			cfg, err = auth0ConfigFromConnection(c)
-			if err != nil {
-				return err
-			}
-		}
+	// case providerAuth0:
+	// 	var cfg *auth0.Config
 
-		if err := cfg.Validate(); err != nil {
-			return err
-		}
+	// 	if userLoader.Profile != "" {
+	// 		cfg, err = auth0.FromProfile(userLoader.Profile)
+	// 		if err != nil {
+	// 			return err
+	// 		}
+	// 	} else {
+	// 		cfg, err = auth0ConfigFromConnection(c)
+	// 		if err != nil {
+	// 			return err
+	// 		}
+	// 	}
 
-		p := auth0.NewProducer(cfg)
-		p.Producer(userSubscriber.SourceChannel, userSubscriber.ErrorChannel)
-		fmt.Fprintf(c.UI.Err(), "produced %d\n", p.Count())
+	// 	if err := cfg.Validate(); err != nil {
+	// 		return err
+	// 	}
 
-	default:
-		return errors.Errorf("unknown load user provider %s", userLoader.Provider)
-	}
+	// 	p := auth0.NewProducer(cfg)
+	// 	p.Producer(userSubscriber.SourceChannel, userSubscriber.ErrorChannel)
+	// 	fmt.Fprintf(c.UI.Err(), "produced %d\n", p.Count())
 
-	// close subscriber channel to indicate that the producer done
-	close(userSubscriber.SourceChannel)
+	// default:
+	// 	return errors.Errorf("unknown load user provider %s", userLoader.Provider)
+	// }
 
-	// wait for done from subscriber, indicating last received messages has been send
-	result := <-userSubscriber.ResultChannel
+	// // close subscriber channel to indicate that the producer done
+	// close(userSubscriber.SourceChannel)
 
-	// close error channel as the last action before returning
-	close(userSubscriber.ErrorChannel)
+	// // wait for done from subscriber, indicating last received messages has been send
+	// result := <-userSubscriber.ResultChannel
 
-	fmt.Fprintf(c.UI.Err(), "received %d\n", result.Counts.Received)
-	fmt.Fprintf(c.UI.Err(), "created  %d\n", result.Counts.Created)
-	fmt.Fprintf(c.UI.Err(), "updated  %d\n", result.Counts.Updated)
-	fmt.Fprintf(c.UI.Err(), "deleted  %d\n", result.Counts.Deleted)
-	fmt.Fprintf(c.UI.Err(), "errors   %d\n", result.Counts.Errors)
+	// // close error channel as the last action before returning
+	// close(userSubscriber.ErrorChannel)
 
-	return result.Err
+	// fmt.Fprintf(c.UI.Err(), "received %d\n", result.Counts.Received)
+	// fmt.Fprintf(c.UI.Err(), "created  %d\n", result.Counts.Created)
+	// fmt.Fprintf(c.UI.Err(), "updated  %d\n", result.Counts.Updated)
+	// fmt.Fprintf(c.UI.Err(), "deleted  %d\n", result.Counts.Deleted)
+	// fmt.Fprintf(c.UI.Err(), "errors   %d\n", result.Counts.Errors)
+
+	// return result.Err
 }

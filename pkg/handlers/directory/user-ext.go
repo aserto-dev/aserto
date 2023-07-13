@@ -1,14 +1,7 @@
 package directory
 
 import (
-	"fmt"
-	"io"
-	"os"
-
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/jsonx"
-	"github.com/aserto-dev/aserto/pkg/pb"
-	dir "github.com/aserto-dev/go-grpc/aserto/authorizer/directory/v1"
 	"github.com/pkg/errors"
 
 	"google.golang.org/protobuf/types/known/structpb"
@@ -19,20 +12,22 @@ type GetUserPropsCmd struct {
 }
 
 func (cmd *GetUserPropsCmd) Run(c *cc.CommonCtx) error {
-	client, identity, err := NewClientWithIdentity(c, cmd.UserID)
-	if err != nil {
-		return err
-	}
+	return errors.Errorf("NOT IMPLEMENTED")
 
-	resp, err := client.Directory.GetUserProperties(
-		c.Context,
-		&dir.GetUserPropertiesRequest{Id: identity.Id},
-	)
-	if err != nil {
-		return err
-	}
+	// client, identity, err := NewClientWithIdentity(c, cmd.UserID)
+	// if err != nil {
+	// 	return err
+	// }
 
-	return jsonx.OutputJSONPB(c.UI.Output(), resp.Results)
+	// resp, err := client.Directory.GetUserProperties(
+	// 	c.Context,
+	// 	&dir.GetUserPropertiesRequest{Id: identity.Id},
+	// )
+	// if err != nil {
+	// 	return err
+	// }
+
+	// return jsonx.OutputJSONPB(c.UI.Output(), resp.Results)
 }
 
 type GetUserRolesCmd struct {
@@ -40,24 +35,26 @@ type GetUserRolesCmd struct {
 }
 
 func (cmd *GetUserRolesCmd) Run(c *cc.CommonCtx) error {
-	client, identity, err := NewClientWithIdentity(c, cmd.UserID)
-	if err != nil {
-		return err
-	}
+	return errors.Errorf("NOT IMPLEMENTED")
 
-	resp, err := client.Directory.GetUserRoles(
-		c.Context,
-		&dir.GetUserRolesRequest{Id: identity.Id},
-	)
-	if err != nil {
-		return err
-	}
+	// client, identity, err := NewClientWithIdentity(c, cmd.UserID)
+	// if err != nil {
+	// 	return err
+	// }
 
-	if resp.Results == nil {
-		resp.Results = []string{}
-	}
+	// resp, err := client.Directory.GetUserRoles(
+	// 	c.Context,
+	// 	&dir.GetUserRolesRequest{Id: identity.Id},
+	// )
+	// if err != nil {
+	// 	return err
+	// }
 
-	return jsonx.OutputJSON(c.UI.Output(), resp.Results)
+	// if resp.Results == nil {
+	// 	resp.Results = []string{}
+	// }
+
+	// return jsonx.OutputJSON(c.UI.Output(), resp.Results)
 }
 
 type GetUserPermsCmd struct {
@@ -65,24 +62,26 @@ type GetUserPermsCmd struct {
 }
 
 func (cmd *GetUserPermsCmd) Run(c *cc.CommonCtx) error {
-	client, identity, err := NewClientWithIdentity(c, cmd.UserID)
-	if err != nil {
-		return err
-	}
+	return errors.Errorf("NOT IMPLEMENTED")
 
-	resp, err := client.Directory.GetUserPermissions(
-		c.Context,
-		&dir.GetUserPermissionsRequest{Id: identity.Id},
-	)
-	if err != nil {
-		return err
-	}
+	// client, identity, err := NewClientWithIdentity(c, cmd.UserID)
+	// if err != nil {
+	// 	return err
+	// }
 
-	if resp.Results == nil {
-		resp.Results = []string{}
-	}
+	// resp, err := client.Directory.GetUserPermissions(
+	// 	c.Context,
+	// 	&dir.GetUserPermissionsRequest{Id: identity.Id},
+	// )
+	// if err != nil {
+	// 	return err
+	// }
 
-	return jsonx.OutputJSON(c.UI.Output(), resp.Results)
+	// if resp.Results == nil {
+	// 	resp.Results = []string{}
+	// }
+
+	// return jsonx.OutputJSON(c.UI.Output(), resp.Results)
 }
 
 type SetUserPropCmd struct {
@@ -94,55 +93,57 @@ type SetUserPropCmd struct {
 }
 
 func (cmd *SetUserPropCmd) Run(c *cc.CommonCtx) error {
-	var (
-		value *structpb.Value
-		buf   io.Reader
-		err   error
-	)
+	return errors.Errorf("NOT IMPLEMENTED")
 
-	client, identity, err := NewClientWithIdentity(c, cmd.UserID)
-	if err != nil {
-		return err
-	}
+	// var (
+	// 	value *structpb.Value
+	// 	buf   io.Reader
+	// 	err   error
+	// )
 
-	switch {
-	case cmd.Stdin:
-		fmt.Fprintf(c.UI.Err(), "reading stdin\n")
-		buf = os.Stdin
+	// client, identity, err := NewClientWithIdentity(c, cmd.UserID)
+	// if err != nil {
+	// 	return err
+	// }
 
-		value, err = pb.BufToValue(buf)
-		if err != nil {
-			return errors.Wrapf(err, "unmarshal stdin")
-		}
+	// switch {
+	// case cmd.Stdin:
+	// 	fmt.Fprintf(c.UI.Err(), "reading stdin\n")
+	// 	buf = os.Stdin
 
-	case cmd.File != "":
-		fmt.Fprintf(c.UI.Err(), "reading file [%s]\n", cmd.File)
-		buf, err = os.Open(cmd.File)
-		if err != nil {
-			return errors.Wrapf(err, "opening file [%s]", cmd.File)
-		}
-		value, err = pb.BufToValue(buf)
-		if err != nil {
-			return errors.Wrapf(err, "unmarshal file [%s]", cmd.File)
-		}
+	// 	value, err = pb.BufToValue(buf)
+	// 	if err != nil {
+	// 		return errors.Wrapf(err, "unmarshal stdin")
+	// 	}
 
-	default:
-		value = &cmd.Value
-	}
+	// case cmd.File != "":
+	// 	fmt.Fprintf(c.UI.Err(), "reading file [%s]\n", cmd.File)
+	// 	buf, err = os.Open(cmd.File)
+	// 	if err != nil {
+	// 		return errors.Wrapf(err, "opening file [%s]", cmd.File)
+	// 	}
+	// 	value, err = pb.BufToValue(buf)
+	// 	if err != nil {
+	// 		return errors.Wrapf(err, "unmarshal file [%s]", cmd.File)
+	// 	}
 
-	fmt.Fprintf(c.UI.Err(), "set property [%s]=[%s]\n", cmd.Key, value.String())
-	if _, err := client.Directory.SetUserProperty(
-		c.Context,
-		&dir.SetUserPropertyRequest{
-			Id:    identity.Id,
-			Key:   cmd.Key,
-			Value: value,
-		},
-	); err != nil {
-		return err
-	}
+	// default:
+	// 	value = &cmd.Value
+	// }
 
-	return nil
+	// fmt.Fprintf(c.UI.Err(), "set property [%s]=[%s]\n", cmd.Key, value.String())
+	// if _, err := client.Directory.SetUserProperty(
+	// 	c.Context,
+	// 	&dir.SetUserPropertyRequest{
+	// 		Id:    identity.Id,
+	// 		Key:   cmd.Key,
+	// 		Value: value,
+	// 	},
+	// ); err != nil {
+	// 	return err
+	// }
+
+	// return nil
 }
 
 type SetUserRoleCmd struct {
@@ -151,22 +152,24 @@ type SetUserRoleCmd struct {
 }
 
 func (cmd *SetUserRoleCmd) Run(c *cc.CommonCtx) error {
-	client, identity, err := NewClientWithIdentity(c, cmd.UserID)
-	if err != nil {
-		return err
-	}
+	return errors.Errorf("NOT IMPLEMENTED")
 
-	fmt.Fprintf(c.UI.Err(), "set role %s\n", cmd.Key)
-	if _, err := client.Directory.SetUserRole(
-		c.Context,
-		&dir.SetUserRoleRequest{
-			Id:   identity.Id,
-			Role: cmd.Key,
-		},
-	); err != nil {
-		return err
-	}
-	return nil
+	// client, identity, err := NewClientWithIdentity(c, cmd.UserID)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// fmt.Fprintf(c.UI.Err(), "set role %s\n", cmd.Key)
+	// if _, err := client.Directory.SetUserRole(
+	// 	c.Context,
+	// 	&dir.SetUserRoleRequest{
+	// 		Id:   identity.Id,
+	// 		Role: cmd.Key,
+	// 	},
+	// ); err != nil {
+	// 	return err
+	// }
+	// return nil
 }
 
 type SetUserPermCmd struct {
@@ -175,22 +178,24 @@ type SetUserPermCmd struct {
 }
 
 func (cmd *SetUserPermCmd) Run(c *cc.CommonCtx) error {
-	client, identity, err := NewClientWithIdentity(c, cmd.UserID)
-	if err != nil {
-		return err
-	}
+	return errors.Errorf("NOT IMPLEMENTED")
 
-	fmt.Fprintf(c.UI.Err(), "set permission %s\n", cmd.Key)
-	if _, err := client.Directory.SetUserPermission(
-		c.Context,
-		&dir.SetUserPermissionRequest{
-			Id:         identity.Id,
-			Permission: cmd.Key,
-		},
-	); err != nil {
-		return err
-	}
-	return nil
+	// client, identity, err := NewClientWithIdentity(c, cmd.UserID)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// fmt.Fprintf(c.UI.Err(), "set permission %s\n", cmd.Key)
+	// if _, err := client.Directory.SetUserPermission(
+	// 	c.Context,
+	// 	&dir.SetUserPermissionRequest{
+	// 		Id:         identity.Id,
+	// 		Permission: cmd.Key,
+	// 	},
+	// ); err != nil {
+	// 	return err
+	// }
+	// return nil
 }
 
 type DelUserPropCmd struct {
@@ -199,23 +204,25 @@ type DelUserPropCmd struct {
 }
 
 func (cmd *DelUserPropCmd) Run(c *cc.CommonCtx) error {
-	client, identity, err := NewClientWithIdentity(c, cmd.UserID)
-	if err != nil {
-		return err
-	}
+	return errors.Errorf("NOT IMPLEMENTED")
 
-	fmt.Fprintf(c.UI.Err(), "removing property [%s]\n", cmd.Key)
-	if _, err := client.Directory.DeleteUserProperty(
-		c.Context,
-		&dir.DeleteUserPropertyRequest{
-			Id:  identity.Id,
-			Key: cmd.Key,
-		},
-	); err != nil {
-		return err
-	}
+	// client, identity, err := NewClientWithIdentity(c, cmd.UserID)
+	// if err != nil {
+	// 	return err
+	// }
 
-	return nil
+	// fmt.Fprintf(c.UI.Err(), "removing property [%s]\n", cmd.Key)
+	// if _, err := client.Directory.DeleteUserProperty(
+	// 	c.Context,
+	// 	&dir.DeleteUserPropertyRequest{
+	// 		Id:  identity.Id,
+	// 		Key: cmd.Key,
+	// 	},
+	// ); err != nil {
+	// 	return err
+	// }
+
+	// return nil
 }
 
 type DelUserRoleCmd struct {
@@ -224,23 +231,25 @@ type DelUserRoleCmd struct {
 }
 
 func (cmd *DelUserRoleCmd) Run(c *cc.CommonCtx) error {
-	client, identity, err := NewClientWithIdentity(c, cmd.UserID)
-	if err != nil {
-		return err
-	}
+	return errors.Errorf("NOT IMPLEMENTED")
 
-	fmt.Fprintf(c.UI.Err(), "removing role [%s]\n", cmd.Key)
-	if _, err := client.Directory.DeleteUserRole(
-		c.Context,
-		&dir.DeleteUserRoleRequest{
-			Id:   identity.Id,
-			Role: cmd.Key,
-		},
-	); err != nil {
-		return err
-	}
+	// client, identity, err := NewClientWithIdentity(c, cmd.UserID)
+	// if err != nil {
+	// 	return err
+	// }
 
-	return nil
+	// fmt.Fprintf(c.UI.Err(), "removing role [%s]\n", cmd.Key)
+	// if _, err := client.Directory.DeleteUserRole(
+	// 	c.Context,
+	// 	&dir.DeleteUserRoleRequest{
+	// 		Id:   identity.Id,
+	// 		Role: cmd.Key,
+	// 	},
+	// ); err != nil {
+	// 	return err
+	// }
+
+	// return nil
 }
 
 type DelUserPermCmd struct {
@@ -249,21 +258,23 @@ type DelUserPermCmd struct {
 }
 
 func (cmd *DelUserPermCmd) Run(c *cc.CommonCtx) error {
-	client, identity, err := NewClientWithIdentity(c, cmd.UserID)
-	if err != nil {
-		return err
-	}
+	return errors.Errorf("NOT IMPLEMENTED")
 
-	fmt.Fprintf(c.UI.Err(), "removing permission [%s]\n", cmd.Key)
-	if _, err := client.Directory.DeleteUserPermission(
-		c.Context,
-		&dir.DeleteUserPermissionRequest{
-			Id:         identity.Id,
-			Permission: cmd.Key,
-		},
-	); err != nil {
-		return err
-	}
+	// client, identity, err := NewClientWithIdentity(c, cmd.UserID)
+	// if err != nil {
+	// 	return err
+	// }
 
-	return nil
+	// fmt.Fprintf(c.UI.Err(), "removing permission [%s]\n", cmd.Key)
+	// if _, err := client.Directory.DeleteUserPermission(
+	// 	c.Context,
+	// 	&dir.DeleteUserPermissionRequest{
+	// 		Id:         identity.Id,
+	// 		Permission: cmd.Key,
+	// 	},
+	// ); err != nil {
+	// 	return err
+	// }
+
+	// return nil
 }
