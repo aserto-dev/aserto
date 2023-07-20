@@ -14,3 +14,4 @@ cover.out
 config-dev*.yaml
 
 VERSION.txt
+/go.work.sum
