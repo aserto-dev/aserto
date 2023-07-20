@@ -14,6 +14,9 @@ type Token struct {
 	RegistryDownloadKey string    `json:"registry_download_key"`
 	RegistryUploadKey   string    `json:"registry_upload_key"`
 	DecisionLogsKey     string    `json:"decision_logs_key"`
+	DirectoryReadKey    string    `json:"directory_read_key"`
+	DirectoryWriteKey   string    `json:"directory_write_key"`
+	DiscoveryKey        string    `json:"discovery_key"`
 }
 
 func (t *Token) IsExpired() bool {
