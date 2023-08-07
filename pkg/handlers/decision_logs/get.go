@@ -5,7 +5,7 @@ import (
 	"io/fs"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
-	dl "github.com/aserto-dev/go-grpc/aserto/decision_logs/v1"
+	dl "github.com/aserto-dev/go-decision-logs/aserto/decision-logs/v2"
 	"google.golang.org/protobuf/proto"
 )
 

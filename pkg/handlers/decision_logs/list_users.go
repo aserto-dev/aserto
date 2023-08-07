@@ -5,8 +5,8 @@ import (
 
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
-	"github.com/aserto-dev/go-grpc/aserto/api/v1"
-	dl "github.com/aserto-dev/go-grpc/aserto/decision_logs/v1"
+	dl "github.com/aserto-dev/go-decision-logs/aserto/decision-logs/v2"
+	"github.com/aserto-dev/go-decision-logs/aserto/decision-logs/v2/api"
 	"google.golang.org/protobuf/proto"
 )
 

@@ -9,7 +9,7 @@ import (
 	tenant_ "github.com/aserto-dev/aserto-go/client/tenant"
 	token_ "github.com/aserto-dev/aserto/pkg/cc/token"
 	"github.com/aserto-dev/aserto/pkg/x"
-	dl "github.com/aserto-dev/go-grpc/aserto/decision_logs/v1"
+	dl "github.com/aserto-dev/go-decision-logs/aserto/decision-logs/v2"
 	"github.com/aserto-dev/go-grpc/aserto/management/v2"
 	"github.com/pkg/errors"
 )

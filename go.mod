@@ -13,6 +13,7 @@ require (
 	github.com/aserto-dev/aserto-go v0.8.13
 	github.com/aserto-dev/certs v0.0.2
 	github.com/aserto-dev/clui v0.8.1
+	github.com/aserto-dev/go-decision-logs v0.0.4
 	github.com/aserto-dev/go-grpc v0.8.56
 	github.com/aserto-dev/go-grpc-authz v0.8.0
 	github.com/aserto-dev/logger v0.0.3
