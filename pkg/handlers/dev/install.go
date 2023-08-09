@@ -13,9 +13,9 @@ import (
 )
 
 type InstallCmd struct {
-	TrustCert bool `optional:"" default:"false" help:"add sidecar certificate to the system's trusted CAs"`
+	TrustCert bool `optional:"" default:"false" help:"add topaz certificate to the system's trusted CAs"`
 
-	ContainerName    string `optional:""  default:"sidecar" help:"container name"`
+	ContainerName    string `optional:""  default:"topaz" help:"container name"`
 	ContainerVersion string `optional:""  default:"latest" help:"container version" `
 }
 
@@ -28,7 +28,7 @@ func (cmd InstallCmd) Run(c *cc.CommonCtx) error {
 		return nil
 	}
 
-	color.Green(">>> installing sidecar...")
+	color.Green(">>> installing topaz...")
 
 	paths, err := localpaths.Create()
 	if err != nil {

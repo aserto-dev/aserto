@@ -15,9 +15,9 @@ func (cmd StatusCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 	if running {
-		color.Green(">>> sidecar is running")
+		color.Green(">>> topaz is running")
 	} else {
-		color.Yellow(">>> sidecar is not running")
+		color.Yellow(">>> topaz is not running")
 	}
 	return nil
 }
