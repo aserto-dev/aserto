@@ -5,7 +5,7 @@ import (
 	"os/signal"
 	"time"
 
-	dl "github.com/aserto-dev/go-grpc/aserto/decision_logs/v1"
+	dl "github.com/aserto-dev/go-decision-logs/aserto/decision-logs/v2"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
@@ -13,8 +13,9 @@ import (
 )
 
 type StreamCmd struct {
-	Policy string `arg:"" help:"ID of policy to open stream for"`
-	Since  string `optional:"" help:"time to start streaming events from in RFC3339 format"`
+	PolicyName    string `arg:"" help:"Name of policy to open stream for"`
+	InstanceLabel string `arg:"" help:"Label of policy to open stream for"`
+	Since         string `optional:"" help:"time to start streaming events from in RFC3339 format"`
 }
 
 func (cmd StreamCmd) Run(c *cc.CommonCtx) error {
@@ -33,8 +34,9 @@ func (cmd StreamCmd) Run(c *cc.CommonCtx) error {
 	}
 
 	stream, err := cli.GetDecisions(c.Context, &dl.GetDecisionsRequest{
-		PolicyId: cmd.Policy,
-		Since:    sincePB,
+		PolicyName:    cmd.PolicyName,
+		InstanceLabel: cmd.InstanceLabel,
+		Since:         sincePB,
 	})
 
 	if err != nil {
