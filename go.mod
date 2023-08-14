@@ -12,7 +12,7 @@ require (
 	github.com/alecthomas/kong v0.7.1
 	github.com/aserto-dev/aserto-go v0.8.13
 	github.com/aserto-dev/certs v0.0.3
-	github.com/aserto-dev/clui v0.8.1
+	github.com/aserto-dev/clui v0.8.2
 	github.com/aserto-dev/go-decision-logs v0.0.4
 	github.com/aserto-dev/go-grpc v0.8.56
 	github.com/aserto-dev/go-grpc-authz v0.8.0
@@ -75,9 +75,10 @@ require (
 	golang.org/x/mod v0.10.0 // indirect
 	golang.org/x/net v0.9.0 // indirect
 	golang.org/x/oauth2 v0.7.0 // indirect
-	golang.org/x/sys v0.7.0 // indirect
-	golang.org/x/term v0.7.0 // indirect
-	golang.org/x/text v0.9.0 // indirect
+	golang.org/x/sync v0.3.0 // indirect
+	golang.org/x/sys v0.11.0 // indirect
+	golang.org/x/term v0.11.0 // indirect
+	golang.org/x/text v0.12.0 // indirect
 	golang.org/x/tools v0.8.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
