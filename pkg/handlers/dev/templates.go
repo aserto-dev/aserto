@@ -19,29 +19,29 @@ type templateParams struct {
 		ClientCertPath string
 		ClientKeyPath  string
 	}
+	SeedMetadata bool
 }
 
 const configTemplate = templatePreamble + `
-  opa:
-    instance_id: {{ .TenantID }}
-    graceful_shutdown_period_seconds: 2
-    local_bundles:
-      paths: []
-      skip_verification: true
-    config:
-      services:
-        aserto-discovery:
-          url: {{ .DiscoveryURL }}
-          credentials:
-            bearer:
-              token: "{{ .TenantKey }}"
-              scheme: "basic"
-          headers:
-            Aserto-Tenant-Id: {{ .TenantID }}
-      discovery:
-        service: aserto-discovery
-        resource: {{ .PolicyName }}/{{ .PolicyName }}/opa
-
+opa:
+  instance_id: {{ .TenantID }}
+  graceful_shutdown_period_seconds: 2
+  local_bundles:
+    paths: []
+    skip_verification: true
+  config:
+    services:
+      aserto-discovery:
+        url: {{ .DiscoveryURL }}
+        credentials:
+          bearer:
+            token: "{{ .TenantKey }}"
+            scheme: "basic"
+        headers:
+          Aserto-Tenant-Id: {{ .TenantID }}
+    discovery:
+      service: aserto-discovery
+      resource: {{ .PolicyName }}/{{ .PolicyName }}/opa
 {{ if .ControlPlane.Enabled }}
 controller:
   enabled: true
@@ -49,11 +49,6 @@ controller:
     address: {{ .ControlPlane.Address }}
     client_cert_path: {{ .ControlPlane.ClientCertPath }}
     client_key_path: {{ .ControlPlane.ClientKeyPath }}
-
-tenant_id: {{ .TenantID }}
-policy_id: {{ .PolicyID }}
-policy_name: {{ .PolicyName }}
-instance_label: {{ .PolicyName }}
 {{ else }}
 controller:
   enabled: false
@@ -85,37 +80,121 @@ const configTemplateLocal = templatePreamble + `
 `
 
 const templatePreamble = `---
-authorizer:
-  logging:
-    prod: true
-    log_level: info
+version: 1
 
-  directory_service:
-    edge:
-      db_path: /app/db/directory.db
-      seed_metadata: true
+logging:
+  prod: true
+  log_level: info
 
-    remote:
-      address: "0.0.0.0:9292"
-      insecure: true
+directory:
+  db_path: ${TOPAZ_DIR}/db/directory.db
+  seed_metadata: {{ .SeedMetadata }}
 
-  api:
+# remote directory is used to resolve the identity for the authorizer.
+remote_directory:
+  address: "0.0.0.0:9292" # set as default, it should be the same as the reader as we resolve the identity from the local directory service.
+  insecure: true
+
+# default jwt validation configuration
+# jwt:
+#   acceptable_time_skew_seconds: 5
+
+api:
+  reader:
+    grpc:
+      listen_address: "0.0.0.0:9292"
+      # if certs are not specified default certs will be generate with the format reader_grpc.*
+      certs:
+        tls_key_path: "${TOPAZ_DIR}/certs/grpc.key"
+        tls_cert_path: "${TOPAZ_DIR}/certs/grpc.crt"
+        tls_ca_cert_path: "${TOPAZ_DIR}/certs/grpc-ca.crt"
+    gateway:
+      listen_address: "0.0.0.0:9393"
+      # allowed_origins include localhost by default
+      allowed_origins:
+      - https://*.aserto.com
+      - https://*aserto-console.netlify.app
+      # if certs are not specified the gateway will have the http: true flag enabled
+      certs:
+        tls_key_path: "${TOPAZ_DIR}/certs/gateway.key"
+        tls_cert_path: "${TOPAZ_DIR}/certs/gateway.crt"
+        tls_ca_cert_path: "${TOPAZ_DIR}/certs/gateway-ca.crt"
+    health:
+      listen_address: "0.0.0.0:9494"
+  writer:
+    grpc:
+      listen_address: "0.0.0.0:9292"
+      certs:
+        tls_key_path: "${TOPAZ_DIR}/certs/grpc.key"
+        tls_cert_path: "${TOPAZ_DIR}/certs/grpc.crt"
+        tls_ca_cert_path: "${TOPAZ_DIR}/certs/grpc-ca.crt"
+    gateway:
+      listen_address: "0.0.0.0:9393"
+      allowed_origins:
+      - https://*.aserto.com
+      - https://*aserto-console.netlify.app
+      certs:
+        tls_key_path: "${TOPAZ_DIR}/certs/gateway.key"
+        tls_cert_path: "${TOPAZ_DIR}/certs/gateway.crt"
+        tls_ca_cert_path: "${TOPAZ_DIR}/certs/gateway-ca.crt"
+    health:
+      listen_address: "0.0.0.0:9494"
+  exporter:
+    grpc:
+      listen_address: "0.0.0.0:9292"
+      certs:
+        tls_key_path: "${TOPAZ_DIR}/certs/grpc.key"
+        tls_cert_path: "${TOPAZ_DIR}/certs/grpc.crt"
+        tls_ca_cert_path: "${TOPAZ_DIR}/certs/grpc-ca.crt"
+    gateway:
+      listen_address: "0.0.0.0:9393"
+      allowed_origins:
+      - https://*.aserto.com
+      - https://*aserto-console.netlify.app
+      certs:
+        tls_key_path: "${TOPAZ_DIR}/certs/gateway.key"
+        tls_cert_path: "${TOPAZ_DIR}/certs/gateway.crt"
+        tls_ca_cert_path: "${TOPAZ_DIR}/certs/gateway-ca.crt"
+    health:
+      listen_address: "0.0.0.0:9494"
+  importer:
+    grpc:
+      listen_address: "0.0.0.0:9292"
+      certs:
+        tls_key_path: "${TOPAZ_DIR}/certs/grpc.key"
+        tls_cert_path: "${TOPAZ_DIR}/certs/grpc.crt"
+        tls_ca_cert_path: "${TOPAZ_DIR}/certs/grpc-ca.crt"
+    gateway:
+      listen_address: "0.0.0.0:9393"
+      allowed_origins:
+      - https://*.aserto.com
+      - https://*aserto-console.netlify.app
+      certs:
+        tls_key_path: "${TOPAZ_DIR}/certs/gateway.key"
+        tls_cert_path: "${TOPAZ_DIR}/certs/gateway.crt"
+        tls_ca_cert_path: "${TOPAZ_DIR}/certs/gateway-ca.crt"
+    health:
+      listen_address: "0.0.0.0:9494"
+  
+  authorizer:
+    needs:
+      - reader
     grpc:
       connection_timeout_seconds: 2
       listen_address: "0.0.0.0:8282"
       certs:
-        tls_key_path: "/certs/grpc.key"
-        tls_cert_path: "/certs/grpc.crt"
-        tls_ca_cert_path: "/certs/grpc-ca.crt"
+        tls_key_path: "${TOPAZ_DIR}/certs/grpc.key"
+        tls_cert_path: "${TOPAZ_DIR}/certs/grpc.crt"
+        tls_ca_cert_path: "${TOPAZ_DIR}/certs/grpc-ca.crt"
     gateway:
       listen_address: "0.0.0.0:8383"
       allowed_origins:
       - https://*.aserto.com
       - https://*aserto-console.netlify.app
       certs:
-        tls_key_path: "/certs/gateway.key"
-        tls_cert_path: "/certs/gateway.crt"
-        tls_ca_cert_path: "/certs/gateway-ca.crt"
+        tls_key_path: "${TOPAZ_DIR}/certs/gateway.key"
+        tls_cert_path: "${TOPAZ_DIR}/certs/gateway.crt"
+        tls_ca_cert_path: "${TOPAZ_DIR}/certs/gateway-ca.crt"
     health:
       listen_address: "0.0.0.0:8484"
 `

@@ -48,8 +48,8 @@ github.com/alessio/shellescape v1.4.1 h1:V7yhSDDn8LP4lc4jS8pFkt0zCnzVJlG5JXy9BVK
 github.com/alessio/shellescape v1.4.1/go.mod h1:PZAiSCk0LJaZkiCSkPv8qIobYglO3FPpyFjDCtHLS30=
 github.com/aserto-dev/aserto-go v0.8.13 h1:IkD2nB8dmZ2ws0j1U0wwFBVnHwDkFnekTpsDQKyP4E8=
 github.com/aserto-dev/aserto-go v0.8.13/go.mod h1:OFVnSJeMxsnzNuBmsY9yeVo9lTtwSGkv9Kr7YRC2ndM=
-github.com/aserto-dev/certs v0.0.2 h1:IFF+my4pu3BoUDDg31uLYb/JdoIESktecq153QYVxYE=
-github.com/aserto-dev/certs v0.0.2/go.mod h1:9mFvZ1NR92aEGj4ce6QleZGPXJuDZKTv+CWIOX28Xj8=
+github.com/aserto-dev/certs v0.0.3 h1:FiCJwh3nMHm/g1hRzKng1ZghLhNJgbMFxQd6ppJSVEE=
+github.com/aserto-dev/certs v0.0.3/go.mod h1:9mFvZ1NR92aEGj4ce6QleZGPXJuDZKTv+CWIOX28Xj8=
 github.com/aserto-dev/clui v0.8.1 h1:5IW9OnFZoIWjvnmTE4FNTXrjP1wnMzd39qKAcRnRHt8=
 github.com/aserto-dev/clui v0.8.1/go.mod h1:XpJxwNzSQaGN6rqXONZJEaeez4MUaCPikM2lKSngrXM=
 github.com/aserto-dev/go-grpc v0.8.56 h1:64FRLNF4G51ASt1pTtTP/UuWJboZHA6I4CeGIYZwHmc=

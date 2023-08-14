@@ -18,7 +18,7 @@ import (
 type UninstallCmd struct{}
 
 func (cmd UninstallCmd) Run(c *cc.CommonCtx) error {
-	color.Green(">>> uninstalling sidecar...")
+	color.Green(">>> uninstalling topaz...")
 
 	var err error
 
@@ -50,7 +50,7 @@ func (cmd UninstallCmd) Run(c *cc.CommonCtx) error {
 	}
 
 	str, err := dockerx.DockerWithOut(map[string]string{
-		"NAME": "sidecar",
+		"NAME": "topaz",
 	},
 		"images",
 		"ghcr.io/aserto-dev/$NAME",
@@ -62,7 +62,7 @@ func (cmd UninstallCmd) Run(c *cc.CommonCtx) error {
 	}
 
 	if str != "" {
-		fmt.Fprintf(c.UI.Output(), "removing %s\n", "aserto-dev/sidecar")
+		fmt.Fprintf(c.UI.Output(), "removing %s\n", "aserto-dev/topaz")
 		err = dockerx.DockerRun("rmi", str)
 	}
 

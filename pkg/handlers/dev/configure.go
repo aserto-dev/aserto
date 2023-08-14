@@ -78,13 +78,13 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 
 		params.ControlPlane.Enabled = true
 		params.ControlPlane.Address = c.Environment.Get(x.ControlPlaneService).Address
-		params.ControlPlane.ClientCertPath = path.Join("/app/cfg", certFile)
-		params.ControlPlane.ClientKeyPath = path.Join("/app/cfg", keyFile)
+		params.ControlPlane.ClientCertPath = path.Join("${TOPAZ_DIR}/cfg", certFile)
+		params.ControlPlane.ClientKeyPath = path.Join("${TOPAZ_DIR}/cfg", keyFile)
 
 		params.DecisionLogger.EMSAddress = c.Environment.Get(x.EMSService).Address
 		params.DecisionLogger.StorePath = decisionlogger.ContainerPath
-		params.DecisionLogger.ClientCertPath = path.Join("/app/cfg", certFile)
-		params.DecisionLogger.ClientKeyPath = path.Join("/app/cfg", keyFile)
+		params.DecisionLogger.ClientCertPath = path.Join("${TOPAZ_DIR}/cfg", certFile)
+		params.DecisionLogger.ClientKeyPath = path.Join("${TOPAZ_DIR}/cfg", keyFile)
 	}
 
 	if params.TenantKey == "" {

@@ -8,12 +8,12 @@ import (
 )
 
 type UpdateCmd struct {
-	ContainerName    string `optional:""  default:"sidecar" help:"container name"`
+	ContainerName    string `optional:""  default:"topaz" help:"container name"`
 	ContainerVersion string `optional:""  default:"latest" help:"container version" `
 }
 
 func (cmd UpdateCmd) Run(c *cc.CommonCtx) error {
-	color.Green(">>> updating sidecar...")
+	color.Green(">>> updating topaz...")
 
 	return dockerx.DockerWith(map[string]string{
 		"CONTAINER_NAME":    cmd.ContainerName,

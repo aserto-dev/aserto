@@ -11,7 +11,7 @@ go 1.19
 require (
 	github.com/alecthomas/kong v0.7.1
 	github.com/aserto-dev/aserto-go v0.8.13
-	github.com/aserto-dev/certs v0.0.2
+	github.com/aserto-dev/certs v0.0.3
 	github.com/aserto-dev/clui v0.8.1
 	github.com/aserto-dev/go-grpc v0.8.56
 	github.com/aserto-dev/go-grpc-authz v0.8.0
