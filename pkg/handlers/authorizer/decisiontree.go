@@ -15,14 +15,16 @@ type DecisionTreeCmd struct {
 }
 
 func (cmd *DecisionTreeCmd) Run(c *cc.CommonCtx) error {
-	return errors.Errorf("NOT IMPLEMENTED")
+	client, err := c.AuthorizerClient()
+	if err != nil {
+		return err
+	}
 
-	// client, err := c.AuthorizerClient()
-	// if err != nil {
-	// 	return err
-	// }
+	resource, err := cmd.ResourceContext()
+	if err != nil {
+		return err
+	}
 
-<<<<<<< HEAD
 	resp, err := client.Authorizer.DecisionTree(c.Context, &authorizer.DecisionTreeRequest{
 		PolicyContext: &api.PolicyContext{
 			Path:      cmd.Path,
@@ -37,28 +39,6 @@ func (cmd *DecisionTreeCmd) Run(c *cc.CommonCtx) error {
 	if err != nil {
 		return err
 	}
-=======
-	// resource, err := cmd.ResourceContext()
-	// if err != nil {
-	// 	return err
-	// }
->>>>>>> 95d083a (compile & login)
 
-	// resp, err := client.Authorizer.DecisionTree(c.Context, &authz.DecisionTreeRequest{
-	// 	PolicyContext: &api.PolicyContext{
-	// 		Id:        cmd.PolicyID,
-	// 		Path:      cmd.Path,
-	// 		Decisions: cmd.Decisions,
-	// 	},
-	// 	IdentityContext: cmd.IdentityContext(),
-	// 	ResourceContext: resource,
-	// 	Options: &authz.DecisionTreeOptions{
-	// 		PathSeparator: authz.PathSeparator_PATH_SEPARATOR_DOT,
-	// 	},
-	// })
-	// if err != nil {
-	// 	return err
-	// }
-
-	// return jsonx.OutputJSONPB(c.UI.Output(), resp)
+	return jsonx.OutputJSONPB(c.UI.Output(), resp)
 }

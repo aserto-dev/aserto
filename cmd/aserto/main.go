@@ -39,7 +39,7 @@ func main() {
 			Tree:                false,
 			FlagsLast:           true,
 			Indenter:            kong.SpaceIndenter,
-			NoExpandSubcommands: false,
+			NoExpandSubcommands: true,
 		}),
 		kong.Resolvers(ConfigResolver()),
 		kong.NamedMapper("conf", conf.ConfigFileMapper(configDir)), // attach to tag `type:"conf"`
