@@ -14,14 +14,16 @@ type EvalDecisionCmd struct {
 }
 
 func (cmd *EvalDecisionCmd) Run(c *cc.CommonCtx) error {
-	return errors.Errorf("NOT IMPLEMENTED")
+	client, err := c.AuthorizerClient()
+	if err != nil {
+		return err
+	}
 
-	// client, err := c.AuthorizerClient()
-	// if err != nil {
-	// 	return err
-	// }
+	resource, err := cmd.ResourceContext()
+	if err != nil {
+		return err
+	}
 
-<<<<<<< HEAD
 	resp, err := client.Authorizer.Is(c.Context, &authorizer.IsRequest{
 		PolicyContext: &api.PolicyContext{
 			Path:      cmd.Path,
@@ -33,25 +35,6 @@ func (cmd *EvalDecisionCmd) Run(c *cc.CommonCtx) error {
 	if err != nil {
 		return err
 	}
-=======
-	// resource, err := cmd.ResourceContext()
-	// if err != nil {
-	// 	return err
-	// }
->>>>>>> 95d083a (compile & login)
 
-	// resp, err := client.Authorizer.Is(c.Context, &authz.IsRequest{
-	// 	PolicyContext: &api.PolicyContext{
-	// 		Id:        cmd.PolicyID,
-	// 		Path:      cmd.Path,
-	// 		Decisions: cmd.Decisions,
-	// 	},
-	// 	IdentityContext: cmd.IdentityContext(),
-	// 	ResourceContext: resource,
-	// })
-	// if err != nil {
-	// 	return err
-	// }
-
-	// return jsonx.OutputJSONPB(c.UI.Output(), resp)
+	return jsonx.OutputJSONPB(c.UI.Output(), resp)
 }

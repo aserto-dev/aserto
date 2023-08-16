@@ -15,14 +15,16 @@ type ExecQueryCmd struct {
 }
 
 func (cmd *ExecQueryCmd) Run(c *cc.CommonCtx) error {
-	return errors.Errorf("NOT IMPLEMENTED")
+	client, err := c.AuthorizerClient()
+	if err != nil {
+		return err
+	}
 
-	// client, err := c.AuthorizerClient()
-	// if err != nil {
-	// 	return err
-	// }
+	resource, err := cmd.ResourceContext()
+	if err != nil {
+		return err
+	}
 
-<<<<<<< HEAD
 	resp, err := client.Authorizer.Query(c.Context, &authorizer.QueryRequest{
 		Query:           cmd.Statement,
 		Input:           cmd.Input,
@@ -41,32 +43,6 @@ func (cmd *ExecQueryCmd) Run(c *cc.CommonCtx) error {
 	if err != nil {
 		return err
 	}
-=======
-	// resource, err := cmd.ResourceContext()
-	// if err != nil {
-	// 	return err
-	// }
->>>>>>> 95d083a (compile & login)
 
-	// resp, err := client.Authorizer.Query(c.Context, &authz.QueryRequest{
-	// 	Query:           cmd.Statement,
-	// 	Input:           cmd.Input,
-	// 	IdentityContext: cmd.IdentityContext(),
-	// 	PolicyContext: &api.PolicyContext{
-	// 		Id:   cmd.PolicyID,
-	// 		Path: cmd.Path,
-	// 	},
-	// 	ResourceContext: resource,
-	// 	Options: &authz.QueryOptions{
-	// 		Metrics:      false,
-	// 		Instrument:   false,
-	// 		Trace:        authz.TraceLevel_TRACE_LEVEL_OFF,
-	// 		TraceSummary: false,
-	// 	},
-	// })
-	// if err != nil {
-	// 	return err
-	// }
-
-	// return jsonx.OutputJSONPB(c.UI.Output(), resp)
+	return jsonx.OutputJSONPB(c.UI.Output(), resp)
 }
