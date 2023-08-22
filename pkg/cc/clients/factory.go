@@ -6,6 +6,7 @@ import (
 
 	"github.com/aserto-dev/aserto/pkg/cc/config"
 	token_ "github.com/aserto-dev/aserto/pkg/cc/token"
+	directory_ "github.com/aserto-dev/aserto/pkg/client/directory"
 	tenant_ "github.com/aserto-dev/aserto/pkg/client/tenant"
 	"github.com/aserto-dev/aserto/pkg/x"
 	aserto "github.com/aserto-dev/go-aserto/client"
@@ -23,6 +24,7 @@ type Factory interface {
 	AuthorizerClient() (*authorizer.Client, error)
 	DecisionLogsClient() (dl.DecisionLogsClient, error)
 	ControlPlaneClient() (management.ControlPlaneClient, error)
+	DirectoryClient() (*directory_.Client, error)
 }
 
 type OptionsBuilder func() ([]aserto.ConnectionOption, error)
@@ -85,6 +87,14 @@ func (c *AsertoFactory) TenantClient() (*tenant_.Client, error) {
 		return nil, err
 	}
 	return tenant_.New(c.ctx, options...)
+}
+
+func (c *AsertoFactory) DirectoryClient() (*directory_.Client, error) {
+	options, err := c.options(x.DirectoryService)
+	if err != nil {
+		return nil, err
+	}
+	return directory_.New(c.ctx, options...)
 }
 
 func (c *AsertoFactory) AuthorizerClient() (*authorizer.Client, error) {

@@ -14,6 +14,7 @@ const (
 	TenantService
 	ControlPlaneService
 	EMSService
+	DirectoryService
 )
 
 var (
@@ -25,9 +26,10 @@ var (
 		TenantService:       "tenant",
 		ControlPlaneService: "control plane",
 		EMSService:          "ems",
+		DirectoryService:    "directory",
 	}
 
-	AllServices = []Service{AuthorizerService, DecisionLogsService, TenantService, ControlPlaneService, EMSService}
+	AllServices = []Service{AuthorizerService, DecisionLogsService, TenantService, ControlPlaneService, EMSService, DirectoryService}
 )
 
 func (s Service) Name() string {
@@ -53,6 +55,7 @@ type Services struct {
 	ControlPlaneService ServiceOptions `json:"control_plane" yaml:"control_plane"`
 	EMSService          ServiceOptions `json:"ems" yaml:"ems"`
 	AuthorizerService   ServiceOptions `json:"authorizer" yaml:"authorizer"`
+	DirectoryService    ServiceOptions `json:"directory" yaml:"directory"`
 }
 
 func (s *Services) Get(svc Service) *ServiceOptions {
@@ -67,6 +70,8 @@ func (s *Services) Get(svc Service) *ServiceOptions {
 		return &s.ControlPlaneService
 	case EMSService:
 		return &s.EMSService
+	case DirectoryService:
+		return &s.DirectoryService
 	default:
 		log.Panicf("unknown service [%d]\n", svc)
 	}
@@ -86,6 +91,8 @@ func (s *Services) SetAddress(svc Service, address string) error {
 		s.ControlPlaneService.Address = address
 	case EMSService:
 		s.EMSService.Address = address
+	case DirectoryService:
+		s.DirectoryService.Address = address
 	default:
 		return errors.Wrapf(UnknownSvcErr, "[%d]", svc)
 	}
@@ -100,5 +107,6 @@ func DefaultEnvironment() *Services {
 		DecisionLogsService: ServiceOptions{Address: "decision-logs.prod.aserto.com:8443"},
 		ControlPlaneService: ServiceOptions{Address: "relay.prod.aserto.com:8443"},
 		EMSService:          ServiceOptions{Address: "ems.prod.aserto.com:8443"},
+		DirectoryService:    ServiceOptions{Address: "directory.prod.aserto.com:8443"},
 	}
 }
