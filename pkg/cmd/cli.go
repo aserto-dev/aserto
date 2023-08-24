@@ -5,7 +5,6 @@ import (
 
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/cc/clients"
-	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/handlers/user"
 	"github.com/aserto-dev/aserto/pkg/version"
 	"github.com/aserto-dev/aserto/pkg/x"
@@ -24,20 +23,13 @@ type CLI struct {
 	Version      VersionCmd      `cmd:"" help:"version information"`
 
 	// ConfigFileMapper implements the `type:"conf"` tag.
-	Cfg            string `name:"config" short:"c" type:"conf" env:"ASERTO_ENV" help:"name or path of configuration file"`
-	Verbosity      int    `short:"v" type:"counter" help:"Use to increase output verbosity."`
-	TenantOverride string `name:"tenant" env:"ASERTO_TENANT_ID" help:"tenant id override"`
+	Cfg       string `name:"config" short:"c" type:"conf" env:"ASERTO_ENV" help:"name or path of configuration file"`
+	Verbosity int    `short:"v" type:"counter" help:"Use to increase output verbosity."`
 }
 
 type ServiceOptions interface {
 	Override(svc x.Service, overrides clients.Overrides)
 	RequireToken()
-}
-
-func (cli *CLI) ConfigOverrider(conf *config.Config) {
-	if cli.TenantOverride != "" {
-		conf.TenantID = cli.TenantOverride
-	}
 }
 
 type VersionCmd struct{}

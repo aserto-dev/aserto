@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	"github.com/aserto-dev/aserto/pkg/cc/config"
 	token_ "github.com/aserto-dev/aserto/pkg/cc/token"
 	tenant_ "github.com/aserto-dev/aserto/pkg/client/tenant"
 	"github.com/aserto-dev/aserto/pkg/x"
@@ -35,15 +36,32 @@ type TenantID string
 
 func NewClientFactory(
 	ctx context.Context,
+	ctxs config.Context,
 	services *x.Services,
-	tenantID TenantID,
 	token *token_.CachedToken,
 ) (*AsertoFactory, error) {
-	tenant := string(tenantID)
+	var tenant string
+	for _, cts := range ctxs.Contexts {
+		if cts.Name == ctxs.ActiveContext {
+			tenant = cts.TenantID
+		}
+	}
 
 	defaultEnv := x.DefaultEnvironment()
 
 	options := map[x.Service]OptionsBuilder{}
+	for _, svc := range x.AllServices {
+		cfg := &optionsBuilder{
+			service:     svc,
+			options:     services.Get(svc),
+			defaultAddr: defaultEnv.Get(svc).Address,
+			tenantID:    tenant,
+			token:       token,
+		}
+
+		options[svc] = cfg.ConnectionOptions
+	}
+
 	for _, svc := range x.AllServices {
 		cfg := &optionsBuilder{
 			service:     svc,

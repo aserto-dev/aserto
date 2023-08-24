@@ -47,11 +47,11 @@ type ServiceOptions struct {
 }
 
 type Services struct {
-	AuthorizerService   ServiceOptions `json:"authorizer"`
 	DecisionLogsService ServiceOptions `json:"decision_logs"`
 	TenantService       ServiceOptions `json:"tenant"`
 	ControlPlaneService ServiceOptions `json:"control_plane"`
 	EMSService          ServiceOptions `json:"ems"`
+	AuthorizerService   ServiceOptions `json:"authorizer"`
 }
 
 func (s *Services) Get(svc Service) *ServiceOptions {
@@ -74,7 +74,7 @@ func (s *Services) Get(svc Service) *ServiceOptions {
 }
 
 func (s *Services) SetAddress(svc Service, address string) error {
-	switch svc {
+	switch svc { //nolint:exhaustive
 	case AuthorizerService:
 		s.AuthorizerService.Address = address
 	case DecisionLogsService:
@@ -94,8 +94,8 @@ func (s *Services) SetAddress(svc Service, address string) error {
 
 func DefaultEnvironment() *Services {
 	return &Services{
-		TenantService:       ServiceOptions{Address: "tenant.prod.aserto.com:8443"},
 		AuthorizerService:   ServiceOptions{Address: "authorizer.prod.aserto.com:8443"},
+		TenantService:       ServiceOptions{Address: "tenant.prod.aserto.com:8443"},
 		DecisionLogsService: ServiceOptions{Address: "decision-logs.prod.aserto.com:8443"},
 		ControlPlaneService: ServiceOptions{Address: "relay.prod.aserto.com:8443"},
 		EMSService:          ServiceOptions{Address: "ems.prod.aserto.com:8443"},

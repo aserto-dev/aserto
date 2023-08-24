@@ -1,69 +1,213 @@
 package config
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
 
+	auth0 "github.com/aserto-dev/aserto/pkg/auth0/api"
 	"github.com/aserto-dev/aserto/pkg/cc"
+	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/handlers/user"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	"github.com/aserto-dev/aserto/pkg/keyring"
-	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
-	account "github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"
+	"github.com/aserto-dev/aserto/pkg/x"
+	"github.com/aserto-dev/clui"
+	"github.com/aserto-dev/go-grpc/aserto/api/v1"
+	"github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"
 
 	"github.com/pkg/errors"
 )
 
-type GetEnvCmd struct{}
+type GetContextsCmd struct{}
 
-func (cmd *GetEnvCmd) Run(c *cc.CommonCtx) error {
-	return jsonx.OutputJSON(c.UI.Output(), c.Environment)
-}
-
-type GetTenantCmd struct{}
-
-func (cmd *GetTenantCmd) Run(c *cc.CommonCtx) error {
-	client, err := c.TenantClient()
+func (cmd *GetContextsCmd) Run(c *cc.CommonCtx) error {
+	configFile, err := config.GetConfigFile()
 	if err != nil {
 		return err
 	}
 
-	req := &account.GetAccountRequest{}
-
-	resp, err := client.Account.GetAccount(c.Context, req)
+	cfg, err := config.GetConfigFromFile(configFile)
 	if err != nil {
-		return errors.Wrapf(err, "get account")
+		return err
 	}
 
-	type tenant struct {
-		ID      string `json:"id"`
-		Name    string `json:"name"`
-		Current bool   `json:"current"`
-		Default bool   `json:"default"`
+	return jsonx.OutputJSON(c.UI.Output(), cfg.Context)
+}
+
+type GetActiveContextCmd struct{}
+
+func (cmd *GetActiveContextCmd) Run(c *cc.CommonCtx) error {
+	configFile, err := config.GetConfigFile()
+	if err != nil {
+		return err
 	}
 
-	tenants := make([]*tenant, len(resp.Result.Tenants))
+	cfg, err := config.GetConfigFromFile(configFile)
+	if err != nil {
+		return err
+	}
 
-	for i, t := range resp.Result.Tenants {
-		isCurrent := (t.Id == c.TenantID())
-		isDefault := (t.Id == resp.Result.DefaultTenant)
-		tt := tenant{
-			ID:      t.Id,
-			Name:    t.Name,
-			Current: isCurrent,
-			Default: isDefault,
+	for _, ctxs := range cfg.Context.Contexts {
+		if cfg.Context.ActiveContext == ctxs.Name {
+			return jsonx.OutputJSON(c.UI.Output(), ctxs)
 		}
-		tenants[i] = &tt
 	}
 
-	return jsonx.OutputJSON(c.UI.Output(), tenants)
+	return nil
 }
 
-type SetTenantCmd struct {
-	ID      string `arg:"" required:"" name:"tenant-id" help:"tenant id"`
-	Default bool   `name:"default" help:"set default tenant for user"`
+type DeleteContextCmd struct {
+	ContextName string `arg:"" name:"context_name" required:"" help:"context name"`
 }
 
-func (cmd *SetTenantCmd) Run(c *cc.CommonCtx) error {
+func (cmd *DeleteContextCmd) Run(c *cc.CommonCtx) error {
+	configFile, err := config.GetConfigFile()
+	if err != nil {
+		return err
+	}
+
+	cfg, err := config.GetConfigFromFile(configFile)
+	if err != nil {
+		return err
+	}
+
+	if cfg.Context.ActiveContext == cmd.ContextName {
+		return errors.Errorf("the context in use cannot be deleted")
+	}
+
+	for index, ctxs := range cfg.Context.Contexts {
+		if ctxs.Name == cmd.ContextName {
+			cfg.Context.Contexts = append(cfg.Context.Contexts[:index], cfg.Context.Contexts[index+1:]...)
+			break
+		}
+	}
+
+	data, err := json.Marshal(cfg)
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(configFile, data, 0600)
+}
+
+type SetContextCmd struct {
+	Context  string `arg:""  type:"existingfile" name:"context" optional:"" help:"file path to context or '-' to read from stdin"`
+	Template bool   `name:"template" help:"prints a context template on stdout"`
+	Force    bool   `name:"force" help:"if a context wit the same name exists, forces overwrite"`
+}
+
+func (cmd *SetContextCmd) Run(c *cc.CommonCtx) error {
+	if cmd.Template {
+		return printContext(c.UI)
+	}
+
+	if cmd.Context == "" {
+		return errors.New("context argument is required")
+	}
+
+	var req config.Ctx
+	if cmd.Context == "-" {
+		decoder := json.NewDecoder(os.Stdin)
+
+		err := decoder.Decode(&req)
+		if err != nil {
+			return errors.Wrap(err, "failed to unmarshal request from stdin")
+		}
+	} else {
+		dat, err := os.ReadFile(cmd.Context)
+		if err != nil {
+			return errors.Wrapf(err, "opening file [%s]", cmd.Context)
+		}
+
+		err = json.Unmarshal(dat, &req)
+		if err != nil {
+			return errors.Wrapf(err, "failed to unmarshal request from file [%s]", cmd.Context)
+		}
+	}
+
+	configFile, err := config.GetConfigFile()
+	if err != nil {
+		return err
+	}
+
+	cfg, err := config.GetConfigFromFile(configFile)
+	if err != nil {
+		return err
+	}
+
+	idx := -1
+	for index, ctx := range cfg.Context.Contexts {
+		if ctx.Name == req.Name {
+			idx = index
+			break
+		}
+	}
+
+	if idx > -1 {
+		if !cmd.Force {
+			c.UI.Exclamation().Msg("A context with this name already exists; please choose another name or use --force flag to overwrite the existing one")
+			c.UI.Note().Msg("Aborting...")
+			return nil
+		}
+
+		cfg.Context.Contexts[idx] = req
+	} else {
+		cfg.Context.Contexts = append(cfg.Context.Contexts, req)
+	}
+
+	if req.TenantID != "" && c.Factory.TenantID() != "" {
+		err = changeTokenToTenantID(c, req.TenantID)
+		if err != nil {
+			return err
+		}
+	}
+
+	data, err := json.Marshal(cfg)
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(configFile, data, 0600)
+}
+
+type UseContextCmd struct {
+	ContextName string `arg:"" name:"context_name" required:"" help:"context name"`
+}
+
+func (cmd *UseContextCmd) Run(c *cc.CommonCtx) error {
+	configFile, err := config.GetConfigFile()
+	if err != nil {
+		return err
+	}
+
+	cfg, err := config.GetConfigFromFile(configFile)
+	if err != nil {
+		return err
+	}
+
+	var found bool
+	for _, ctx := range cfg.Context.Contexts {
+		if ctx.Name == cmd.ContextName {
+			found = true
+			break
+		}
+	}
+	if !found {
+		return errors.Errorf("the context name provided doesn't exists")
+	}
+
+	cfg.Context.ActiveContext = cmd.ContextName
+
+	data, err := json.Marshal(cfg)
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(configFile, data, 0600)
+}
+
+func changeTokenToTenantID(c *cc.CommonCtx, tenantID string) error {
 	conn, err := c.TenantClient()
 	if err != nil {
 		return err
@@ -76,48 +220,51 @@ func (cmd *SetTenantCmd) Run(c *cc.CommonCtx) error {
 
 	var tnt *api.Tenant
 	for _, t := range getAccntResp.Result.Tenants {
-		if t.Id == cmd.ID {
+		if t.Id == tenantID {
 			tnt = t
 			break
 		}
 	}
 
 	if tnt == nil {
-		return errors.Errorf("tenant id does not exist in users tenant collection [%s]", cmd.ID)
+		return errors.Errorf("tenant id does not exist in users tenant collection [%s]", tenantID)
 	}
 
 	fmt.Fprintf(c.UI.Err(), "tenant %s - %s\n", tnt.Id, tnt.Name)
 
-	tok, err := c.Token()
+	tenantKr, err := keyring.NewTenantKeyRing(tenantID)
 	if err != nil {
 		return err
 	}
 
-	tok.TenantID = tnt.Id
+	token, err := tenantKr.GetToken()
+	if err == nil && token != nil {
+		// token already set
+		return nil
+	}
 
-	if err = user.GetConnectionKeys(c.Context, conn, tok); err != nil {
+	tenantToken := &auth0.TenantToken{TenantID: tenantID}
+
+	if err = user.GetConnectionKeys(c.Context, conn, tenantToken); err != nil {
 		return errors.Wrapf(err, "get connection keys")
 	}
 
-	kr, err := keyring.NewKeyRing(c.Auth.Issuer)
-	if err != nil {
+	if err := tenantKr.SetToken(tenantToken); err != nil {
 		return err
-	}
-	if err := kr.SetToken(tok); err != nil {
-		return err
-	}
-
-	if cmd.Default {
-		fmt.Fprintf(c.UI.Err(), "set default tenant to [%s]\n", cmd.ID)
-
-		req := &account.UpdateAccountRequest{
-			Account: &api.Account{DefaultTenant: cmd.ID},
-		}
-
-		if _, err := conn.Account.UpdateAccount(c.Context, req); err != nil {
-			return errors.Wrapf(err, "update account")
-		}
 	}
 
 	return nil
+}
+
+func printContext(ui *clui.UI) error {
+	req := config.Ctx{
+		Name:     "context_name",
+		TenantID: "tenant_id",
+		AuthorizerService: x.ServiceOptions{
+			Address:  "address:port",
+			APIKey:   "key",
+			Insecure: true,
+		},
+	}
+	return jsonx.OutputJSON(ui.Output(), req)
 }
