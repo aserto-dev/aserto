@@ -7,8 +7,10 @@ import (
 	"github.com/aserto-dev/aserto/pkg/auth0"
 	"github.com/aserto-dev/aserto/pkg/auth0/api"
 	"github.com/aserto-dev/aserto/pkg/cc/clients"
+	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/cc/token"
 	decisionlogger "github.com/aserto-dev/aserto/pkg/decision_logger"
+	"github.com/aserto-dev/aserto/pkg/keyring"
 	"github.com/aserto-dev/aserto/pkg/x"
 	"github.com/aserto-dev/clui"
 )
@@ -17,7 +19,8 @@ type CommonCtx struct {
 	clients.Factory
 
 	Context        context.Context
-	Environment    *x.Services
+	Environment    x.Services
+	CustomContext  config.Context
 	Auth           *auth0.Settings
 	CachedToken    *token.CachedToken
 	DecisionLogger *decisionlogger.Settings
@@ -38,18 +41,34 @@ func (ctx *CommonCtx) Token() (*api.Token, error) {
 }
 
 func (ctx *CommonCtx) AuthorizerAPIKey() (string, error) {
-	tkn, err := ctx.Token()
+	tenantID := ctx.TenantID()
+	kr, err := keyring.NewTenantKeyRing(tenantID)
 	if err != nil {
-		return "", err
+		log.Printf("token: instantiating keyring, %s", err.Error())
+		return "", nil
 	}
+
+	tkn, err := kr.GetToken()
+	if err != nil {
+		return "", nil
+	}
+
 	return tkn.AuthorizerAPIKey, nil
 }
 
 func (ctx *CommonCtx) DecisionLogsKey() (string, error) {
-	tkn, err := ctx.Token()
+	tenantID := ctx.TenantID()
+	kr, err := keyring.NewTenantKeyRing(tenantID)
 	if err != nil {
-		return "", err
+		log.Printf("token: instantiating keyring, %s", err.Error())
+		return "", nil
 	}
+
+	tkn, err := kr.GetToken()
+	if err != nil {
+		return "", nil
+	}
+
 	return tkn.DecisionLogsKey, nil
 }
 

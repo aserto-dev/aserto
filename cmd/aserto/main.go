@@ -48,7 +48,6 @@ func main() {
 
 	ctx, err := cc.BuildCommonCtx(
 		config.Path(cli.Cfg),
-		cli.ConfigOverrider,
 		serviceOptions.ConfigOverrider,
 	)
 	if err != nil {
@@ -84,6 +83,14 @@ func ConfigResolver() kong.Resolver {
 		switch flag.Tag.EnvPrefix {
 		case "ASERTO_AUTHORIZER_":
 			svcOptions = &tmpConfig.Services.AuthorizerService
+			for i, ctxs := range tmpConfig.Context.Contexts {
+				if ctxs.Name == tmpConfig.Context.ActiveContext {
+					if ctxs.AuthorizerService.Address != "" {
+						svcOptions = &tmpConfig.Context.Contexts[i].AuthorizerService
+					}
+					break
+				}
+			}
 		case "ASERTO_DECISION_LOGS_":
 			svcOptions = &tmpConfig.Services.DecisionLogsService
 		default:

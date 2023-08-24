@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/aserto-dev/aserto/pkg/auth0/api"
 	"github.com/aserto-dev/aserto/pkg/auth0/device"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/client/tenant"
@@ -83,19 +84,31 @@ func (d *LoginCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	if err = getTenantID(c.Context, conn, token); err != nil {
-		return errors.Wrapf(err, "get tenant id")
+	tenantID, err := getTenantID(ctx, c, conn)
+	if err != nil {
+		return errors.Wrapf(err, "get tenant ID ")
 	}
 
-	if err = GetConnectionKeys(c.Context, conn, token); err != nil {
-		return errors.Wrapf(err, "get connection keys")
-	}
-
+	token.DefaultTenantID = tenantID
 	kr, err := keyring.NewKeyRing(c.Auth.Issuer)
 	if err != nil {
 		return err
 	}
 	if err := kr.SetToken(token); err != nil {
+		return err
+	}
+
+	tenantKr, err := keyring.NewTenantKeyRing(tenantID)
+	if err != nil {
+		return err
+	}
+	tenantToken := &api.TenantToken{TenantID: tenantID}
+
+	if err = GetConnectionKeys(c.Context, conn, tenantToken); err != nil {
+		return errors.Wrapf(err, "get connection keys")
+	}
+
+	if err := tenantKr.SetToken(tenantToken); err != nil {
 		return err
 	}
 

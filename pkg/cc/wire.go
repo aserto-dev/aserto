@@ -21,13 +21,12 @@ var (
 		iostream.NewUI,
 		GetCacheKey,
 		token.Load,
-		NewTenantID,
 		NewAuthSettings,
 		decisionlogger.NewSettings,
 		clients.NewClientFactory,
 
 		wire.Bind(new(clients.Factory), new(*clients.AsertoFactory)),
-		wire.FieldsOf(new(*config.Config), "Services", "Auth", "DecisionLogger"),
+		wire.FieldsOf(new(*config.Config), "Services", "Context", "Auth", "DecisionLogger"),
 		wire.Struct(new(CommonCtx), "*"),
 	)
 
@@ -66,14 +65,14 @@ func BuildTestCtx(
 	return &CommonCtx{}, nil
 }
 
-func NewTenantID(cfg *config.Config, cachedToken *token.CachedToken) clients.TenantID {
-	id := cfg.TenantID
-	if id == "" {
-		id = cachedToken.TenantID()
-	}
+// func NewTenantID(cfg *config.Config, cachedToken *token.CachedToken) clients.TenantID {
+// 	id := cfg.TenantID
+// 	if id == "" {
+// 		id = cachedToken.TenantID()
+// 	}
 
-	return clients.TenantID(id)
-}
+// 	return clients.TenantID(id)
+// }
 
 func GetCacheKey(auth *config.Auth) token.CacheKey {
 	return token.CacheKey(auth.Issuer)

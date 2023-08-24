@@ -26,15 +26,16 @@ func BuildCommonCtx(configPath config.Path, overrides ...config.Overrider) (*Com
 	if err != nil {
 		return nil, err
 	}
+	configContext := configConfig.Context
 	services := &configConfig.Services
 	auth := configConfig.Auth
 	cacheKey := GetCacheKey(auth)
 	cachedToken := token.Load(cacheKey)
-	tenantID := NewTenantID(configConfig, cachedToken)
-	asertoFactory, err := clients.NewClientFactory(contextContext, services, tenantID, cachedToken)
+	asertoFactory, err := clients.NewClientFactory(contextContext, configContext, services, cachedToken)
 	if err != nil {
 		return nil, err
 	}
+	xServices := configConfig.Services
 	settings := NewAuthSettings(auth)
 	decisionloggerConfig := &configConfig.DecisionLogger
 	decisionloggerSettings := decisionlogger.NewSettings(decisionloggerConfig)
@@ -43,7 +44,8 @@ func BuildCommonCtx(configPath config.Path, overrides ...config.Overrider) (*Com
 	commonCtx := &CommonCtx{
 		Factory:        asertoFactory,
 		Context:        contextContext,
-		Environment:    services,
+		Environment:    xServices,
+		CustomContext:  configContext,
 		Auth:           settings,
 		CachedToken:    cachedToken,
 		DecisionLogger: decisionloggerSettings,
@@ -58,15 +60,16 @@ func BuildTestCtx(ioStreams iostream.IO, configReader io.Reader, overrides ...co
 	if err != nil {
 		return nil, err
 	}
+	configContext := configConfig.Context
 	services := &configConfig.Services
 	auth := configConfig.Auth
 	cacheKey := GetCacheKey(auth)
 	cachedToken := token.Load(cacheKey)
-	tenantID := NewTenantID(configConfig, cachedToken)
-	asertoFactory, err := clients.NewClientFactory(contextContext, services, tenantID, cachedToken)
+	asertoFactory, err := clients.NewClientFactory(contextContext, configContext, services, cachedToken)
 	if err != nil {
 		return nil, err
 	}
+	xServices := configConfig.Services
 	settings := NewAuthSettings(auth)
 	decisionloggerConfig := &configConfig.DecisionLogger
 	decisionloggerSettings := decisionlogger.NewSettings(decisionloggerConfig)
@@ -74,7 +77,8 @@ func BuildTestCtx(ioStreams iostream.IO, configReader io.Reader, overrides ...co
 	commonCtx := &CommonCtx{
 		Factory:        asertoFactory,
 		Context:        contextContext,
-		Environment:    services,
+		Environment:    xServices,
+		CustomContext:  configContext,
 		Auth:           settings,
 		CachedToken:    cachedToken,
 		DecisionLogger: decisionloggerSettings,
@@ -86,9 +90,7 @@ func BuildTestCtx(ioStreams iostream.IO, configReader io.Reader, overrides ...co
 // wire.go:
 
 var (
-	commonSet = wire.NewSet(iostream.NewUI, GetCacheKey, token.Load, NewTenantID,
-		NewAuthSettings, decisionlogger.NewSettings, clients.NewClientFactory, wire.Bind(new(clients.Factory), new(*clients.AsertoFactory)), wire.FieldsOf(new(*config.Config), "Services", "Auth", "DecisionLogger"), wire.Struct(new(CommonCtx), "*"),
-	)
+	commonSet = wire.NewSet(iostream.NewUI, GetCacheKey, token.Load, NewAuthSettings, decisionlogger.NewSettings, clients.NewClientFactory, wire.Bind(new(clients.Factory), new(*clients.AsertoFactory)), wire.FieldsOf(new(*config.Config), "Services", "Context", "Auth", "DecisionLogger"), wire.Struct(new(CommonCtx), "*"))
 
 	ccSet = wire.NewSet(
 		commonSet, iostream.DefaultIO, context.Background, config.NewConfig, wire.Bind(new(iostream.IO), new(*iostream.StdIO)),
@@ -98,15 +100,6 @@ var (
 		commonSet, context.TODO, config.NewTestConfig,
 	)
 )
-
-func NewTenantID(cfg *config.Config, cachedToken *token.CachedToken) clients.TenantID {
-	id := cfg.TenantID
-	if id == "" {
-		id = cachedToken.TenantID()
-	}
-
-	return clients.TenantID(id)
-}
 
 func GetCacheKey(auth *config.Auth) token.CacheKey {
 	return token.CacheKey(auth.Issuer)
