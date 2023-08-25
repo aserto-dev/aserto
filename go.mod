@@ -9,6 +9,7 @@ require (
 	github.com/aserto-dev/certs v0.0.3
 	github.com/aserto-dev/clui v0.8.1
 	github.com/aserto-dev/go-aserto v0.20.3
+	github.com/aserto-dev/go-authorizer v0.20.2
 	github.com/aserto-dev/go-decision-logs v0.0.4
 	github.com/aserto-dev/go-grpc v0.8.57
 	github.com/aserto-dev/logger v0.0.4
@@ -45,7 +46,6 @@ require (
 require (
 	github.com/PuerkitoBio/rehttp v1.2.0 // indirect
 	github.com/alessio/shellescape v1.4.1 // indirect
-	github.com/aserto-dev/go-authorizer v0.20.2 // indirect
 	github.com/danieljoos/wincred v1.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
