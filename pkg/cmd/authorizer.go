@@ -10,6 +10,9 @@ type AuthorizerCmd struct {
 	EvalDecision authorizer.EvalDecisionCmd `cmd:"" help:"evaluate policy decision" group:"authorizer"`
 	DecisionTree authorizer.DecisionTreeCmd `cmd:"" help:"get decision tree" group:"authorizer"`
 	ExecQuery    authorizer.ExecQueryCmd    `cmd:"" help:"execute query" group:"authorizer"`
+	Compile      authorizer.CompileCmd      `cmd:"" help:"compile query" group:"authorizer"`
+	GetPolicy    authorizer.GetPolicyCmd    `cmd:"" help:"get policy" group:"authorizer"`
+	ListPolicies authorizer.ListPoliciesCmd `cmd:"" help:"list policies" group:"authorizer"`
 
 	AuthorizerOverrides AuthorizerOptions `embed:"" envprefix:"ASERTO_AUTHORIZER_"`
 }

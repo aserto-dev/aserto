@@ -10,12 +10,12 @@ go 1.19
 
 require (
 	github.com/alecthomas/kong v0.7.1
-	github.com/aserto-dev/aserto-go v0.8.13
 	github.com/aserto-dev/certs v0.0.3
 	github.com/aserto-dev/clui v0.8.2
+	github.com/aserto-dev/go-aserto v0.20.3
+	github.com/aserto-dev/go-authorizer v0.20.2
 	github.com/aserto-dev/go-decision-logs v0.0.4
 	github.com/aserto-dev/go-grpc v0.8.56
-	github.com/aserto-dev/go-grpc-authz v0.8.0
 	github.com/aserto-dev/logger v0.0.3
 	github.com/cli/browser v1.1.0
 	github.com/fatih/color v1.15.0
@@ -40,7 +40,6 @@ require (
 require (
 	github.com/PuerkitoBio/rehttp v1.0.0 // indirect
 	github.com/alessio/shellescape v1.4.1 // indirect
-	github.com/benbjohnson/clock v1.1.0 // indirect
 	github.com/danieljoos/wincred v1.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect

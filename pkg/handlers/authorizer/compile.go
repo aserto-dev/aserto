@@ -7,14 +7,14 @@ import (
 	"github.com/aserto-dev/go-authorizer/aserto/authorizer/v2/api"
 )
 
-type ExecQueryCmd struct {
+type CompileCmd struct {
 	AuthParams `embed:""`
 	Statement  string `arg:"stmt" name:"stmt" required:"" help:"query statement"`
 	Path       string `name:"path" help:"policy package to evaluate"`
 	Input      string `name:"input" help:"query input context"`
 }
 
-func (cmd *ExecQueryCmd) Run(c *cc.CommonCtx) error {
+func (cmd *CompileCmd) Run(c *cc.CommonCtx) error {
 	client, err := c.AuthorizerClient()
 	if err != nil {
 		return err
@@ -25,7 +25,7 @@ func (cmd *ExecQueryCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	resp, err := client.Authorizer.Query(c.Context, &authorizer.QueryRequest{
+	resp, err := client.Authorizer.Compile(c.Context, &authorizer.CompileRequest{
 		Query:           cmd.Statement,
 		Input:           cmd.Input,
 		IdentityContext: cmd.IdentityContext(),

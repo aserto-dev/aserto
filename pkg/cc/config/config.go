@@ -76,8 +76,8 @@ func newConfig(reader configReader, overrides ...Overrider) (*Config, error) {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.SetDefault("tenant_id", "")
 	v.SetDefault("services", x.DefaultEnvironment())
-	v.SetDefault("auth.issuer", auth0.IssuerProduction)
-	v.SetDefault("auth.client_id", auth0.ClientIDProduction)
+	v.SetDefault("auth.issuer", auth0.Issuer)
+	v.SetDefault("auth.client_id", auth0.ClientID)
 	v.SetDefault("auth.audience", auth0.Audience)
 
 	v.AutomaticEnv()

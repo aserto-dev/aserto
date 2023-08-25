@@ -3,93 +3,91 @@ package user
 import (
 	"context"
 	"fmt"
-	"net/url"
+	"os"
+	"os/signal"
 	"time"
 
-	aserto "github.com/aserto-dev/aserto-go/client"
-	"github.com/aserto-dev/aserto-go/client/tenant"
-	auth0api "github.com/aserto-dev/aserto/pkg/auth0/api"
-	"github.com/aserto-dev/aserto/pkg/auth0/pkce"
+	"github.com/aserto-dev/aserto/pkg/auth0/device"
 	"github.com/aserto-dev/aserto/pkg/cc"
+	"github.com/aserto-dev/aserto/pkg/client/tenant"
 	"github.com/aserto-dev/aserto/pkg/keyring"
-
-	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
-	account "github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"
-	connection "github.com/aserto-dev/go-grpc/aserto/tenant/connection/v1"
+	aserto "github.com/aserto-dev/go-aserto/client"
 
 	"github.com/cli/browser"
 	"github.com/pkg/errors"
 )
 
-type LoginCmd struct{}
+type LoginCmd struct {
+	Browser bool `flag:"browser" negatable:"" default:"true" help:"do not open browser"`
+}
 
 func (d *LoginCmd) Run(c *cc.CommonCtx) error {
 	settings := c.Auth
-	scopes := []string{"openid", "email", "profile"}
 
-	ru, err := url.Parse(settings.RedirectURL)
-	if err != nil {
+	flow := device.New(
+		device.WithClientID(settings.ClientID),
+		device.WithDeviceAuthorizationURL(settings.DeviceAuthorizationURL),
+		device.WithTokenURL(settings.TokenURL),
+		device.WithAudience(settings.Audience),
+		device.WithGrantType(settings.GrantType),
+		device.WithScope("openid", "profile", "email"),
+	)
+
+	// handle Ctrl+C
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
+
+	if err := flow.GetDeviceCode(ctx); err != nil {
 		return err
 	}
 
-	addr := fmt.Sprintf("%s:%s", ru.Hostname(), ru.Port())
+	fmt.Printf("Copy your one-time code: %s\n", flow.GetUserCode())
 
-	flow, err := pkce.InitFlow(addr)
-	if err != nil {
-		return err
+	if d.Browser {
+		fmt.Printf("Press Enter to open browser %s\n", flow.GetVerificationURI())
+		fmt.Scanln()
+		if err := browser.OpenURL(flow.GetVerificationURI()); err != nil {
+			return err
+		}
+	} else {
+		fmt.Printf("Open browser %s\n", flow.GetVerificationURI())
 	}
 
-	codeChallenge, err := pkce.CreateCodeChallenge(50)
-	if err != nil {
-		return err
+	ctx, cancel := context.WithTimeout(ctx, flow.ExpiresIn())
+	defer cancel()
+
+	for {
+		if ok, err := flow.RequestAccessToken(ctx); ok {
+			fmt.Fprint(c.UI.Output(), ".\n")
+			break
+		} else if err != nil {
+			return err
+		}
+
+		select {
+		case <-time.After(flow.Interval()):
+			fmt.Fprint(c.UI.Output(), ".")
+		case <-ctx.Done():
+			return errors.New("canceled")
+		}
 	}
 
-	params := pkce.BrowserParams{
-		ClientID:      settings.ClientID,
-		RedirectURI:   settings.RedirectURL,
-		Audience:      settings.Audience,
-		Scopes:        scopes,
-		CodeVerifier:  codeChallenge.Verifier,
-		CodeChallenge: codeChallenge.Challenge,
-	}
-
-	browserURL, err := flow.BrowserURL(settings.AuthorizationURL, params)
-	if err != nil {
-		return err
-	}
-
-	// A localhost server on a random available port will receive the web redirect.
-	go func() {
-		_ = flow.StartServer(nil)
-	}()
-
-	// Note: the user's web browser must run on the same device as the running app.
-	err = browser.OpenURL(browserURL)
-	if err != nil {
-		return err
-	}
-
-	tok, err := flow.AccessToken(c.Context, settings.TokenURL, settings.RedirectURL, codeChallenge.Verifier)
-	if err != nil {
-		return err
-	}
-
-	tok.ExpiresAt = time.Now().UTC().Add(time.Second * time.Duration(tok.ExpiresIn))
+	token := flow.AccessToken()
 
 	conn, err := tenant.New(
 		c.Context,
 		aserto.WithAddr(c.Environment.TenantService.Address),
-		aserto.WithTokenAuth(tok.Access),
+		aserto.WithTokenAuth(token.Access),
 	)
 	if err != nil {
 		return err
 	}
 
-	if err = getTenantID(c.Context, conn, tok); err != nil {
+	if err = getTenantID(c.Context, conn, token); err != nil {
 		return errors.Wrapf(err, "get tenant id")
 	}
 
-	if err = GetConnectionKeys(c.Context, conn, tok); err != nil {
+	if err = GetConnectionKeys(c.Context, conn, token); err != nil {
 		return errors.Wrapf(err, "get connection keys")
 	}
 
@@ -97,66 +95,11 @@ func (d *LoginCmd) Run(c *cc.CommonCtx) error {
 	if err != nil {
 		return err
 	}
-	if err := kr.SetToken(tok); err != nil {
+	if err := kr.SetToken(token); err != nil {
 		return err
 	}
 
-	fmt.Fprint(c.UI.Err(), "login successful\n")
+	fmt.Fprint(c.UI.Output(), "Login successful\n")
 
 	return nil
-}
-
-func getTenantID(ctx context.Context, client *tenant.Client, tok *auth0api.Token) error {
-	resp, err := client.Account.GetAccount(ctx, &account.GetAccountRequest{})
-	if err != nil {
-		return errors.Wrapf(err, "get account")
-	}
-
-	tok.TenantID = resp.Result.DefaultTenant
-
-	return err
-}
-
-func GetConnectionKeys(ctx context.Context, client *tenant.Client, tok *auth0api.Token) error {
-	client.SetTenantID(tok.TenantID)
-
-	resp, err := client.Connections.ListConnections(
-		ctx,
-		&connection.ListConnectionsRequest{
-			Kind: api.ProviderKind_PROVIDER_KIND_UNKNOWN,
-		})
-	if err != nil {
-		return errors.Wrapf(err, "list connections account")
-	}
-
-	//nolint:exhaustive // we only care about these two provider kinds.
-	for _, cn := range resp.Results {
-		switch cn.Kind {
-		case api.ProviderKind_PROVIDER_KIND_AUTHORIZER:
-			if respX, err := GetConnection(ctx, client, cn.Id); err == nil {
-				tok.AuthorizerAPIKey = respX.Result.Config.Fields["api_key"].GetStringValue()
-			} else {
-				return errors.Wrapf(err, "get connection [%s]", cn.Id)
-			}
-		case api.ProviderKind_PROVIDER_KIND_DECISION_LOGS:
-			if respX, err := GetConnection(ctx, client, cn.Id); err == nil {
-				tok.DecisionLogsKey = respX.Result.Config.Fields["api_key"].GetStringValue()
-			} else {
-				return errors.Wrapf(err, "get connection [%s]", cn.Id)
-			}
-		}
-	}
-
-	return nil
-}
-
-func GetConnection(
-	ctx context.Context,
-	client *tenant.Client,
-	connectionID string,
-) (*connection.GetConnectionResponse, error) {
-	return client.Connections.GetConnection(
-		ctx,
-		&connection.GetConnectionRequest{Id: connectionID},
-	)
 }
