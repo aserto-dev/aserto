@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
+	"github.com/aserto-dev/go-authorizer/aserto/authorizer/v2/api"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 

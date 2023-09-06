@@ -2,13 +2,14 @@ package clients
 
 import (
 	"log"
+	"strings"
 
-	aserto "github.com/aserto-dev/aserto-go/client"
 	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/cc/errors"
 	"github.com/aserto-dev/aserto/pkg/cc/token"
 	"github.com/aserto-dev/aserto/pkg/paths"
 	"github.com/aserto-dev/aserto/pkg/x"
+	aserto "github.com/aserto-dev/go-aserto/client"
 )
 
 // Overrides are options that modify the default behavior of connections to aserto services.
@@ -134,7 +135,7 @@ func (c *optionsBuilder) tenantOption() (aserto.ConnectionOption, error) {
 }
 
 func (c *optionsBuilder) isHosted() bool {
-	return c.address() == c.defaultAddr
+	return strings.Contains(c.address(), "aserto.com")
 }
 
 func nilOption(*aserto.ConnectionOptions) error {

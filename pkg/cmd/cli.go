@@ -14,7 +14,6 @@ import (
 type CLI struct {
 	Authorizer   AuthorizerCmd   `cmd:"" aliases:"a" help:"authorizer commands"`
 	Tenant       TenantCmd       `cmd:"" aliases:"t" help:"tenant commands"`
-	Directory    DirectoryCmd    `cmd:"" aliases:"d" help:"directory commands"`
 	DecisionLogs DecisionLogsCmd `cmd:"" aliases:"l" help:"decision logs commands"`
 	Developer    DeveloperCmd    `cmd:"" aliases:"x" help:"developer commands"`
 	ControlPlane ControlPlaneCmd `cmd:"" aliases:"p" help:"control plane commands"`
