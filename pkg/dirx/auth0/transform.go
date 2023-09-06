@@ -49,24 +49,6 @@ func Transform(in *management.User) (*api.User, error) {
 		Verified: in.GetEmailVerified(),
 	}
 
-	// phoneProp := strings.ToLower(api.IdentityKind_IDENTITY_KIND_PHONE.String())
-	// if in.UserMetadata[phoneProp] != nil {
-	// 	phone := in.UserMetadata[phoneProp].(string)
-	// 	user.Identities[phone] = &api.IdentitySource{
-	// 		Kind:     api.IdentityKind_IDENTITY_KIND_PHONE,
-	// 		Verified: false,
-	// 	}
-	// }
-
-	// usernameProp := strings.ToLower(api.IdentityKind_IDENTITY_KIND_USERNAME.String())
-	// if in.UserMetadata[usernameProp] != nil {
-	// 	username := in.UserMetadata[usernameProp].(string)
-	// 	user.Identities[username] = &api.IdentitySource{
-	// 		Kind:     api.IdentityKind_IDENTITY_KIND_USERNAME,
-	// 		Verified: false,
-	// 	}
-	// }
-
 	if in.UserMetadata != nil && len(*in.UserMetadata) != 0 {
 		props, err := structpb.NewStruct(*in.UserMetadata)
 		if err == nil {

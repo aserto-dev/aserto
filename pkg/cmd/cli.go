@@ -12,10 +12,9 @@ import (
 )
 
 type CLI struct {
-	Developer    DeveloperCmd    `cmd:"" aliases:"xp" help:"developer commands"`
-	Directory    DirectoryCmd    `cmd:"" aliases:"ds" help:"directory commands"`
-	Authorizer   AuthorizerCmd   `cmd:"" aliases:"az" help:"authorizer commands"`
-	Policy       PolicyCmd       `cmd:"" aliases:"pl" help:"policy commands"`
+	Developer  DeveloperCmd  `cmd:"" aliases:"xp" help:"developer commands"`
+	Authorizer AuthorizerCmd `cmd:"" aliases:"az" help:"authorizer commands"`
+	// Policy       PolicyCmd       `cmd:"" aliases:"pl" help:"policy commands"`
 	DecisionLogs DecisionLogsCmd `cmd:"" aliases:"dl" help:"decision logs commands"`
 	ControlPlane ControlPlaneCmd `cmd:"" aliases:"cp" help:"control plane commands"`
 	Tenant       TenantCmd       `cmd:"" aliases:"tn" help:"tenant commands"`
