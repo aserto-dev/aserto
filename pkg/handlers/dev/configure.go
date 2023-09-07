@@ -71,7 +71,7 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 	}
 
 	if cmd.EdgeAuthorizer != "" {
-		certFile, keyFile, errCerts := getEdgeAuthorizerCerts(c.Context, client, cmd.EdgeAuthorizer, configDir)
+		certFile, keyFile, errCerts := getEdgeAuthorizerCerts(c.Context, client, cmd.EdgeAuthorizer, configDir, policyRef.Name)
 		if errCerts != nil {
 			return err
 		}
@@ -167,7 +167,7 @@ func getDiscoveryConfig(ctx context.Context, client *tenant.Client) (*discoveryC
 	return nil, errors.Errorf("cannot find discovery configuration")
 }
 
-func getEdgeAuthorizerCerts(ctx context.Context, client *tenant.Client, connID, configDir string) (certFile, keyFile string, err error) {
+func getEdgeAuthorizerCerts(ctx context.Context, client *tenant.Client, connID, configDir, policyName string) (certFile, keyFile string, err error) {
 	resp, err := client.Connections.GetConnection(ctx, &connection.GetConnectionRequest{
 		Id: connID,
 	})
@@ -194,17 +194,20 @@ func getEdgeAuthorizerCerts(ctx context.Context, client *tenant.Client, connID, 
 		return "", "", errors.New("invalid configuration: api_cert")
 	}
 
-	err = fileFromConfigField(structVal, "certificate", configDir, "client.crt")
+	crtName := fmt.Sprintf("%s-client.crt", policyName)
+	keyName := fmt.Sprintf("%s-client.key", policyName)
+
+	err = fileFromConfigField(structVal, "certificate", configDir, crtName)
 	if err != nil {
 		return "", "", err
 	}
 
-	err = fileFromConfigField(structVal, "private_key", configDir, "client.key")
+	err = fileFromConfigField(structVal, "private_key", configDir, keyName)
 	if err != nil {
 		return "", "", err
 	}
 
-	return "client.crt", "client.key", nil
+	return crtName, keyName, nil
 }
 
 func fileFromConfigField(structVal *structpb.Struct, field, configDir, fileName string) error {
