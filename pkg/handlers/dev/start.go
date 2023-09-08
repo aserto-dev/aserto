@@ -35,11 +35,11 @@ func (cmd *StartCmd) Run(c *cc.CommonCtx) error {
 		if err != nil {
 			return err
 		}
-		color.Yellow("!!! sidecar is already running")
+		color.Yellow("!!! topaz sidecar is already running")
 		return nil
 	}
 
-	color.Green(">>> starting sidecar...")
+	color.Green(">>> starting topaz as a sidecar...")
 
 	paths, err := localpaths.NewWithDataRoot(cmd.DataPath)
 	if err != nil {
@@ -57,7 +57,7 @@ func (cmd *StartCmd) Run(c *cc.CommonCtx) error {
 	case local:
 		cmdArgs := []string{
 			"run",
-			"--config-file", "/app/cfg/local.yaml",
+			"--config-file", "/cfg/local.yaml",
 			"--bundle", "/app/src",
 			"--watch",
 		}
@@ -66,7 +66,7 @@ func (cmd *StartCmd) Run(c *cc.CommonCtx) error {
 	default:
 		cmdArgs := []string{
 			"run",
-			"--config-file", "/app/cfg/" + cmd.Name + ".yaml",
+			"--config-file", "/cfg/" + cmd.Name + ".yaml",
 		}
 
 		args = append(args, cmdArgs...)
@@ -89,8 +89,8 @@ var (
 		"-p", "8484:8484",
 		"-p", "9292:9292",
 		"-v", "$ASERTO_CERTS_DIR:/certs:rw",
-		"-v", "$ASERTO_CFG_DIR:/app/cfg:ro",
-		"-v", "$ASERTO_EDS_DIR:/app/db:rw",
+		"-v", "$ASERTO_CFG_DIR:/cfg:ro",
+		"-v", "$ASERTO_EDS_DIR:/db:rw",
 		"-v", "$ASERTO_DECISION_LOGS_DIR:/app/decision_logs:rw",
 	}
 

@@ -71,12 +71,12 @@ decision_logger:
 `
 
 const configTemplateLocal = templatePreamble + `
-  opa:
-    instance_id: {{ .TenantID }}
-    graceful_shutdown_period_seconds: 2
-    local_bundles:
-      paths: []
-      skip_verification: true
+opa:
+  instance_id: "-"
+  graceful_shutdown_period_seconds: 2
+  local_bundles:
+    paths: []
+    skip_verification: true
 `
 
 const templatePreamble = `---
