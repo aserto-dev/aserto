@@ -12,15 +12,15 @@ import (
 )
 
 type CLI struct {
-	Authorizer   AuthorizerCmd   `cmd:"" aliases:"a" help:"authorizer commands"`
-	Tenant       TenantCmd       `cmd:"" aliases:"t" help:"tenant commands"`
-	DecisionLogs DecisionLogsCmd `cmd:"" aliases:"l" help:"decision logs commands"`
-	Developer    DeveloperCmd    `cmd:"" aliases:"x" help:"developer commands"`
-	ControlPlane ControlPlaneCmd `cmd:"" aliases:"p" help:"control plane commands"`
-	User         UserCmd         `cmd:"" aliases:"u" help:"user commands"`
+	Developer  DeveloperCmd  `cmd:"" aliases:"xp" help:"developer commands"`
+	Authorizer AuthorizerCmd `cmd:"" aliases:"az" help:"authorizer commands"`
+	// Policy       PolicyCmd       `cmd:"" aliases:"pl" help:"policy commands"`
+	DecisionLogs DecisionLogsCmd `cmd:"" aliases:"dl" help:"decision logs commands"`
+	ControlPlane ControlPlaneCmd `cmd:"" aliases:"cp" help:"control plane commands"`
+	Tenant       TenantCmd       `cmd:"" aliases:"tn" help:"tenant commands"`
 	Login        user.LoginCmd   `cmd:"" help:"login"`
 	Logout       user.LogoutCmd  `cmd:"" help:"logout"`
-	Config       ConfigCmd       `cmd:"" aliases:"c" help:"configuration commands"`
+	Config       ConfigCmd       `cmd:"" help:"configuration commands"`
 	Version      VersionCmd      `cmd:"" help:"version information"`
 
 	// ConfigFileMapper implements the `type:"conf"` tag.

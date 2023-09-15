@@ -2,13 +2,15 @@ package authorizer
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 
 	"github.com/aserto-dev/go-authorizer/aserto/authorizer/v2/api"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
 type IdentityType string
+
+var errJSONObj = errors.New("resource must be a JSON object")
 
 const (
 	IdentityTypeNone IdentityType = "none"
@@ -51,7 +53,7 @@ func (a AuthParams) ResourceContext() (*structpb.Struct, error) {
 
 		m, ok := r.(map[string]interface{})
 		if !ok {
-			return result, fmt.Errorf("resource must be a JSON object")
+			return result, errJSONObj
 		}
 
 		return structpb.NewStruct(m)

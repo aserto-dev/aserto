@@ -39,7 +39,7 @@ func main() {
 			Tree:                false,
 			FlagsLast:           true,
 			Indenter:            kong.SpaceIndenter,
-			NoExpandSubcommands: false,
+			NoExpandSubcommands: true,
 		}),
 		kong.Resolvers(ConfigResolver()),
 		kong.NamedMapper("conf", conf.ConfigFileMapper(configDir)), // attach to tag `type:"conf"`
@@ -75,7 +75,7 @@ func ConfigResolver() kong.Resolver {
 		})
 
 		if err != nil || flag.Tag == nil || flag.Tag.EnvPrefix == "" {
-			return
+			return resolved, err
 		}
 
 		var svcOptions *x.ServiceOptions = nil
@@ -87,7 +87,7 @@ func ConfigResolver() kong.Resolver {
 		case "ASERTO_DECISION_LOGS_":
 			svcOptions = &tmpConfig.Services.DecisionLogsService
 		default:
-			return
+			return resolved, err
 		}
 
 		switch flag.Name {
@@ -104,7 +104,7 @@ func ConfigResolver() kong.Resolver {
 			resolved = flag.Default
 		}
 
-		return
+		return resolved, err
 	}
 
 	return f
