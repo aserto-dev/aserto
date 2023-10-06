@@ -1,14 +1,12 @@
 package config
 
 import (
-	"encoding/json"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/aserto-dev/aserto/pkg/auth0"
-	aErr "github.com/aserto-dev/aserto/pkg/cc/errors"
 	decisionlogger "github.com/aserto-dev/aserto/pkg/decision_logger"
 	"github.com/aserto-dev/aserto/pkg/x"
 	"github.com/mitchellh/mapstructure"
@@ -16,13 +14,16 @@ import (
 	"github.com/spf13/viper"
 )
 
+const ConfigPath = "config-path.txt"
+
 // Overrider is a func that mutates configuration.
 type Overrider func(*Config)
 
 type Auth struct {
-	Issuer   string `json:"issuer"`
-	ClientID string `json:"client_id"`
-	Audience string `json:"audience"`
+	Issuer   string `json:"issuer" yaml:"issuer"`
+	ClientID string `json:"client_id" yaml:"client_id"`
+	Audience string `json:"audience" yaml:"audience"`
+	Identity string `json:"user_idenity" yaml:"user_idenity"`
 }
 
 func (auth *Auth) GetSettings() *auth0.Settings {
@@ -30,21 +31,21 @@ func (auth *Auth) GetSettings() *auth0.Settings {
 }
 
 type Config struct {
-	Context        Context               `json:"context"`
-	Services       x.Services            `json:"services"`
-	Auth           *Auth                 `json:"auth"`
-	DecisionLogger decisionlogger.Config `json:"decision_logger"`
+	Context        Context               `json:"context" yaml:"context"`
+	Services       x.Services            `json:"services" yaml:"services"`
+	Auth           *Auth                 `json:"auth" yaml:"auth"`
+	DecisionLogger decisionlogger.Config `json:"decision_logger" yaml:"decision_logger"`
 }
 
 type Context struct {
-	Contexts      []Ctx  `json:"contexts"`
-	ActiveContext string `json:"active"`
+	Contexts      []Ctx  `json:"contexts" yaml:"contexts"`
+	ActiveContext string `json:"active" yaml:"active"`
 }
 
 type Ctx struct {
-	Name              string           `json:"name"`
-	TenantID          string           `json:"tenant_id"`
-	AuthorizerService x.ServiceOptions `json:"authorizer"`
+	Name              string           `json:"name" yaml:"name"`
+	TenantID          string           `json:"tenant_id" yaml:"tenant_id"`
+	AuthorizerService x.ServiceOptions `json:"authorizer" yaml:"authorizer"`
 }
 
 type Path string
@@ -60,18 +61,28 @@ func NewConfig(path Path, overrides ...Overrider) (*Config, error) {
 					return errors.Wrapf(err, "failed to read config file [%s]", configFile)
 				}
 			} else {
-				filePath, err := GetConfigFile()
+				cfgPath, err := GetConfigPath("")
 				if err != nil {
 					return err
 				}
-				if _, err := os.Stat(filePath); err != nil {
-					// user is not logged in yet
+
+				cfgDir := filepath.Dir(cfgPath)
+				currentUserFilePath := filepath.Join(cfgDir, ConfigPath)
+
+				if !FileExists(currentUserFilePath) {
 					return nil
 				}
-				v.SetConfigFile(filePath)
-				if err := v.ReadInConfig(); err != nil {
-					return errors.Wrapf(err, "failed to read config file [%s]", filePath)
+
+				content, err := os.ReadFile(currentUserFilePath)
+				if err != nil {
+					return err
 				}
+
+				v.SetConfigFile(string(content))
+				if err := v.ReadInConfig(); err != nil {
+					return errors.Wrapf(err, "failed to read config file [%s]", string(content))
+				}
+
 			}
 
 			return nil
@@ -124,7 +135,7 @@ func jsonDecoderConfig(dc *mapstructure.DecoderConfig) {
 	dc.TagName = "json"
 }
 
-func GetConfigFile() (string, error) {
+func GetConfigPath(identity string) (string, error) {
 	env := os.Getenv("ASERTO_ENV")
 	if env != "" {
 		return env, nil
@@ -133,25 +144,15 @@ func GetConfigFile() (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, "failed to determine user home directory")
 	}
-	return filepath.Join(home, ".config", x.AppName, "config.json"), nil
-}
 
-func GetConfigFromFile(filePath string) (*Config, error) {
-	if !FileExists(filePath) {
-		return nil, aErr.NeedLoginErr
-	}
-	dat, err := os.ReadFile(filePath)
-	if err != nil {
-		return nil, err
+	filePath := ""
+	if identity != "" {
+		filePath = filepath.Join(home, ".config", x.AppName, identity+"-config.yaml")
+	} else {
+		filePath = filepath.Join(home, ".config", x.AppName, "config.yaml")
 	}
 
-	cfg := &Config{}
-	err = json.Unmarshal(dat, cfg)
-	if err != nil {
-		return nil, err
-	}
-
-	return cfg, err
+	return filePath, err
 }
 
 func FileExists(filename string) bool {

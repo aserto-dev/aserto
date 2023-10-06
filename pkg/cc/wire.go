@@ -31,11 +31,11 @@ var (
 	)
 
 	ccSet = wire.NewSet(
+		config.NewConfig,
 		commonSet,
 
 		iostream.DefaultIO,
 		context.Background,
-		config.NewConfig,
 
 		wire.Bind(new(iostream.IO), new(*iostream.StdIO)),
 	)

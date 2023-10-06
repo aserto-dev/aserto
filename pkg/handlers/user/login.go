@@ -84,7 +84,7 @@ func (d *LoginCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	tenantID, err := getTenantID(ctx, c, conn)
+	tenantID, err := getTenantID(ctx, c, conn, token.Identity[len(token.Identity)-10:])
 	if err != nil {
 		return errors.Wrapf(err, "get tenant ID ")
 	}
@@ -98,7 +98,7 @@ func (d *LoginCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	tenantKr, err := keyring.NewTenantKeyRing(tenantID)
+	tenantKr, err := keyring.NewTenantKeyRing(tenantID + token.Identity[len(token.Identity)-10:])
 	if err != nil {
 		return err
 	}

@@ -42,7 +42,13 @@ func (ctx *CommonCtx) Token() (*api.Token, error) {
 
 func (ctx *CommonCtx) AuthorizerAPIKey() (string, error) {
 	tenantID := ctx.TenantID()
-	kr, err := keyring.NewTenantKeyRing(tenantID)
+	cachedTkn, err := ctx.CachedToken.Get()
+	if err != nil {
+		log.Printf("token: failed to retrieve cached token, %s", err.Error())
+		return "", nil
+	}
+
+	kr, err := keyring.NewTenantKeyRing(tenantID + cachedTkn.Identity[len(cachedTkn.Identity)-10:])
 	if err != nil {
 		log.Printf("token: instantiating keyring, %s", err.Error())
 		return "", nil
@@ -58,7 +64,13 @@ func (ctx *CommonCtx) AuthorizerAPIKey() (string, error) {
 
 func (ctx *CommonCtx) DecisionLogsKey() (string, error) {
 	tenantID := ctx.TenantID()
-	kr, err := keyring.NewTenantKeyRing(tenantID)
+	cachedTkn, err := ctx.CachedToken.Get()
+	if err != nil {
+		log.Printf("token: failed to retrieve cached token, %s", err.Error())
+		return "", nil
+	}
+
+	kr, err := keyring.NewTenantKeyRing(tenantID + cachedTkn.Identity[len(cachedTkn.Identity)-10:])
 	if err != nil {
 		log.Printf("token: instantiating keyring, %s", err.Error())
 		return "", nil

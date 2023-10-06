@@ -6,7 +6,7 @@ const (
 )
 
 type Config struct {
-	EMSAddress string `json:"ems_address"`
+	EMSAddress string `json:"ems_address" yaml:"ems_address"`
 }
 
 type Settings Config

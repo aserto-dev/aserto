@@ -15,6 +15,7 @@ import (
 	"github.com/aserto-dev/clui"
 	"github.com/aserto-dev/go-grpc/aserto/api/v1"
 	"github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"
+	"gopkg.in/yaml.v2"
 
 	"github.com/pkg/errors"
 )
@@ -22,12 +23,17 @@ import (
 type GetContextsCmd struct{}
 
 func (cmd *GetContextsCmd) Run(c *cc.CommonCtx) error {
-	configFile, err := config.GetConfigFile()
+	token, err := c.CachedToken.Get()
 	if err != nil {
 		return err
 	}
 
-	cfg, err := config.GetConfigFromFile(configFile)
+	cfgPath, err := config.GetConfigPath(token.Identity[len(token.Identity)-10:])
+	if err != nil {
+		return err
+	}
+
+	cfg, err := config.NewConfig(config.Path(cfgPath))
 	if err != nil {
 		return err
 	}
@@ -38,12 +44,17 @@ func (cmd *GetContextsCmd) Run(c *cc.CommonCtx) error {
 type GetActiveContextCmd struct{}
 
 func (cmd *GetActiveContextCmd) Run(c *cc.CommonCtx) error {
-	configFile, err := config.GetConfigFile()
+	token, err := c.CachedToken.Get()
 	if err != nil {
 		return err
 	}
 
-	cfg, err := config.GetConfigFromFile(configFile)
+	cfgPath, err := config.GetConfigPath(token.Identity[len(token.Identity)-10:])
+	if err != nil {
+		return err
+	}
+
+	cfg, err := config.NewConfig(config.Path(cfgPath))
 	if err != nil {
 		return err
 	}
@@ -62,12 +73,17 @@ type DeleteContextCmd struct {
 }
 
 func (cmd *DeleteContextCmd) Run(c *cc.CommonCtx) error {
-	configFile, err := config.GetConfigFile()
+	token, err := c.CachedToken.Get()
 	if err != nil {
 		return err
 	}
 
-	cfg, err := config.GetConfigFromFile(configFile)
+	cfgPath, err := config.GetConfigPath(token.Identity[len(token.Identity)-10:])
+	if err != nil {
+		return err
+	}
+
+	cfg, err := config.NewConfig(config.Path(cfgPath))
 	if err != nil {
 		return err
 	}
@@ -83,12 +99,12 @@ func (cmd *DeleteContextCmd) Run(c *cc.CommonCtx) error {
 		}
 	}
 
-	data, err := json.Marshal(cfg)
+	data, err := yaml.Marshal(cfg)
 	if err != nil {
 		return err
 	}
 
-	return os.WriteFile(configFile, data, 0600)
+	return os.WriteFile(cfgPath, data, 0600)
 }
 
 type SetContextCmd struct {
@@ -126,12 +142,17 @@ func (cmd *SetContextCmd) Run(c *cc.CommonCtx) error {
 		}
 	}
 
-	configFile, err := config.GetConfigFile()
+	token, err := c.CachedToken.Get()
 	if err != nil {
 		return err
 	}
 
-	cfg, err := config.GetConfigFromFile(configFile)
+	cfgPath, err := config.GetConfigPath(token.Identity[len(token.Identity)-10:])
+	if err != nil {
+		return err
+	}
+
+	cfg, err := config.NewConfig(config.Path(cfgPath))
 	if err != nil {
 		return err
 	}
@@ -163,12 +184,12 @@ func (cmd *SetContextCmd) Run(c *cc.CommonCtx) error {
 		}
 	}
 
-	data, err := json.Marshal(cfg)
+	data, err := yaml.Marshal(cfg)
 	if err != nil {
 		return err
 	}
 
-	return os.WriteFile(configFile, data, 0600)
+	return os.WriteFile(cfgPath, data, 0600)
 }
 
 type UseContextCmd struct {
@@ -176,12 +197,17 @@ type UseContextCmd struct {
 }
 
 func (cmd *UseContextCmd) Run(c *cc.CommonCtx) error {
-	configFile, err := config.GetConfigFile()
+	token, err := c.CachedToken.Get()
 	if err != nil {
 		return err
 	}
 
-	cfg, err := config.GetConfigFromFile(configFile)
+	cfgPath, err := config.GetConfigPath(token.Identity[len(token.Identity)-10:])
+	if err != nil {
+		return err
+	}
+
+	cfg, err := config.NewConfig(config.Path(cfgPath))
 	if err != nil {
 		return err
 	}
@@ -199,12 +225,12 @@ func (cmd *UseContextCmd) Run(c *cc.CommonCtx) error {
 
 	cfg.Context.ActiveContext = cmd.ContextName
 
-	data, err := json.Marshal(cfg)
+	data, err := yaml.Marshal(cfg)
 	if err != nil {
 		return err
 	}
 
-	return os.WriteFile(configFile, data, 0600)
+	return os.WriteFile(cfgPath, data, 0600)
 }
 
 func changeTokenToTenantID(c *cc.CommonCtx, tenantID string) error {
@@ -232,7 +258,12 @@ func changeTokenToTenantID(c *cc.CommonCtx, tenantID string) error {
 
 	fmt.Fprintf(c.UI.Err(), "tenant %s - %s\n", tnt.Id, tnt.Name)
 
-	tenantKr, err := keyring.NewTenantKeyRing(tenantID)
+	tkn, err := c.CachedToken.Get()
+	if err != nil {
+		return err
+	}
+
+	tenantKr, err := keyring.NewTenantKeyRing(tenantID + tkn.Identity)
 	if err != nil {
 		return err
 	}
