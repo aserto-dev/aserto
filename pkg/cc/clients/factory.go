@@ -44,6 +44,7 @@ func NewClientFactory(
 	for _, cts := range ctxs.Contexts {
 		if cts.Name == ctxs.ActiveContext {
 			tenant = cts.TenantID
+			break
 		}
 	}
 

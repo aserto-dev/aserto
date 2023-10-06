@@ -27,6 +27,9 @@ type CacheKey string
 
 func Load(key CacheKey) *CachedToken {
 	token := loadToken(key)
+	if token == nil {
+		return &CachedToken{token: nil, tenantID: ""}
+	}
 	tenantID := token.DefaultTenantID
 
 	return &CachedToken{token: token, tenantID: tenantID}

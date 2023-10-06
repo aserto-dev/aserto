@@ -92,9 +92,7 @@ func BuildTestCtx(ioStreams iostream.IO, configReader io.Reader, overrides ...co
 var (
 	commonSet = wire.NewSet(iostream.NewUI, GetCacheKey, token.Load, NewAuthSettings, decisionlogger.NewSettings, clients.NewClientFactory, wire.Bind(new(clients.Factory), new(*clients.AsertoFactory)), wire.FieldsOf(new(*config.Config), "Services", "Context", "Auth", "DecisionLogger"), wire.Struct(new(CommonCtx), "*"))
 
-	ccSet = wire.NewSet(
-		commonSet, iostream.DefaultIO, context.Background, config.NewConfig, wire.Bind(new(iostream.IO), new(*iostream.StdIO)),
-	)
+	ccSet = wire.NewSet(config.NewConfig, commonSet, iostream.DefaultIO, context.Background, wire.Bind(new(iostream.IO), new(*iostream.StdIO)))
 
 	ccTestSet = wire.NewSet(
 		commonSet, context.TODO, config.NewTestConfig,

@@ -40,18 +40,18 @@ func (s Service) Name() string {
 }
 
 type ServiceOptions struct {
-	Address   string `json:"address"`
-	APIKey    string `json:"api_key,omitempty"`
-	Anonymous bool   `json:"anonymous,omitempty"`
-	Insecure  bool   `json:"insecure,omitempty"`
+	Address   string `json:"address,omitempty" yaml:"address,omitempty"`
+	APIKey    string `json:"api_key,omitempty" yaml:"api_key,omitempty"`
+	Anonymous bool   `json:"anonymous,omitempty" yaml:"anonymous,omitempty"`
+	Insecure  bool   `json:"insecure,omitempty" yaml:"insecure,omitempty"`
 }
 
 type Services struct {
-	DecisionLogsService ServiceOptions `json:"decision_logs"`
-	TenantService       ServiceOptions `json:"tenant"`
-	ControlPlaneService ServiceOptions `json:"control_plane"`
-	EMSService          ServiceOptions `json:"ems"`
-	AuthorizerService   ServiceOptions `json:"authorizer"`
+	DecisionLogsService ServiceOptions `json:"decision_logs" yaml:"decision_logs"`
+	TenantService       ServiceOptions `json:"tenant" yaml:"tenant"`
+	ControlPlaneService ServiceOptions `json:"control_plane" yaml:"control_plane"`
+	EMSService          ServiceOptions `json:"ems" yaml:"ems"`
+	AuthorizerService   ServiceOptions `json:"authorizer" yaml:"authorizer"`
 }
 
 func (s *Services) Get(svc Service) *ServiceOptions {
