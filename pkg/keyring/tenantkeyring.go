@@ -5,7 +5,6 @@ import (
 	"log"
 	"os/user"
 
-	"github.com/aserto-dev/aserto/pkg/auth0/api"
 	"github.com/pkg/errors"
 	"github.com/zalando/go-keyring"
 )
@@ -26,20 +25,20 @@ func NewTenantKeyRing(tenantID string) (*TenantKeyRing, error) {
 	}, nil
 }
 
-func (kr *TenantKeyRing) GetToken() (*api.TenantToken, error) {
+func (kr *TenantKeyRing) GetToken() (*TenantToken, error) {
 	tokenStr, err := keyring.Get(kr.user, kr.tenantID)
 	if err != nil {
 		return nil, errors.Wrapf(err, "get token")
 	}
 
-	var token api.TenantToken
+	var token TenantToken
 	if err := json.Unmarshal([]byte(tokenStr), &token); err != nil {
 		return nil, errors.Wrapf(err, "unmarshal token")
 	}
 	return &token, nil
 }
 
-func (kr *TenantKeyRing) SetToken(tok *api.TenantToken) error {
+func (kr *TenantKeyRing) SetToken(tok *TenantToken) error {
 	tokenBytes, err := json.Marshal(tok)
 	if err != nil {
 		return errors.Wrapf(err, "marshal token")

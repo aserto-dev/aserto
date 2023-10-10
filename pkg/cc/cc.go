@@ -45,18 +45,18 @@ func (ctx *CommonCtx) AuthorizerAPIKey() (string, error) {
 	cachedTkn, err := ctx.CachedToken.Get()
 	if err != nil {
 		log.Printf("token: failed to retrieve cached token, %s", err.Error())
-		return "", nil
+		return "", err
 	}
 
-	kr, err := keyring.NewTenantKeyRing(tenantID + cachedTkn.Identity[len(cachedTkn.Identity)-10:])
+	kr, err := keyring.NewTenantKeyRing(tenantID + "-" + cachedTkn.Subject)
 	if err != nil {
 		log.Printf("token: instantiating keyring, %s", err.Error())
-		return "", nil
+		return "", err
 	}
 
 	tkn, err := kr.GetToken()
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	return tkn.AuthorizerAPIKey, nil
@@ -70,7 +70,7 @@ func (ctx *CommonCtx) DecisionLogsKey() (string, error) {
 		return "", nil
 	}
 
-	kr, err := keyring.NewTenantKeyRing(tenantID + cachedTkn.Identity[len(cachedTkn.Identity)-10:])
+	kr, err := keyring.NewTenantKeyRing(tenantID + "-" + cachedTkn.Subject)
 	if err != nil {
 		log.Printf("token: instantiating keyring, %s", err.Error())
 		return "", nil

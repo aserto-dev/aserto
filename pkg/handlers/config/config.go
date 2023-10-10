@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	auth0 "github.com/aserto-dev/aserto/pkg/auth0/api"
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/cc/config"
+	config "github.com/aserto-dev/aserto/pkg/cc/config"
+	aErr "github.com/aserto-dev/aserto/pkg/cc/errors"
 	"github.com/aserto-dev/aserto/pkg/handlers/user"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	"github.com/aserto-dev/aserto/pkg/keyring"
@@ -15,6 +15,7 @@ import (
 	"github.com/aserto-dev/clui"
 	"github.com/aserto-dev/go-grpc/aserto/api/v1"
 	"github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"
+	"github.com/samber/lo"
 	"gopkg.in/yaml.v2"
 
 	"github.com/pkg/errors"
@@ -23,14 +24,13 @@ import (
 type GetContextsCmd struct{}
 
 func (cmd *GetContextsCmd) Run(c *cc.CommonCtx) error {
-	token, err := c.CachedToken.Get()
+	cfgPath, err := config.GetSymlinkConfigPath()
 	if err != nil {
 		return err
 	}
 
-	cfgPath, err := config.GetConfigPath(token.Identity[len(token.Identity)-10:])
-	if err != nil {
-		return err
+	if !config.FileExists(cfgPath) {
+		return aErr.NeedLoginErr
 	}
 
 	cfg, err := config.NewConfig(config.Path(cfgPath))
@@ -38,20 +38,19 @@ func (cmd *GetContextsCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	return jsonx.OutputJSON(c.UI.Output(), cfg.Context)
+	return jsonx.OutputJSON(c.UI.Output(), cfg.Context.Contexts)
 }
 
 type GetActiveContextCmd struct{}
 
 func (cmd *GetActiveContextCmd) Run(c *cc.CommonCtx) error {
-	token, err := c.CachedToken.Get()
+	cfgPath, err := config.GetSymlinkConfigPath()
 	if err != nil {
 		return err
 	}
 
-	cfgPath, err := config.GetConfigPath(token.Identity[len(token.Identity)-10:])
-	if err != nil {
-		return err
+	if !config.FileExists(cfgPath) {
+		return aErr.NeedLoginErr
 	}
 
 	cfg, err := config.NewConfig(config.Path(cfgPath))
@@ -73,17 +72,21 @@ type DeleteContextCmd struct {
 }
 
 func (cmd *DeleteContextCmd) Run(c *cc.CommonCtx) error {
-	token, err := c.CachedToken.Get()
+	cfgPath, err := config.GetSymlinkConfigPath()
 	if err != nil {
 		return err
 	}
 
-	cfgPath, err := config.GetConfigPath(token.Identity[len(token.Identity)-10:])
+	if !config.FileExists(cfgPath) {
+		return aErr.NeedLoginErr
+	}
+
+	currentUserFilePath, err := os.Readlink(cfgPath)
 	if err != nil {
 		return err
 	}
 
-	cfg, err := config.NewConfig(config.Path(cfgPath))
+	cfg, err := config.NewConfig(config.Path(currentUserFilePath))
 	if err != nil {
 		return err
 	}
@@ -104,7 +107,7 @@ func (cmd *DeleteContextCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	return os.WriteFile(cfgPath, data, 0600)
+	return os.WriteFile(currentUserFilePath, data, 0600)
 }
 
 type SetContextCmd struct {
@@ -142,28 +145,26 @@ func (cmd *SetContextCmd) Run(c *cc.CommonCtx) error {
 		}
 	}
 
-	token, err := c.CachedToken.Get()
+	cfgPath, err := config.GetSymlinkConfigPath()
 	if err != nil {
 		return err
 	}
 
-	cfgPath, err := config.GetConfigPath(token.Identity[len(token.Identity)-10:])
+	if !config.FileExists(cfgPath) {
+		return aErr.NeedLoginErr
+	}
+
+	currentUserFilePath, err := os.Readlink(cfgPath)
 	if err != nil {
 		return err
 	}
 
-	cfg, err := config.NewConfig(config.Path(cfgPath))
+	cfg, err := config.NewConfig(config.Path(currentUserFilePath))
 	if err != nil {
 		return err
 	}
 
-	idx := -1
-	for index, ctx := range cfg.Context.Contexts {
-		if ctx.Name == req.Name {
-			idx = index
-			break
-		}
-	}
+	_, idx, _ := lo.FindIndexOf(cfg.Context.Contexts, func(c config.Ctx) bool { return c.Name == req.Name })
 
 	if idx > -1 {
 		if !cmd.Force {
@@ -189,7 +190,7 @@ func (cmd *SetContextCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	return os.WriteFile(cfgPath, data, 0600)
+	return os.WriteFile(currentUserFilePath, data, 0600)
 }
 
 type UseContextCmd struct {
@@ -197,28 +198,27 @@ type UseContextCmd struct {
 }
 
 func (cmd *UseContextCmd) Run(c *cc.CommonCtx) error {
-	token, err := c.CachedToken.Get()
+	cfgPath, err := config.GetSymlinkConfigPath()
 	if err != nil {
 		return err
 	}
 
-	cfgPath, err := config.GetConfigPath(token.Identity[len(token.Identity)-10:])
+	if !config.FileExists(cfgPath) {
+		return aErr.NeedLoginErr
+	}
+
+	currentUserFilePath, err := os.Readlink(cfgPath)
 	if err != nil {
 		return err
 	}
 
-	cfg, err := config.NewConfig(config.Path(cfgPath))
+	cfg, err := config.NewConfig(config.Path(currentUserFilePath))
 	if err != nil {
 		return err
 	}
 
-	var found bool
-	for _, ctx := range cfg.Context.Contexts {
-		if ctx.Name == cmd.ContextName {
-			found = true
-			break
-		}
-	}
+	_, found := lo.Find(cfg.Context.Contexts, func(c config.Ctx) bool { return c.Name == cmd.ContextName })
+
 	if !found {
 		return errors.Errorf("the context name provided doesn't exists")
 	}
@@ -230,7 +230,7 @@ func (cmd *UseContextCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	return os.WriteFile(cfgPath, data, 0600)
+	return os.WriteFile(currentUserFilePath, data, 0600)
 }
 
 func changeTokenToTenantID(c *cc.CommonCtx, tenantID string) error {
@@ -263,7 +263,7 @@ func changeTokenToTenantID(c *cc.CommonCtx, tenantID string) error {
 		return err
 	}
 
-	tenantKr, err := keyring.NewTenantKeyRing(tenantID + tkn.Identity)
+	tenantKr, err := keyring.NewTenantKeyRing(tenantID + "-" + tkn.Subject)
 	if err != nil {
 		return err
 	}
@@ -274,7 +274,7 @@ func changeTokenToTenantID(c *cc.CommonCtx, tenantID string) error {
 		return nil
 	}
 
-	tenantToken := &auth0.TenantToken{TenantID: tenantID}
+	tenantToken := &keyring.TenantToken{TenantID: tenantID}
 
 	if err = user.GetConnectionKeys(c.Context, conn, tenantToken); err != nil {
 		return errors.Wrapf(err, "get connection keys")

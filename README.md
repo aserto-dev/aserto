@@ -20,7 +20,6 @@ Commands:
 
 Flags:
   -h, --help             Show context-sensitive help.
-  -c, --config=STRING    name or path of configuration file ($ASERTO_ENV)
   -v, --verbosity=INT    Use to increase output verbosity.
 
 Run "aserto <command> --help" for more information on a command.
@@ -54,7 +53,6 @@ config
 
 Flags:
   -h, --help             Show context-sensitive help.
-  -c, --config=STRING    name or path of configuration file ($ASERTO_ENV)
   -v, --verbosity=INT    Use to increase output verbosity.
 ```
 
@@ -74,7 +72,6 @@ developer
 
 Flags:
   -h, --help             Show context-sensitive help.
-  -c, --config=STRING    name or path of configuration file ($ASERTO_ENV)
   -v, --verbosity=INT    Use to increase output verbosity.
 ```
 
@@ -91,7 +88,6 @@ authorizer
 
 Flags:
   -h, --help             Show context-sensitive help.
-  -c, --config=STRING    name or path of configuration file ($ASERTO_ENV)
   -v, --verbosity=INT    Use to increase output verbosity.
 
       --authorizer=""    authorizer override ($ASERTO_AUTHORIZER_ADDRESS)
@@ -112,7 +108,6 @@ decision-logs
 
 Flags:
   -h, --help             Show context-sensitive help.
-  -c, --config=STRING    name or path of configuration file ($ASERTO_ENV)
   -v, --verbosity=INT    Use to increase output verbosity.
 
       --api-key=key      service api key ($ASERTO_DECISION_LOGS_KEY)
@@ -133,7 +128,6 @@ control-plane
 
 Flags:
   -h, --help             Show context-sensitive help.
-  -c, --config=STRING    name or path of configuration file ($ASERTO_ENV)
   -v, --verbosity=INT    Use to increase output verbosity.
 ```
 
@@ -154,6 +148,5 @@ tenant
 
 Flags:
   -h, --help             Show context-sensitive help.
-  -c, --config=STRING    name or path of configuration file ($ASERTO_ENV)
   -v, --verbosity=INT    Use to increase output verbosity.
 ```
