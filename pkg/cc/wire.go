@@ -65,15 +65,6 @@ func BuildTestCtx(
 	return &CommonCtx{}, nil
 }
 
-// func NewTenantID(cfg *config.Config, cachedToken *token.CachedToken) clients.TenantID {
-// 	id := cfg.TenantID
-// 	if id == "" {
-// 		id = cachedToken.TenantID()
-// 	}
-
-// 	return clients.TenantID(id)
-// }
-
 func GetCacheKey(auth *config.Auth) token.CacheKey {
 	return token.CacheKey(auth.Issuer)
 }

@@ -63,18 +63,6 @@ func NewClientFactory(
 		options[svc] = cfg.ConnectionOptions
 	}
 
-	for _, svc := range x.AllServices {
-		cfg := &optionsBuilder{
-			service:     svc,
-			options:     services.Get(svc),
-			defaultAddr: defaultEnv.Get(svc).Address,
-			tenantID:    tenant,
-			token:       token,
-		}
-
-		options[svc] = cfg.ConnectionOptions
-	}
-
 	return &AsertoFactory{
 		ctx:        ctx,
 		tenantID:   tenant,

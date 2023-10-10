@@ -2,12 +2,10 @@ package user
 
 import (
 	"os"
-	"path/filepath"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/keyring"
-	"github.com/aserto-dev/aserto/pkg/x"
 	"github.com/pkg/errors"
 )
 
@@ -25,12 +23,10 @@ func (cmd *LogoutCmd) Run(c *cc.CommonCtx) error {
 		return errors.Wrapf(err, "delete token")
 	}
 
-	home, err := os.UserHomeDir()
+	filePath, err := config.GetSymlinkConfigPath()
 	if err != nil {
-		return errors.Wrap(err, "failed to determine user home directory")
+		return errors.Wrapf(err, "failed to find config symlink")
 	}
-
-	filePath := filepath.Join(home, ".config", x.AppName, config.ConfigPath)
 
 	return os.Remove(filePath)
 }

@@ -2,13 +2,14 @@ package user
 
 import (
 	"context"
+	"fmt"
 	"os"
-	"path/filepath"
+	"strings"
 
-	auth0 "github.com/aserto-dev/aserto/pkg/auth0/api"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/client/tenant"
+	"github.com/aserto-dev/aserto/pkg/keyring"
 	"github.com/aserto-dev/go-grpc/aserto/api/v1"
 	"github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"
 	"github.com/aserto-dev/go-grpc/aserto/tenant/connection/v1"
@@ -31,22 +32,38 @@ func getTenantID(ctx context.Context, c *cc.CommonCtx, client *tenant.Client, us
 }
 
 func writeContexts(c *cc.CommonCtx, tenants []*api.Tenant, defaultTenant, userIdentity string) error {
-	cfgPath, err := config.GetConfigPath(userIdentity)
+	cfgSymlinkPath, err := config.GetSymlinkConfigPath()
 	if err != nil {
 		return err
 	}
-
-	cfgDir := filepath.Dir(cfgPath)
-
-	if err := os.WriteFile(filepath.Join(cfgDir, config.ConfigPath), []byte(cfgPath), 0600); err != nil {
-		return err
-	}
+	cfgSymWOExt := strings.TrimSuffix(cfgSymlinkPath, ".yaml")
+	configPath := fmt.Sprintf("%s-%s.yaml", cfgSymWOExt, userIdentity)
 
 	cfg := &config.Config{}
-	if config.FileExists(cfgPath) {
-		cfg, err = config.NewConfig(config.Path(cfgPath))
+	if config.FileExists(cfgSymlinkPath) {
+		// user already logged in
+		if err == nil {
+			cfg, err = config.NewConfig(config.Path(cfgSymlinkPath))
+			if err != nil {
+				return err
+			}
+			if len(cfg.Context.Contexts) != 0 {
+				return nil
+			}
+		}
+	}
+
+	if config.FileExists(configPath) {
+		cfg, err = config.NewConfig(config.Path(configPath))
 		if err != nil {
 			return err
+		}
+		// if the user was logged in before, just create the symlink
+		if !config.FileExists(cfgSymlinkPath) {
+			err := os.Symlink(configPath, cfgSymlinkPath)
+			if err != nil {
+				return err
+			}
 		}
 		if len(cfg.Context.Contexts) != 0 {
 			return nil
@@ -65,17 +82,21 @@ func writeContexts(c *cc.CommonCtx, tenants []*api.Tenant, defaultTenant, userId
 	cfg.Context.ActiveContext = activeTenant
 	cfg.Services = c.Environment
 	cfg.Auth = &config.Auth{Issuer: c.Auth.Issuer, ClientID: c.Auth.ClientID, Audience: c.Auth.Audience}
-	cfg.Auth.Identity = userIdentity[len(userIdentity)-10:]
 
 	fileContent, err := yaml.Marshal(cfg)
 	if err != nil {
 		return err
 	}
 
-	return os.WriteFile(cfgPath, fileContent, 0600)
+	err = os.WriteFile(configPath, fileContent, 0600)
+	if err != nil {
+		return err
+	}
+
+	return os.Symlink(configPath, cfgSymlinkPath)
 }
 
-func GetConnectionKeys(ctx context.Context, client *tenant.Client, token *auth0.TenantToken) error {
+func GetConnectionKeys(ctx context.Context, client *tenant.Client, token *keyring.TenantToken) error {
 	client.SetTenantID(token.TenantID)
 
 	resp, err := client.Connections.ListConnections(

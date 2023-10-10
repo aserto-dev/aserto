@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/aserto-dev/aserto/pkg/auth0/api"
+	"github.com/lestrrat-go/jwx/jwt"
 )
 
 type DeviceCodeFlow struct {
@@ -188,11 +189,34 @@ func (f *DeviceCodeFlow) AccessToken() *api.Token {
 		return nil
 	}
 
+	options := []jwt.ParseOption{
+		jwt.WithValidate(true),
+		jwt.WithAcceptableSkew(time.Duration(2) * time.Second),
+	}
+
+	jwtToken, err := jwt.ParseString(
+		f.accessToken.AccessToken,
+		options...,
+	)
+	if err != nil {
+		return nil
+	}
+
+	subjectRunes := strings.Split(jwtToken.Subject(), "|")
+
+	var sub string
+	if len(subjectRunes) == 2 {
+		sub = subjectRunes[1]
+	} else {
+		sub = jwtToken.Subject()
+	}
+
 	return &api.Token{
 		Type:      f.accessToken.TokenType,
 		Scope:     strings.Join(f.Scopes, " "),
 		Identity:  f.accessToken.IDToken,
 		Access:    f.accessToken.AccessToken,
+		Subject:   sub,
 		ExpiresIn: f.accessToken.ExpiresIn,
 		ExpiresAt: time.Now().UTC().Add(time.Second * time.Duration(f.accessToken.ExpiresIn)),
 	}

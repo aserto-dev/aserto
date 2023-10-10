@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-const ConfigPath = "config-path.txt"
+const ConfigPath = "config.yaml"
 
 // Overrider is a func that mutates configuration.
 type Overrider func(*Config)
@@ -23,7 +23,6 @@ type Auth struct {
 	Issuer   string `json:"issuer" yaml:"issuer"`
 	ClientID string `json:"client_id" yaml:"client_id"`
 	Audience string `json:"audience" yaml:"audience"`
-	Identity string `json:"user_idenity" yaml:"user_idenity"`
 }
 
 func (auth *Auth) GetSettings() *auth0.Settings {
@@ -61,26 +60,18 @@ func NewConfig(path Path, overrides ...Overrider) (*Config, error) {
 					return errors.Wrapf(err, "failed to read config file [%s]", configFile)
 				}
 			} else {
-				cfgPath, err := GetConfigPath("")
+				cfgPath, err := GetSymlinkConfigPath()
 				if err != nil {
 					return err
 				}
 
-				cfgDir := filepath.Dir(cfgPath)
-				currentUserFilePath := filepath.Join(cfgDir, ConfigPath)
-
-				if !FileExists(currentUserFilePath) {
+				if !FileExists(cfgPath) {
 					return nil
 				}
 
-				content, err := os.ReadFile(currentUserFilePath)
-				if err != nil {
-					return err
-				}
-
-				v.SetConfigFile(string(content))
+				v.SetConfigFile(cfgPath)
 				if err := v.ReadInConfig(); err != nil {
-					return errors.Wrapf(err, "failed to read config file [%s]", string(content))
+					return errors.Wrapf(err, "failed to read config file [%s]", cfgPath)
 				}
 
 			}
@@ -135,24 +126,13 @@ func jsonDecoderConfig(dc *mapstructure.DecoderConfig) {
 	dc.TagName = "json"
 }
 
-func GetConfigPath(identity string) (string, error) {
-	env := os.Getenv("ASERTO_ENV")
-	if env != "" {
-		return env, nil
-	}
+func GetSymlinkConfigPath() (string, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", errors.Wrap(err, "failed to determine user home directory")
 	}
 
-	filePath := ""
-	if identity != "" {
-		filePath = filepath.Join(home, ".config", x.AppName, identity+"-config.yaml")
-	} else {
-		filePath = filepath.Join(home, ".config", x.AppName, "config.yaml")
-	}
-
-	return filePath, err
+	return filepath.Join(home, ".config", x.AppName, ConfigPath), err
 }
 
 func FileExists(filename string) bool {
