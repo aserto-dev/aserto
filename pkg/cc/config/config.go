@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -100,10 +101,10 @@ func newConfig(reader configReader, overrides ...Overrider) (*Config, error) {
 	v := viper.New()
 	v.SetEnvPrefix("ASERTO")
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-	v.SetDefault("services", x.DefaultEnvironment())
 	v.SetDefault("auth.issuer", auth0.Issuer)
 	v.SetDefault("auth.client_id", auth0.ClientID)
 	v.SetDefault("auth.audience", auth0.Audience)
+	setDefaultServices(v, x.DefaultEnvironment())
 
 	v.AutomaticEnv()
 
@@ -145,4 +146,19 @@ func FileExists(filename string) bool {
 		return false
 	}
 	return !info.IsDir()
+}
+
+func setDefaultServices(v *viper.Viper, svc *x.Services) {
+	setServiceDefaults(v, "authorizer", &svc.AuthorizerService)
+	setServiceDefaults(v, "decision_logs", &svc.DecisionLogsService)
+	setServiceDefaults(v, "tenant", &svc.TenantService)
+	setServiceDefaults(v, "control_plane", &svc.ControlPlaneService)
+	setServiceDefaults(v, "ems", &svc.EMSService)
+}
+
+func setServiceDefaults(v *viper.Viper, name string, svc *x.ServiceOptions) {
+	v.SetDefault(fmt.Sprintf("services.%s.address", name), svc.Address)
+	v.SetDefault(fmt.Sprintf("services.%s.api_key", name), svc.APIKey)
+	v.SetDefault(fmt.Sprintf("services.%s.anonymous", name), svc.Anonymous)
+	v.SetDefault(fmt.Sprintf("services.%s.insecure", name), svc.Insecure)
 }
