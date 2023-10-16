@@ -99,7 +99,7 @@ func newConfig(reader configReader, overrides ...Overrider) (*Config, error) {
 
 	v := viper.New()
 	v.SetEnvPrefix("ASERTO")
-	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	v.SetDefault("services", x.DefaultEnvironment())
 	v.SetDefault("auth.issuer", auth0.Issuer)
 	v.SetDefault("auth.client_id", auth0.ClientID)
@@ -127,6 +127,10 @@ func jsonDecoderConfig(dc *mapstructure.DecoderConfig) {
 }
 
 func GetSymlinkConfigPath() (string, error) {
+	envOverride := os.Getenv("ASERTO_DIR")
+	if envOverride != "" {
+		return envOverride, nil
+	}
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", errors.Wrap(err, "failed to determine user home directory")
