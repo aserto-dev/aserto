@@ -9,6 +9,7 @@ import (
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/client/tenant"
+	"github.com/aserto-dev/aserto/pkg/filex"
 	"github.com/aserto-dev/aserto/pkg/keyring"
 	"github.com/aserto-dev/go-grpc/aserto/api/v1"
 	"github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"
@@ -18,29 +19,27 @@ import (
 	"github.com/pkg/errors"
 )
 
-func getTenantID(ctx context.Context, c *cc.CommonCtx, client *tenant.Client, userIdentity string) (string, error) {
+func getTenantID(ctx context.Context, c *cc.CommonCtx, client *tenant.Client, userIdentity, configPath string) (string, error) {
 	resp, err := client.Account.GetAccount(ctx, &account.GetAccountRequest{})
 	if err != nil {
 		return "", errors.Wrapf(err, "get account")
 	}
 
-	if err := writeContexts(c, resp.Result.Tenants, resp.Result.DefaultTenant, userIdentity); err != nil {
+	if err := writeContexts(c, resp.Result.Tenants, resp.Result.DefaultTenant, userIdentity, configPath); err != nil {
 		return "", err
 	}
 
 	return resp.Result.DefaultTenant, nil
 }
 
-func writeContexts(c *cc.CommonCtx, tenants []*api.Tenant, defaultTenant, userIdentity string) error {
-	cfgSymlinkPath, err := config.GetSymlinkConfigPath()
+func writeContexts(c *cc.CommonCtx, tenants []*api.Tenant, defaultTenant, userIdentity, configPath string) error {
+	cfgSymlinkPath, configPath, err := computePaths(configPath, userIdentity)
 	if err != nil {
 		return err
 	}
-	cfgSymWOExt := strings.TrimSuffix(cfgSymlinkPath, ".yaml")
-	configPath := fmt.Sprintf("%s-%s.yaml", cfgSymWOExt, userIdentity)
 
 	cfg := &config.Config{}
-	if config.FileExists(cfgSymlinkPath) {
+	if filex.FileExists(cfgSymlinkPath) {
 		// user already logged in
 		if err == nil {
 			cfg, err = config.NewConfig(config.Path(cfgSymlinkPath))
@@ -53,13 +52,13 @@ func writeContexts(c *cc.CommonCtx, tenants []*api.Tenant, defaultTenant, userId
 		}
 	}
 
-	if config.FileExists(configPath) {
+	if filex.FileExists(configPath) {
 		cfg, err = config.NewConfig(config.Path(configPath))
 		if err != nil {
 			return err
 		}
 		// if the user was logged in before, just create the symlink
-		if !config.FileExists(cfgSymlinkPath) {
+		if !filex.FileExists(cfgSymlinkPath) {
 			err := os.Symlink(configPath, cfgSymlinkPath)
 			if err != nil {
 				return err
@@ -94,6 +93,18 @@ func writeContexts(c *cc.CommonCtx, tenants []*api.Tenant, defaultTenant, userId
 	}
 
 	return os.Symlink(configPath, cfgSymlinkPath)
+}
+
+func computePaths(path, userIdentity string) (string, string, error) {
+	cfgSymlinkPath, err := config.GetSymlinkConfigPath()
+	if err != nil {
+		return "", "", err
+	}
+	cfgSymWOExt := strings.TrimSuffix(cfgSymlinkPath, ".yaml")
+	if path == "" {
+		path = fmt.Sprintf("%s-%s.yaml", cfgSymWOExt, userIdentity)
+	}
+	return cfgSymlinkPath, path, nil
 }
 
 func GetConnectionKeys(ctx context.Context, client *tenant.Client, token *keyring.TenantToken) error {

@@ -8,6 +8,7 @@ import (
 	"github.com/aserto-dev/aserto/pkg/cc"
 	config "github.com/aserto-dev/aserto/pkg/cc/config"
 	aErr "github.com/aserto-dev/aserto/pkg/cc/errors"
+	"github.com/aserto-dev/aserto/pkg/filex"
 	"github.com/aserto-dev/aserto/pkg/handlers/user"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	"github.com/aserto-dev/aserto/pkg/keyring"
@@ -29,7 +30,7 @@ func (cmd *GetContextsCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	if !config.FileExists(cfgPath) {
+	if !filex.FileExists(cfgPath) {
 		return aErr.NeedLoginErr
 	}
 
@@ -49,7 +50,7 @@ func (cmd *GetActiveContextCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	if !config.FileExists(cfgPath) {
+	if !filex.FileExists(cfgPath) {
 		return aErr.NeedLoginErr
 	}
 
@@ -77,7 +78,7 @@ func (cmd *DeleteContextCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	if !config.FileExists(cfgPath) {
+	if !filex.FileExists(cfgPath) {
 		return aErr.NeedLoginErr
 	}
 
@@ -150,7 +151,7 @@ func (cmd *SetContextCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	if !config.FileExists(cfgPath) {
+	if !filex.FileExists(cfgPath) {
 		return aErr.NeedLoginErr
 	}
 
@@ -203,7 +204,7 @@ func (cmd *UseContextCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	if !config.FileExists(cfgPath) {
+	if !filex.FileExists(cfgPath) {
 		return aErr.NeedLoginErr
 	}
 

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/alecthomas/kong"
+	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/filex"
 	"github.com/pkg/errors"
 )
@@ -52,6 +53,10 @@ func (m ConfigFileMapper) find(path string) (string, error) {
 	expanded := kong.ExpandPath(path)
 	if filex.FileExists(expanded) {
 		return expanded, nil
+	}
+
+	if filex.DirExists(expanded) {
+		return filepath.Join(expanded, config.ConfigPath), nil
 	}
 
 	if strings.ContainsRune(path, filepath.Separator) {

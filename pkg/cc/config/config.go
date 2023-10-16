@@ -9,6 +9,7 @@ import (
 
 	"github.com/aserto-dev/aserto/pkg/auth0"
 	decisionlogger "github.com/aserto-dev/aserto/pkg/decision_logger"
+	"github.com/aserto-dev/aserto/pkg/filex"
 	"github.com/aserto-dev/aserto/pkg/x"
 	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
@@ -55,28 +56,12 @@ func NewConfig(path Path, overrides ...Overrider) (*Config, error) {
 
 	return newConfig(
 		func(v *viper.Viper) error {
-			if configFile != "" {
+			if configFile != "" && filex.FileExists(configFile) {
 				v.SetConfigFile(configFile)
 				if err := v.ReadInConfig(); err != nil {
 					return errors.Wrapf(err, "failed to read config file [%s]", configFile)
 				}
-			} else {
-				cfgPath, err := GetSymlinkConfigPath()
-				if err != nil {
-					return err
-				}
-
-				if !FileExists(cfgPath) {
-					return nil
-				}
-
-				v.SetConfigFile(cfgPath)
-				if err := v.ReadInConfig(); err != nil {
-					return errors.Wrapf(err, "failed to read config file [%s]", cfgPath)
-				}
-
 			}
-
 			return nil
 		},
 		overrides...,
@@ -130,7 +115,13 @@ func jsonDecoderConfig(dc *mapstructure.DecoderConfig) {
 func GetSymlinkConfigPath() (string, error) {
 	envOverride := os.Getenv("ASERTO_DIR")
 	if envOverride != "" {
-		return envOverride, nil
+		if filex.DirExists(envOverride) {
+			return filepath.Join(envOverride, ConfigPath), nil
+		}
+		if filex.FileExists(envOverride) {
+			return filepath.Join(filepath.Dir(envOverride), ConfigPath), nil
+		}
+		// if it's not a dir or a filepath it's a filename & default to aserto dir
 	}
 	home, err := os.UserHomeDir()
 	if err != nil {
@@ -138,14 +129,6 @@ func GetSymlinkConfigPath() (string, error) {
 	}
 
 	return filepath.Join(home, ".config", x.AppName, ConfigPath), err
-}
-
-func FileExists(filename string) bool {
-	info, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return !info.IsDir()
 }
 
 func setDefaultServices(v *viper.Viper, svc *x.Services) {
