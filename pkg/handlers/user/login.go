@@ -18,7 +18,8 @@ import (
 )
 
 type LoginCmd struct {
-	Browser bool `flag:"browser" negatable:"" default:"true" help:"do not open browser"`
+	Browser bool   `flag:"browser" negatable:"" default:"true" help:"do not open browser"`
+	Cfg     string `name:"config" short:"c" type:"conf" env:"ASERTO_DIR" help:"name or path of configuration file"`
 }
 
 func (d *LoginCmd) Run(c *cc.CommonCtx) error {
@@ -83,7 +84,7 @@ func (d *LoginCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	tenantID, err := getTenantID(ctx, c, conn, token.Subject)
+	tenantID, err := getTenantID(ctx, c, conn, token.Subject, d.Cfg)
 	if err != nil {
 		return errors.Wrapf(err, "get tenant ID ")
 	}

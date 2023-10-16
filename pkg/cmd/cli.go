@@ -22,9 +22,7 @@ type CLI struct {
 	Config       ConfigCmd       `cmd:"" help:"configuration commands"`
 	Version      VersionCmd      `cmd:"" help:"version information"`
 
-	// ConfigFileMapper implements the `type:"conf"` tag.
-	Cfg       string `hidden:"" name:"config" short:"c" type:"conf" env:"ASERTO_DIR" help:"name or path of configuration file"`
-	Verbosity int    `short:"v" type:"counter" help:"Use to increase output verbosity."`
+	Verbosity int `short:"v" type:"counter" help:"Use to increase output verbosity."`
 }
 
 type ServiceOptions interface {

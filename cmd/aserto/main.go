@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 	"strconv"
 	"sync"
@@ -46,8 +47,13 @@ func main() {
 		kong.BindTo(serviceOptions, (*cmd.ServiceOptions)(nil)),
 	)
 
+	configPath := cli.Login.Cfg
+	if configPath == "" {
+		configPath = path.Join(configDir, config.ConfigPath)
+	}
+
 	ctx, err := cc.BuildCommonCtx(
-		config.Path(cli.Cfg),
+		config.Path(configPath),
 		serviceOptions.ConfigOverrider,
 	)
 	if err != nil {
