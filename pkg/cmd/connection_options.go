@@ -1,9 +1,10 @@
 package cmd
 
 type ConnectionOptions struct {
-	APIKey   string `env:"KEY" help:"service api key" placeholder:"key"`
-	NoAuth   bool   `help:"do not provide any credentials"`
-	Insecure bool   `help:"skip TLS verification" default:"false"`
+	APIKey     string `env:"KEY" help:"service api key" placeholder:"key"`
+	NoAuth     bool   `help:"do not provide any credentials"`
+	Insecure   bool   `help:"skip TLS verification" default:"false"`
+	CACertPath string `help:"path to grpc CA cert"`
 }
 
 func (so *ConnectionOptions) Address() string {
@@ -20,6 +21,10 @@ func (so *ConnectionOptions) IsAnonymous() bool {
 
 func (so *ConnectionOptions) IsInsecure() bool {
 	return so.Insecure
+}
+
+func (so *ConnectionOptions) PathToCACert() string {
+	return so.CACertPath
 }
 
 type AuthorizerOptions struct {

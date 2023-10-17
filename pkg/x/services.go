@@ -40,10 +40,11 @@ func (s Service) Name() string {
 }
 
 type ServiceOptions struct {
-	Address   string `json:"address,omitempty" yaml:"address,omitempty"`
-	APIKey    string `json:"api_key,omitempty" yaml:"api_key,omitempty"`
-	Anonymous bool   `json:"anonymous,omitempty" yaml:"anonymous,omitempty"`
-	Insecure  bool   `json:"insecure,omitempty" yaml:"insecure,omitempty"`
+	Address    string `json:"address,omitempty" yaml:"address,omitempty"`
+	APIKey     string `json:"api_key,omitempty" yaml:"api_key,omitempty"`
+	Anonymous  bool   `json:"anonymous,omitempty" yaml:"anonymous,omitempty"`
+	Insecure   bool   `json:"insecure,omitempty" yaml:"insecure,omitempty"`
+	CACertPath string `json:"ca_cert_path,omitempty" yaml:"ca_cert_path,omitempty"`
 }
 
 type Services struct {

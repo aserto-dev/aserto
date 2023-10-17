@@ -87,7 +87,7 @@ func ConfigResolver() kong.Resolver {
 
 		// Only the authorizer and decision logs services have CLI flags to override service options.
 		switch flag.Tag.EnvPrefix {
-		case "ASERTO_AUTHORIZER_":
+		case "ASERTO_SERVICES_AUTHORIZER_":
 			svcOptions = &tmpConfig.Services.AuthorizerService
 		case "ASERTO_DECISION_LOGS_":
 			svcOptions = &tmpConfig.Services.DecisionLogsService
@@ -124,5 +124,5 @@ func loadConfig(context *kong.Context) (*config.Config, error) {
 		}
 	}
 
-	return nil, nil
+	return config.NewConfig(config.Path(""))
 }

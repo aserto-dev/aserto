@@ -14,7 +14,7 @@ type AuthorizerCmd struct {
 	GetPolicy    authorizer.GetPolicyCmd    `cmd:"" help:"get policy" group:"authorizer"`
 	ListPolicies authorizer.ListPoliciesCmd `cmd:"" help:"list policies" group:"authorizer"`
 
-	AuthorizerOverrides AuthorizerOptions `embed:"" envprefix:"ASERTO_AUTHORIZER_"`
+	AuthorizerOverrides AuthorizerOptions `embed:"" envprefix:"ASERTO_SERVICES_AUTHORIZER_"`
 }
 
 func (cmd *AuthorizerCmd) AfterApply(so ServiceOptions) error {
