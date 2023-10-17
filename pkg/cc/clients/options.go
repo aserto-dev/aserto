@@ -25,6 +25,9 @@ type Overrides interface {
 
 	// IsInsecure indicates that no TLS verification is performed.
 	IsInsecure() bool
+
+	// PathToCACert provides the path to the CA certificate.
+	PathToCACert() string
 }
 
 type ServiceOptions struct {
@@ -51,6 +54,7 @@ func (b *ServiceOptions) ConfigOverrider(cfg *config.Config) {
 		options.APIKey = overrides.Key()
 		options.Anonymous = overrides.IsAnonymous()
 		options.Insecure = overrides.IsInsecure()
+		options.CACertPath = overrides.PathToCACert()
 	}
 }
 
@@ -74,7 +78,10 @@ func (c *optionsBuilder) ConnectionOptions() ([]aserto.ConnectionOption, error) 
 	}
 
 	caCertPathOption := nilOption
-	if c.service == x.AuthorizerService && !c.isHosted() {
+	if c.options.CACertPath != "" {
+		caCertPathOption = aserto.WithCACertPath(c.options.CACertPath)
+	}
+	if c.service == x.AuthorizerService && !c.isHosted() && c.options.CACertPath == "" {
 		// Look for a CA cert
 		p, err := paths.New()
 		if err == nil {
@@ -82,6 +89,7 @@ func (c *optionsBuilder) ConnectionOptions() ([]aserto.ConnectionOption, error) 
 		} else {
 			log.Println("Unable to locate sidecar certificates.", err.Error())
 		}
+
 	}
 
 	return []aserto.ConnectionOption{

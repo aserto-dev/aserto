@@ -293,9 +293,10 @@ func printContext(ui *clui.UI) error {
 		Name:     "context_name",
 		TenantID: "tenant_id",
 		AuthorizerService: x.ServiceOptions{
-			Address:  "address:port",
-			APIKey:   "key",
-			Insecure: true,
+			Address:    "address:port",
+			APIKey:     "key",
+			Insecure:   true,
+			CACertPath: "path_to_ca_certs",
 		},
 	}
 	return jsonx.OutputJSON(ui.Output(), req)
