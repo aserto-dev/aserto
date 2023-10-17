@@ -292,7 +292,7 @@ func printContext(ui *clui.UI) error {
 	req := config.Ctx{
 		Name:     "context_name",
 		TenantID: "tenant_id",
-		AuthorizerService: x.ServiceOptions{
+		AuthorizerService: &x.ServiceOptions{
 			Address:    "address:port",
 			APIKey:     "key",
 			Insecure:   true,
