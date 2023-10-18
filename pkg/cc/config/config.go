@@ -45,8 +45,8 @@ type Context struct {
 
 type Ctx struct {
 	Name              string           `json:"name" yaml:"name"`
-	TenantID          string           `json:"tenant_id" yaml:"tenant_id"`
-	AuthorizerService x.ServiceOptions `json:"authorizer" yaml:"authorizer"`
+	TenantID          string           `json:"tenant_id,omitempty" yaml:"tenant_id,omitempty"`
+	AuthorizerService *x.ServiceOptions `json:"authorizer,omitempty" yaml:"authorizer,omitempty"`
 }
 
 type Path string
