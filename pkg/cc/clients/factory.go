@@ -39,12 +39,16 @@ func NewClientFactory(
 	ctxs config.Context,
 	services *x.Services,
 	token *token_.CachedToken,
+	tenantID TenantID,
 ) (*AsertoFactory, error) {
-	var tenant string
-	for _, cts := range ctxs.Contexts {
-		if cts.Name == ctxs.ActiveContext {
-			tenant = cts.TenantID
-			break
+
+	tenant := string(tenantID)
+	if tenant == "" {
+		for _, cts := range ctxs.Contexts {
+			if cts.Name == ctxs.ActiveContext {
+				tenant = cts.TenantID
+				break
+			}
 		}
 	}
 
