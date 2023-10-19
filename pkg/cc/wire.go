@@ -12,7 +12,6 @@ import (
 	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/cc/iostream"
 	"github.com/aserto-dev/aserto/pkg/cc/token"
-	decisionlogger "github.com/aserto-dev/aserto/pkg/decision_logger"
 	"github.com/google/wire"
 )
 
@@ -22,11 +21,10 @@ var (
 		GetCacheKey,
 		token.Load,
 		NewAuthSettings,
-		decisionlogger.NewSettings,
 		clients.NewClientFactory,
 
 		wire.Bind(new(clients.Factory), new(*clients.AsertoFactory)),
-		wire.FieldsOf(new(*config.Config), "Services", "Context", "Auth", "DecisionLogger"),
+		wire.FieldsOf(new(*config.Config), "Services", "Context", "Auth"),
 		wire.Struct(new(CommonCtx), "*"),
 	)
 
@@ -50,6 +48,7 @@ var (
 
 func BuildCommonCtx(
 	configPath config.Path,
+	tenantID clients.TenantID,
 	overrides ...config.Overrider,
 ) (*CommonCtx, error) {
 	wire.Build(ccSet)
@@ -58,6 +57,7 @@ func BuildCommonCtx(
 
 func BuildTestCtx(
 	ioStreams iostream.IO,
+	tenantID clients.TenantID,
 	configReader io.Reader,
 	overrides ...config.Overrider,
 ) (*CommonCtx, error) {

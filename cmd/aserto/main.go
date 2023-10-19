@@ -54,6 +54,7 @@ func main() {
 
 	ctx, err := cc.BuildCommonCtx(
 		config.Path(configPath),
+		clients.TenantID(cli.TenantID),
 		serviceOptions.ConfigOverrider,
 	)
 	if err != nil {

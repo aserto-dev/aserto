@@ -27,6 +27,7 @@ func TestVersionCmd(t *testing.T) {
 	ios := iostream.BytesIO()
 	c, err := cc.BuildTestCtx(
 		ios,
+		clients.TenantID(""),
 		bytes.NewReader([]byte{}),
 		clients.NewServiceOptions().ConfigOverrider,
 	)

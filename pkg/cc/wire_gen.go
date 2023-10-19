@@ -13,14 +13,13 @@ import (
 	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/cc/iostream"
 	"github.com/aserto-dev/aserto/pkg/cc/token"
-	"github.com/aserto-dev/aserto/pkg/decision_logger"
 	"github.com/google/wire"
 	"io"
 )
 
 // Injectors from wire.go:
 
-func BuildCommonCtx(configPath config.Path, overrides ...config.Overrider) (*CommonCtx, error) {
+func BuildCommonCtx(configPath config.Path, tenantID clients.TenantID, overrides ...config.Overrider) (*CommonCtx, error) {
 	contextContext := context.Background()
 	configConfig, err := config.NewConfig(configPath, overrides...)
 	if err != nil {
@@ -31,30 +30,27 @@ func BuildCommonCtx(configPath config.Path, overrides ...config.Overrider) (*Com
 	auth := configConfig.Auth
 	cacheKey := GetCacheKey(auth)
 	cachedToken := token.Load(cacheKey)
-	asertoFactory, err := clients.NewClientFactory(contextContext, configContext, services, cachedToken)
+	asertoFactory, err := clients.NewClientFactory(contextContext, configContext, services, cachedToken, tenantID)
 	if err != nil {
 		return nil, err
 	}
 	xServices := configConfig.Services
 	settings := NewAuthSettings(auth)
-	decisionloggerConfig := &configConfig.DecisionLogger
-	decisionloggerSettings := decisionlogger.NewSettings(decisionloggerConfig)
 	stdIO := iostream.DefaultIO()
 	ui := iostream.NewUI(stdIO)
 	commonCtx := &CommonCtx{
-		Factory:        asertoFactory,
-		Context:        contextContext,
-		Environment:    xServices,
-		CustomContext:  configContext,
-		Auth:           settings,
-		CachedToken:    cachedToken,
-		DecisionLogger: decisionloggerSettings,
-		UI:             ui,
+		Factory:       asertoFactory,
+		Context:       contextContext,
+		Environment:   xServices,
+		CustomContext: configContext,
+		Auth:          settings,
+		CachedToken:   cachedToken,
+		UI:            ui,
 	}
 	return commonCtx, nil
 }
 
-func BuildTestCtx(ioStreams iostream.IO, configReader io.Reader, overrides ...config.Overrider) (*CommonCtx, error) {
+func BuildTestCtx(ioStreams iostream.IO, tenantID clients.TenantID, configReader io.Reader, overrides ...config.Overrider) (*CommonCtx, error) {
 	contextContext := context.TODO()
 	configConfig, err := config.NewTestConfig(configReader, overrides...)
 	if err != nil {
@@ -65,24 +61,21 @@ func BuildTestCtx(ioStreams iostream.IO, configReader io.Reader, overrides ...co
 	auth := configConfig.Auth
 	cacheKey := GetCacheKey(auth)
 	cachedToken := token.Load(cacheKey)
-	asertoFactory, err := clients.NewClientFactory(contextContext, configContext, services, cachedToken)
+	asertoFactory, err := clients.NewClientFactory(contextContext, configContext, services, cachedToken, tenantID)
 	if err != nil {
 		return nil, err
 	}
 	xServices := configConfig.Services
 	settings := NewAuthSettings(auth)
-	decisionloggerConfig := &configConfig.DecisionLogger
-	decisionloggerSettings := decisionlogger.NewSettings(decisionloggerConfig)
 	ui := iostream.NewUI(ioStreams)
 	commonCtx := &CommonCtx{
-		Factory:        asertoFactory,
-		Context:        contextContext,
-		Environment:    xServices,
-		CustomContext:  configContext,
-		Auth:           settings,
-		CachedToken:    cachedToken,
-		DecisionLogger: decisionloggerSettings,
-		UI:             ui,
+		Factory:       asertoFactory,
+		Context:       contextContext,
+		Environment:   xServices,
+		CustomContext: configContext,
+		Auth:          settings,
+		CachedToken:   cachedToken,
+		UI:            ui,
 	}
 	return commonCtx, nil
 }
@@ -90,7 +83,7 @@ func BuildTestCtx(ioStreams iostream.IO, configReader io.Reader, overrides ...co
 // wire.go:
 
 var (
-	commonSet = wire.NewSet(iostream.NewUI, GetCacheKey, token.Load, NewAuthSettings, decisionlogger.NewSettings, clients.NewClientFactory, wire.Bind(new(clients.Factory), new(*clients.AsertoFactory)), wire.FieldsOf(new(*config.Config), "Services", "Context", "Auth", "DecisionLogger"), wire.Struct(new(CommonCtx), "*"))
+	commonSet = wire.NewSet(iostream.NewUI, GetCacheKey, token.Load, NewAuthSettings, clients.NewClientFactory, wire.Bind(new(clients.Factory), new(*clients.AsertoFactory)), wire.FieldsOf(new(*config.Config), "Services", "Context", "Auth"), wire.Struct(new(CommonCtx), "*"))
 
 	ccSet = wire.NewSet(config.NewConfig, commonSet, iostream.DefaultIO, context.Background, wire.Bind(new(iostream.IO), new(*iostream.StdIO)))
 

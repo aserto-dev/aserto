@@ -9,7 +9,6 @@ import (
 	"github.com/aserto-dev/aserto/pkg/cc/clients"
 	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/cc/token"
-	decisionlogger "github.com/aserto-dev/aserto/pkg/decision_logger"
 	"github.com/aserto-dev/aserto/pkg/keyring"
 	"github.com/aserto-dev/aserto/pkg/x"
 	"github.com/aserto-dev/clui"
@@ -18,12 +17,11 @@ import (
 type CommonCtx struct {
 	clients.Factory
 
-	Context        context.Context
-	Environment    x.Services
-	CustomContext  config.Context
-	Auth           *auth0.Settings
-	CachedToken    *token.CachedToken
-	DecisionLogger *decisionlogger.Settings
+	Context       context.Context
+	Environment   x.Services
+	CustomContext config.Context
+	Auth          *auth0.Settings
+	CachedToken   *token.CachedToken
 
 	UI *clui.UI
 }

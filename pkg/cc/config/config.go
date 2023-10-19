@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/aserto-dev/aserto/pkg/auth0"
-	decisionlogger "github.com/aserto-dev/aserto/pkg/decision_logger"
 	"github.com/aserto-dev/aserto/pkg/filex"
 	"github.com/aserto-dev/aserto/pkg/x"
 	"github.com/mitchellh/mapstructure"
@@ -32,10 +31,9 @@ func (auth *Auth) GetSettings() *auth0.Settings {
 }
 
 type Config struct {
-	Context        Context               `json:"context" yaml:"context"`
-	Services       x.Services            `json:"services" yaml:"services"`
-	Auth           *Auth                 `json:"auth" yaml:"auth"`
-	DecisionLogger decisionlogger.Config `json:"decision_logger" yaml:"decision_logger"`
+	Context  Context    `json:"context" yaml:"context"`
+	Services x.Services `json:"services" yaml:"services"`
+	Auth     *Auth      `json:"auth" yaml:"auth"`
 }
 
 type Context struct {

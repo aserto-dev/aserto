@@ -22,7 +22,8 @@ type CLI struct {
 	Config       ConfigCmd       `cmd:"" help:"configuration commands"`
 	Version      VersionCmd      `cmd:"" help:"version information"`
 
-	Verbosity int `short:"v" type:"counter" help:"Use to increase output verbosity."`
+	TenantID  string `help:"tenant id override"`
+	Verbosity int    `short:"v" type:"counter" help:"Use to increase output verbosity."`
 }
 
 type ServiceOptions interface {
