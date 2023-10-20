@@ -13,6 +13,7 @@ import (
 	dl "github.com/aserto-dev/go-decision-logs/aserto/decision-logs/v2"
 	"github.com/aserto-dev/go-grpc/aserto/management/v2"
 	"github.com/pkg/errors"
+	"github.com/samber/lo"
 )
 
 type Factory interface {
@@ -44,11 +45,11 @@ func NewClientFactory(
 
 	tenant := string(tenantID)
 	if tenant == "" {
-		for _, cts := range ctxs.Contexts {
-			if cts.Name == ctxs.ActiveContext {
-				tenant = cts.TenantID
-				break
-			}
+		if activeCtx, found := lo.Find(
+			ctxs.Contexts,
+			func(c config.Ctx) bool { return c.Name == ctxs.ActiveContext },
+		); found {
+			tenant = activeCtx.TenantID
 		}
 	}
 
