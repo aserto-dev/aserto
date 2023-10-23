@@ -9,6 +9,7 @@ Welcome to modern authorization!
 
 Commands:
   developer (xp)        developer commands
+  directory (ds)        directory commands
   authorizer (az)       authorizer commands
   decision-logs (dl)    decision logs commands
   control-plane (cp)    control plane commands
@@ -20,6 +21,7 @@ Commands:
 
 Flags:
   -h, --help             Show context-sensitive help.
+      --tenant-id=STRING    tenant id override
   -v, --verbosity=INT    Use to increase output verbosity.
 
 Run "aserto <command> --help" for more information on a command.
@@ -87,13 +89,16 @@ authorizer
   authorizer (az) list-policies    list policies
 
 Flags:
-  -h, --help             Show context-sensitive help.
-  -v, --verbosity=INT    Use to increase output verbosity.
+  Flags:
+  -h, --help                   Show context-sensitive help.
+      --tenant-id=STRING       tenant id override
+  -v, --verbosity=INT          Use to increase output verbosity.
 
-      --authorizer=""    authorizer override ($ASERTO_AUTHORIZER_ADDRESS)
-      --api-key=key      service api key ($ASERTO_AUTHORIZER_KEY)
-      --no-auth          do not provide any credentials
-      --insecure         skip TLS verification
+      --address=""             address override ($ASERTO_SERVICES_AUTHORIZER_ADDRESS)
+      --api-key=key            service api key ($ASERTO_SERVICES_AUTHORIZER_KEY)
+      --no-auth                do not provide any credentials
+      --insecure               skip TLS verification
+      --ca-cert-path=STRING    path to grpc CA cert
 ```
 
 ## Decision logs commands
@@ -149,4 +154,36 @@ tenant
 Flags:
   -h, --help             Show context-sensitive help.
   -v, --verbosity=INT    Use to increase output verbosity.
+```
+
+## Directory commands
+
+```
+directory
+  directory (ds) get-manifest-metadata    get manifest metadata
+  directory (ds) get-manifest             get manifest
+  directory (ds) set-manifest             set manifest
+  directory (ds) delete-manifest          delete manifest
+  directory (ds) get-object               get object
+  directory (ds) set-object               set object
+  directory (ds) delete-object            delete object
+  directory (ds) list-objects             list objects
+  directory (ds) get-relation             get relation
+  directory (ds) set-relation             set relation
+  directory (ds) delete-relation          delete relation
+  directory (ds) list-relations           list relations
+  directory (ds) check-relation           check relation
+  directory (ds) check-permission         check permission
+  directory (ds) get-graph                get relation graph
+
+Flags:
+  -h, --help                   Show context-sensitive help.
+      --tenant-id=STRING       tenant id override
+  -v, --verbosity=INT          Use to increase output verbosity.
+
+      --address=""             address override ($ASERTO_SERVICES_DIRECTORY_ADDRESS)
+      --api-key=key            service api key ($ASERTO_SERVICES_DIRECTORY_KEY)
+      --no-auth                do not provide any credentials
+      --insecure               skip TLS verification
+      --ca-cert-path=STRING    path to grpc CA cert
 ```

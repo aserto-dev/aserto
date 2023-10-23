@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/handlers/directory"
+	"github.com/aserto-dev/aserto/pkg/x"
 )
 
 type DirectoryCmd struct {
@@ -21,11 +22,11 @@ type DirectoryCmd struct {
 	CheckRelation       directory.CheckRelationCmd       `cmd:"" help:"check relation" group:"directory"`
 	CheckPermission     directory.CheckPermissionCmd     `cmd:"" help:"check permission" group:"directory"`
 	GetGraph            directory.GetGraphCmd            `cmd:"" help:"get relation graph" group:"directory"`
-	// AuthorizerOverrides AuthorizerOptions         `embed:"" envprefix:"ASERTO_AUTHORIZER_"`
+	DirectoryOverrides  ServiceOverrideOptions           `embed:"" envprefix:"ASERTO_SERVICES_DIRECTORY_"`
 }
 
 func (cmd *DirectoryCmd) AfterApply(so ServiceOptions) error {
-	// so.Override(x.AuthorizerService, &cmd.AuthorizerOverrides)
+	so.Override(x.DirectoryService, &cmd.DirectoryOverrides)
 	return nil
 }
 
