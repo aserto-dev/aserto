@@ -26,7 +26,7 @@ func (cmd *GetObjectCmd) Run(c *cc.CommonCtx) error {
 		return printGetObjectRequest(c.UI)
 	}
 
-	client, err := c.DirectoryClient()
+	client, err := c.DirectoryReaderClient()
 	if err != nil {
 		return errors.Wrap(err, "failed to get directory client")
 	}
@@ -83,7 +83,7 @@ func (cmd *SetObjectCmd) Run(c *cc.CommonCtx) error {
 		return printSetObjectRequest(c.UI)
 	}
 
-	client, err := c.DirectoryClient()
+	client, err := c.DirectoryWriterClient()
 	if err != nil {
 		return errors.Wrap(err, "failed to get directory client")
 	}
@@ -146,7 +146,7 @@ func (cmd *DeleteObjectCmd) Run(c *cc.CommonCtx) error {
 		return printDeleteObjectRequest(c.UI)
 	}
 
-	client, err := c.DirectoryClient()
+	client, err := c.DirectoryWriterClient()
 	if err != nil {
 		return errors.Wrap(err, "failed to get directory client")
 	}
@@ -203,7 +203,7 @@ func (cmd *ListObjectsCmd) Run(c *cc.CommonCtx) error {
 		return printListObjectsRequest(c.UI)
 	}
 
-	client, err := c.DirectoryClient()
+	client, err := c.DirectoryReaderClient()
 	if err != nil {
 		return errors.Wrap(err, "failed to get directory client")
 	}

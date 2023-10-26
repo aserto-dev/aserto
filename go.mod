@@ -12,7 +12,6 @@ require (
 	github.com/alecthomas/kong v0.8.0
 	github.com/aserto-dev/certs v0.0.3
 	github.com/aserto-dev/clui v0.8.1
-	github.com/aserto-dev/go-aserto v0.20.3
 	github.com/aserto-dev/go-authorizer v0.20.1
 	github.com/aserto-dev/go-decision-logs v0.0.4
 	github.com/aserto-dev/go-directory v0.21.8-0.20230817201146-72f44e043624
@@ -45,6 +44,8 @@ require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.31.0-20230721003620-2341cbb21958.1 // indirect
 	github.com/PuerkitoBio/rehttp v1.1.0 // indirect
 	github.com/alessio/shellescape v1.4.1 // indirect
+	github.com/aserto-dev/go-aserto v0.20.4 // indirect
+	github.com/aserto-dev/header v0.0.4 // indirect
 	github.com/danieljoos/wincred v1.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.0.0-20210816181553-5444fa50b93d // indirect
@@ -55,6 +56,8 @@ require (
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/subcommands v1.2.0 // indirect
+	github.com/google/uuid v1.3.0 // indirect
+	github.com/grpc-ecosystem/grpc-gateway v1.16.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.16.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect

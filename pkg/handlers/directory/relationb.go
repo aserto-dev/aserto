@@ -25,7 +25,7 @@ func (cmd *GetRelationCmd) Run(c *cc.CommonCtx) error {
 		return printGetRelationRequest(c.UI)
 	}
 
-	client, err := c.DirectoryClient()
+	client, err := c.DirectoryReaderClient()
 	if err != nil {
 		return errors.Wrap(err, "failed to get directory client")
 	}
@@ -85,7 +85,7 @@ func (cmd *SetRelationCmd) Run(c *cc.CommonCtx) error {
 		return printSetRelationRequest(c.UI)
 	}
 
-	client, err := c.DirectoryClient()
+	client, err := c.DirectoryWriterClient()
 	if err != nil {
 		return errors.Wrap(err, "failed to get directory client")
 	}
@@ -149,7 +149,7 @@ func (cmd *DeleteRelationCmd) Run(c *cc.CommonCtx) error {
 		return printDeleteRelationRequest(c.UI)
 	}
 
-	client, err := c.DirectoryClient()
+	client, err := c.DirectoryWriterClient()
 	if err != nil {
 		return errors.Wrap(err, "failed to get directory client")
 	}
@@ -208,7 +208,7 @@ func (cmd *ListRelationsCmd) Run(c *cc.CommonCtx) error {
 		return printListRelationsRequest(c.UI)
 	}
 
-	client, err := c.DirectoryClient()
+	client, err := c.DirectoryReaderClient()
 	if err != nil {
 		return errors.Wrap(err, "failed to get directory client")
 	}

@@ -298,7 +298,19 @@ func printContext(ui *clui.UI) error {
 			Insecure:   true,
 			CACertPath: "path_to_ca_certs",
 		},
-		DirectoryService: &x.ServiceOptions{
+		DirectoryReader: &x.ServiceOptions{
+			Address:    "address:port",
+			APIKey:     "key",
+			Insecure:   true,
+			CACertPath: "path_to_ca_certs",
+		},
+		DirectoryWriter: &x.ServiceOptions{
+			Address:    "address:port",
+			APIKey:     "key",
+			Insecure:   true,
+			CACertPath: "path_to_ca_certs",
+		},
+		DirectoryModel: &x.ServiceOptions{
 			Address:    "address:port",
 			APIKey:     "key",
 			Insecure:   true,

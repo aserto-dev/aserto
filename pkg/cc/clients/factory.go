@@ -24,7 +24,9 @@ type Factory interface {
 	AuthorizerClient() (*authorizer.Client, error)
 	DecisionLogsClient() (dl.DecisionLogsClient, error)
 	ControlPlaneClient() (management.ControlPlaneClient, error)
-	DirectoryClient() (*directory_.Client, error)
+	DirectoryWriterClient() (*directory_.ClientWriter, error)
+	DirectoryReaderClient() (*directory_.ClientReader, error)
+	DirectoryModelClient() (*directory_.ClientModel, error)
 }
 
 type OptionsBuilder func() ([]aserto.ConnectionOption, error)
@@ -33,6 +35,7 @@ type AsertoFactory struct {
 	ctx        context.Context
 	tenantID   string
 	svcOptions map[x.Service]OptionsBuilder
+	svcConfig  *x.Services
 }
 
 type TenantID string
@@ -74,6 +77,7 @@ func NewClientFactory(
 		ctx:        ctx,
 		tenantID:   tenant,
 		svcOptions: options,
+		svcConfig:  services,
 	}, nil
 }
 
@@ -89,12 +93,28 @@ func (c *AsertoFactory) TenantClient() (*tenant_.Client, error) {
 	return tenant_.New(c.ctx, options...)
 }
 
-func (c *AsertoFactory) DirectoryClient() (*directory_.Client, error) {
-	options, err := c.options(x.DirectoryService)
+func (c *AsertoFactory) DirectoryReaderClient() (*directory_.ClientReader, error) {
+	options, err := c.options(x.DirectoryReaderService)
 	if err != nil {
 		return nil, err
 	}
-	return directory_.New(c.ctx, options...)
+	return directory_.NewReader(c.ctx, options...)
+}
+
+func (c *AsertoFactory) DirectoryWriterClient() (*directory_.ClientWriter, error) {
+	options, err := c.options(x.DirectoryWriterService)
+	if err != nil {
+		return nil, err
+	}
+	return directory_.NewWriter(c.ctx, options...)
+}
+
+func (c *AsertoFactory) DirectoryModelClient() (*directory_.ClientModel, error) {
+	options, err := c.options(x.DirectoryModelService)
+	if err != nil {
+		return nil, err
+	}
+	return directory_.NewModel(c.ctx, options...)
 }
 
 func (c *AsertoFactory) AuthorizerClient() (*authorizer.Client, error) {

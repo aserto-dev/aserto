@@ -13,7 +13,7 @@ import (
 type GetManifestMetadataCmd struct{}
 
 func (cmd *GetManifestMetadataCmd) Run(c *cc.CommonCtx) error {
-	client, err := c.DirectoryClient()
+	client, err := c.DirectoryModelClient()
 	if err != nil {
 		return errors.Wrap(err, "failed to get directory client")
 	}
@@ -51,7 +51,7 @@ func (cmd *GetManifestMetadataCmd) Run(c *cc.CommonCtx) error {
 type GetManifestCmd struct{}
 
 func (cmd *GetManifestCmd) Run(c *cc.CommonCtx) error {
-	client, err := c.DirectoryClient()
+	client, err := c.DirectoryModelClient()
 	if err != nil {
 		return errors.Wrap(err, "failed to get directory client")
 	}
@@ -92,7 +92,7 @@ type SetManifestCmd struct {
 }
 
 func (cmd *SetManifestCmd) Run(c *cc.CommonCtx) error {
-	client, err := c.DirectoryClient()
+	client, err := c.DirectoryModelClient()
 	if err != nil {
 		return errors.Wrap(err, "failed to get directory client")
 	}
@@ -125,7 +125,7 @@ func (cmd *SetManifestCmd) Run(c *cc.CommonCtx) error {
 type DeleteManifestCmd struct{}
 
 func (cmd *DeleteManifestCmd) Run(c *cc.CommonCtx) error {
-	client, err := c.DirectoryClient()
+	client, err := c.DirectoryModelClient()
 	if err != nil {
 		return errors.Wrap(err, "failed to get directory client")
 	}

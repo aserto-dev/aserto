@@ -90,8 +90,6 @@ func ConfigResolver() kong.Resolver {
 		switch flag.Tag.EnvPrefix {
 		case "ASERTO_SERVICES_AUTHORIZER_":
 			svcOptions = &tmpConfig.Services.AuthorizerService
-		case "ASERTO_SERVICES_DIRECTORY_":
-			svcOptions = &tmpConfig.Services.DirectoryService
 		case "ASERTO_DECISION_LOGS_":
 			svcOptions = &tmpConfig.Services.DecisionLogsService
 		default:

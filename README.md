@@ -177,13 +177,7 @@ directory
   directory (ds) get-graph                get relation graph
 
 Flags:
-  -h, --help                   Show context-sensitive help.
-      --tenant-id=STRING       tenant id override
-  -v, --verbosity=INT          Use to increase output verbosity.
-
-      --address=""             address override ($ASERTO_SERVICES_DIRECTORY_ADDRESS)
-      --api-key=key            service api key ($ASERTO_SERVICES_DIRECTORY_KEY)
-      --no-auth                do not provide any credentials
-      --insecure               skip TLS verification
-      --ca-cert-path=STRING    path to grpc CA cert
+  -h, --help                Show context-sensitive help.
+      --tenant-id=STRING    tenant id override
+  -v, --verbosity=INT       Use to increase output verbosity.
 ```

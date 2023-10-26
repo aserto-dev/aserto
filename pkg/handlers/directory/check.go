@@ -22,7 +22,7 @@ func (cmd *CheckPermissionCmd) Run(c *cc.CommonCtx) error {
 		return printCheckPermissionRequest(c.UI)
 	}
 
-	client, err := c.DirectoryClient()
+	client, err := c.DirectoryReaderClient()
 	if err != nil {
 		return errors.Wrap(err, "failed to get directory client")
 	}
@@ -81,7 +81,7 @@ func (cmd *CheckRelationCmd) Run(c *cc.CommonCtx) error {
 		return printCheckRelationRequest(c.UI)
 	}
 
-	client, err := c.DirectoryClient()
+	client, err := c.DirectoryReaderClient()
 	if err != nil {
 		return errors.Wrap(err, "failed to get directory client")
 	}

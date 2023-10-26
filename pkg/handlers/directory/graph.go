@@ -22,7 +22,7 @@ func (cmd *GetGraphCmd) Run(c *cc.CommonCtx) error {
 		return printGetGraphRequest(c.UI)
 	}
 
-	client, err := c.DirectoryClient()
+	client, err := c.DirectoryReaderClient()
 	if err != nil {
 		return errors.Wrap(err, "failed to get directory client")
 	}
