@@ -254,7 +254,8 @@ func changeTokenToTenantID(c *cc.CommonCtx, tenantID string) error {
 	}
 
 	if tnt == nil {
-		return errors.Errorf("tenant id does not exist in users tenant collection [%s]", tenantID)
+		c.UI.Exclamation().Msgf("tenant id does not exist in users tenant collection [%s]", tenantID)
+		return nil
 	}
 
 	fmt.Fprintf(c.UI.Err(), "tenant %s - %s\n", tnt.Id, tnt.Name)

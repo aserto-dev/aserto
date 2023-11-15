@@ -184,11 +184,10 @@ func (cmd *DeleteObjectCmd) Run(c *cc.CommonCtx) error {
 }
 
 func printDeleteObjectRequest(ui *clui.UI) error {
-	withRels := true
 	req := &writer.DeleteObjectRequest{
 		ObjectType:    "",
 		ObjectId:      "",
-		WithRelations: &withRels,
+		WithRelations: true,
 	}
 	return jsonx.OutputJSONPB(ui.Output(), req)
 }

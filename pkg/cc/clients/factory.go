@@ -49,13 +49,13 @@ func NewClientFactory(
 ) (*AsertoFactory, error) {
 
 	tenant := string(tenantID)
-	if tenant == "" {
-		if activeCtx, found := lo.Find(
-			ctxs.Contexts,
-			func(c config.Ctx) bool { return c.Name == ctxs.ActiveContext },
-		); found {
-			tenant = activeCtx.TenantID
-		}
+	activeCtx, found := lo.Find(
+		ctxs.Contexts,
+		func(c config.Ctx) bool { return c.Name == ctxs.ActiveContext },
+	)
+	if tenant == "" && found {
+		tenant = activeCtx.TenantID
+
 	}
 
 	defaultEnv := x.DefaultEnvironment()
@@ -70,6 +70,12 @@ func NewClientFactory(
 			token:       token,
 		}
 
+		if found {
+			if opts := overrideFromContext(activeCtx, svc); opts != nil {
+				cfg.options = opts
+			}
+		}
+
 		options[svc] = cfg.ConnectionOptions
 	}
 
@@ -79,6 +85,22 @@ func NewClientFactory(
 		svcOptions: options,
 		svcConfig:  services,
 	}, nil
+}
+
+func overrideFromContext(activeCtx config.Ctx, svc x.Service) *x.ServiceOptions {
+	//nolint:exhaustive // we only override the topaz services if provided.
+	switch svc {
+	case x.AuthorizerService:
+		return activeCtx.AuthorizerService
+	case x.DirectoryReaderService:
+		return activeCtx.DirectoryReader
+	case x.DirectoryWriterService:
+		return activeCtx.DirectoryWriter
+	case x.DirectoryModelService:
+		return activeCtx.DirectoryModel
+	default:
+		return nil
+	}
 }
 
 func (c *AsertoFactory) TenantID() string {
