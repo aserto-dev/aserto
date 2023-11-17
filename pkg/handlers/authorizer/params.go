@@ -10,7 +10,7 @@ import (
 
 type IdentityType string
 
-var errJSONObj = errors.New("resource must be a JSON object")
+var ErrResourceNotJSON = errors.New("resource is not a JSON object")
 
 const (
 	IdentityTypeNone IdentityType = "none"
@@ -53,7 +53,7 @@ func (a AuthParams) ResourceContext() (*structpb.Struct, error) {
 
 		m, ok := r.(map[string]interface{})
 		if !ok {
-			return result, errJSONObj
+			return result, ErrResourceNotJSON
 		}
 
 		return structpb.NewStruct(m)

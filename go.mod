@@ -18,13 +18,11 @@ require (
 	github.com/aserto-dev/go-directory v0.30.4
 	github.com/aserto-dev/go-grpc v0.8.59
 	github.com/aserto-dev/logger v0.0.4
-	github.com/auth0/go-auth0 v1.3.0
 	github.com/cli/browser v1.3.0
 	github.com/fatih/color v1.16.0
 	github.com/getkin/kin-openapi v0.120.0
 	github.com/google/wire v0.5.0
 	github.com/hashicorp/go-multierror v1.1.1
-	github.com/joho/godotenv v1.5.1
 	github.com/lestrrat-go/jwx v1.2.26
 	github.com/magefile/mage v1.15.0
 	github.com/mitchellh/mapstructure v1.5.0
@@ -43,7 +41,6 @@ require (
 
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.31.0-20231030212536-12f9cba37c9d.2 // indirect
-	github.com/PuerkitoBio/rehttp v1.3.0 // indirect
 	github.com/alessio/shellescape v1.4.1 // indirect
 	github.com/aserto-dev/header v0.0.4 // indirect
 	github.com/danieljoos/wincred v1.2.0 // indirect
@@ -94,12 +91,10 @@ require (
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
 	golang.org/x/mod v0.12.0 // indirect
 	golang.org/x/net v0.18.0 // indirect
-	golang.org/x/oauth2 v0.14.0 // indirect
 	golang.org/x/sys v0.14.0 // indirect
 	golang.org/x/term v0.14.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/tools v0.13.0 // indirect
-	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20231030173426-d783a09b4405 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20231030173426-d783a09b4405 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
