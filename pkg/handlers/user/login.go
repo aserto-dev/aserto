@@ -73,7 +73,10 @@ func (d *LoginCmd) Run(c *cc.CommonCtx) error {
 		}
 	}
 
-	token := flow.AccessToken()
+	token, err := flow.AccessToken()
+	if err != nil {
+		return err
+	}
 
 	conn, err := tenant.New(
 		c.Context,

@@ -3,6 +3,7 @@ package device
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -184,9 +185,9 @@ func (f *DeviceCodeFlow) RequestAccessToken(ctx context.Context) (bool, error) {
 	return res.StatusCode == http.StatusOK, nil
 }
 
-func (f *DeviceCodeFlow) AccessToken() *api.Token {
+func (f *DeviceCodeFlow) AccessToken() (*api.Token, error) {
 	if f.accessToken == nil {
-		return nil
+		return nil, errors.New("access token is nil")
 	}
 
 	options := []jwt.ParseOption{
@@ -199,7 +200,7 @@ func (f *DeviceCodeFlow) AccessToken() *api.Token {
 		options...,
 	)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	subjectRunes := strings.Split(jwtToken.Subject(), "|")
@@ -219,7 +220,7 @@ func (f *DeviceCodeFlow) AccessToken() *api.Token {
 		Subject:   sub,
 		ExpiresIn: f.accessToken.ExpiresIn,
 		ExpiresAt: time.Now().UTC().Add(time.Second * time.Duration(f.accessToken.ExpiresIn)),
-	}
+	}, nil
 }
 
 func (f *DeviceCodeFlow) GetUserCode() string {
