@@ -254,7 +254,8 @@ func changeTokenToTenantID(c *cc.CommonCtx, tenantID string) error {
 	}
 
 	if tnt == nil {
-		return errors.Errorf("tenant id does not exist in users tenant collection [%s]", tenantID)
+		c.UI.Exclamation().Msgf("tenant id does not exist in users tenant collection [%s]", tenantID)
+		return nil
 	}
 
 	fmt.Fprintf(c.UI.Err(), "tenant %s - %s\n", tnt.Id, tnt.Name)
@@ -293,6 +294,24 @@ func printContext(ui *clui.UI) error {
 		Name:     "context_name",
 		TenantID: "tenant_id",
 		AuthorizerService: &x.ServiceOptions{
+			Address:    "address:port",
+			APIKey:     "key",
+			Insecure:   true,
+			CACertPath: "path_to_ca_certs",
+		},
+		DirectoryReader: &x.ServiceOptions{
+			Address:    "address:port",
+			APIKey:     "key",
+			Insecure:   true,
+			CACertPath: "path_to_ca_certs",
+		},
+		DirectoryWriter: &x.ServiceOptions{
+			Address:    "address:port",
+			APIKey:     "key",
+			Insecure:   true,
+			CACertPath: "path_to_ca_certs",
+		},
+		DirectoryModel: &x.ServiceOptions{
 			Address:    "address:port",
 			APIKey:     "key",
 			Insecure:   true,

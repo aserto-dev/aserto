@@ -27,12 +27,12 @@ func (so *ConnectionOptions) PathToCACert() string {
 	return so.CACertPath
 }
 
-type AuthorizerOptions struct {
-	AddressOverride string `name:"authorizer" env:"ADDRESS" help:"authorizer override" default:""`
+type ServiceOverrideOptions struct {
+	AddressOverride string `name:"address" env:"ADDRESS" help:"address override" default:""`
 
 	ConnectionOptions
 }
 
-func (ao *AuthorizerOptions) Address() string {
+func (ao *ServiceOverrideOptions) Address() string {
 	return ao.AddressOverride
 }

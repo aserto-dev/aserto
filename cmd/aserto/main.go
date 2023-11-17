@@ -105,7 +105,7 @@ func ConfigResolver() kong.Resolver {
 		case "insecure":
 			flag.Default = strconv.FormatBool(svcOptions.Insecure)
 			resolved = flag.Default
-		case "authorizer":
+		case "address":
 			flag.Default = svcOptions.Address
 			resolved = flag.Default
 		}

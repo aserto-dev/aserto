@@ -45,6 +45,9 @@ type Ctx struct {
 	Name              string            `json:"name" yaml:"name"`
 	TenantID          string            `json:"tenant_id,omitempty" yaml:"tenant_id,omitempty"`
 	AuthorizerService *x.ServiceOptions `json:"authorizer,omitempty" yaml:"authorizer,omitempty"`
+	DirectoryReader   *x.ServiceOptions `json:"directory_reader,omitempty" yaml:"directory_reader,omitempty"`
+	DirectoryWriter   *x.ServiceOptions `json:"directory_writer,omitempty" yaml:"directory_writer,omitempty"`
+	DirectoryModel    *x.ServiceOptions `json:"directory_model,omitempty" yaml:"directory_model,omitempty"`
 }
 
 type Path string
@@ -135,6 +138,9 @@ func setDefaultServices(v *viper.Viper, svc *x.Services) {
 	setServiceDefaults(v, "tenant", &svc.TenantService)
 	setServiceDefaults(v, "control_plane", &svc.ControlPlaneService)
 	setServiceDefaults(v, "ems", &svc.EMSService)
+	setServiceDefaults(v, "directory_reader", &svc.DirectoryReaderService)
+	setServiceDefaults(v, "directory_writer", &svc.DirectoryWriterService)
+	setServiceDefaults(v, "directory_model", &svc.DirectoryModelService)
 }
 
 func setServiceDefaults(v *viper.Viper, name string, svc *x.ServiceOptions) {
