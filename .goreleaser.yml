@@ -28,7 +28,6 @@ builds:
 
 archives:
   - format: zip
-    rlcp: true
     files:
       - LICENSE.md
       - README.md
@@ -70,7 +69,7 @@ brews:
   -
     name: aserto
 
-    tap:
+    repository:
       owner: aserto-dev
       name: homebrew-tap
       token: "{{ .Env.HOMEBREW_TAP }}"
