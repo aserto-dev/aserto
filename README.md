@@ -35,7 +35,7 @@ In order to use the commands you have to call `aserto login` first. The `develop
 After log in, you can view your tenants by calling `aserto config get-tenants` and you can switch between your tenants using the `use-tenant` command.
 
 Contexts refer to an authorizer env. If you start a sidecar using the `developer`
-commands, you can run the `authorizer` commands agains it by defining a new context
+commands, you can run the `authorizer` commands against it by defining a new context
 using `set-context` and switching to it by `use-context` command. 
 
 ```
