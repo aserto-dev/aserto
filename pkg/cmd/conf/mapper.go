@@ -8,11 +8,12 @@ import (
 	"strings"
 
 	"github.com/alecthomas/kong"
+	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/filex"
 	"github.com/pkg/errors"
 )
 
-var ConfigNotFoundErr = errors.New("cannot find configuration file")
+var ErrConfigNotFound = errors.New("cannot find configuration file")
 
 // ConfigFileMapper is a kong.Mapper that resolves config files.
 //
@@ -54,8 +55,12 @@ func (m ConfigFileMapper) find(path string) (string, error) {
 		return expanded, nil
 	}
 
+	if filex.DirExists(expanded) {
+		return filepath.Join(expanded, config.ConfigPath), nil
+	}
+
 	if strings.ContainsRune(path, filepath.Separator) {
-		return "", errors.Wrap(ConfigNotFoundErr, path)
+		return "", errors.Wrap(ErrConfigNotFound, path)
 	}
 
 	// It's a filename with no path. Look in config directory.
@@ -79,5 +84,5 @@ func (m ConfigFileMapper) find(path string) (string, error) {
 		return matches[0], nil
 	}
 
-	return "", errors.Wrap(ConfigNotFoundErr, path)
+	return "", errors.Wrap(ErrConfigNotFound, path)
 }

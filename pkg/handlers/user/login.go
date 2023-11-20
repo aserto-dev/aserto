@@ -18,7 +18,8 @@ import (
 )
 
 type LoginCmd struct {
-	Browser bool `flag:"browser" negatable:"" default:"true" help:"do not open browser"`
+	Browser bool   `flag:"browser" negatable:"" default:"true" help:"do not open browser"`
+	Cfg     string `name:"config" short:"c" type:"conf" env:"ASERTO_DIR" help:"name or path of configuration file"`
 }
 
 func (d *LoginCmd) Run(c *cc.CommonCtx) error {
@@ -72,7 +73,10 @@ func (d *LoginCmd) Run(c *cc.CommonCtx) error {
 		}
 	}
 
-	token := flow.AccessToken()
+	token, err := flow.AccessToken()
+	if err != nil {
+		return err
+	}
 
 	conn, err := tenant.New(
 		c.Context,
@@ -83,19 +87,31 @@ func (d *LoginCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	if err = getTenantID(c.Context, conn, token); err != nil {
-		return errors.Wrapf(err, "get tenant id")
+	tenantID, err := getTenantID(ctx, c, conn, token.Subject, d.Cfg)
+	if err != nil {
+		return errors.Wrapf(err, "get tenant ID ")
 	}
 
-	if err = GetConnectionKeys(c.Context, conn, token); err != nil {
-		return errors.Wrapf(err, "get connection keys")
-	}
-
+	token.DefaultTenantID = tenantID
 	kr, err := keyring.NewKeyRing(c.Auth.Issuer)
 	if err != nil {
 		return err
 	}
 	if err := kr.SetToken(token); err != nil {
+		return err
+	}
+
+	tenantKr, err := keyring.NewTenantKeyRing(tenantID + "-" + token.Subject)
+	if err != nil {
+		return err
+	}
+	tenantToken := &keyring.TenantToken{TenantID: tenantID}
+
+	if err = GetConnectionKeys(c.Context, conn, tenantToken); err != nil {
+		return errors.Wrapf(err, "get connection keys")
+	}
+
+	if err := tenantKr.SetToken(tenantToken); err != nil {
 		return err
 	}
 

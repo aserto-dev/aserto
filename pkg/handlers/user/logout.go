@@ -1,7 +1,10 @@
 package user
 
 import (
+	"os"
+
 	"github.com/aserto-dev/aserto/pkg/cc"
+	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/keyring"
 	"github.com/pkg/errors"
 )
@@ -20,5 +23,10 @@ func (cmd *LogoutCmd) Run(c *cc.CommonCtx) error {
 		return errors.Wrapf(err, "delete token")
 	}
 
-	return nil
+	filePath, err := config.GetSymlinkConfigPath()
+	if err != nil {
+		return errors.Wrapf(err, "failed to find config symlink")
+	}
+
+	return os.Remove(filePath)
 }

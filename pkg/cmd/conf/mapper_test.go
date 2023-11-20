@@ -135,14 +135,14 @@ func TestConfigFileMapper(t *testing.T) {
 			"File doesn't exist",
 			func(p *params) {
 				_, err := p.parser.Parse([]string{"-c", "test"})
-				require.ErrorIs(p.t, errors.Cause(err), conf.ConfigNotFoundErr)
+				require.ErrorIs(p.t, errors.Cause(err), conf.ErrConfigNotFound)
 			},
 		},
 		{
 			"Path doesn't exist",
 			func(p *params) {
 				_, err := p.parser.Parse([]string{"-c", "path/test"})
-				require.ErrorIs(p.t, errors.Cause(err), conf.ConfigNotFoundErr)
+				require.ErrorIs(p.t, errors.Cause(err), conf.ErrConfigNotFound)
 			},
 		},
 	}

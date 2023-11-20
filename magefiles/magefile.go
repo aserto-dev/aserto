@@ -13,6 +13,11 @@ import (
 	"github.com/pkg/errors"
 )
 
+func init() {
+	os.Setenv("GO_VERSION", "1.20")
+	os.Setenv("DOCKER_BUILDKIT", "1")
+}
+
 // Generate generates all code.
 func Generate() error {
 	return common.Generate()

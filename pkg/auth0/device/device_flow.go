@@ -12,6 +12,8 @@ import (
 	"time"
 
 	"github.com/aserto-dev/aserto/pkg/auth0/api"
+	errs "github.com/aserto-dev/aserto/pkg/cc/errors"
+	"github.com/lestrrat-go/jwx/jwt"
 )
 
 type DeviceCodeFlow struct {
@@ -183,9 +185,31 @@ func (f *DeviceCodeFlow) RequestAccessToken(ctx context.Context) (bool, error) {
 	return res.StatusCode == http.StatusOK, nil
 }
 
-func (f *DeviceCodeFlow) AccessToken() *api.Token {
+func (f *DeviceCodeFlow) AccessToken() (*api.Token, error) {
 	if f.accessToken == nil {
-		return nil
+		return nil, errs.NilTokenErr
+	}
+
+	options := []jwt.ParseOption{
+		jwt.WithValidate(true),
+		jwt.WithAcceptableSkew(time.Duration(2) * time.Second),
+	}
+
+	jwtToken, err := jwt.ParseString(
+		f.accessToken.AccessToken,
+		options...,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	subjectRunes := strings.Split(jwtToken.Subject(), "|")
+
+	var sub string
+	if len(subjectRunes) == 2 {
+		sub = subjectRunes[1]
+	} else {
+		sub = jwtToken.Subject()
 	}
 
 	return &api.Token{
@@ -193,9 +217,10 @@ func (f *DeviceCodeFlow) AccessToken() *api.Token {
 		Scope:     strings.Join(f.Scopes, " "),
 		Identity:  f.accessToken.IDToken,
 		Access:    f.accessToken.AccessToken,
+		Subject:   sub,
 		ExpiresIn: f.accessToken.ExpiresIn,
 		ExpiresAt: time.Now().UTC().Add(time.Second * time.Duration(f.accessToken.ExpiresIn)),
-	}
+	}, nil
 }
 
 func (f *DeviceCodeFlow) GetUserCode() string {

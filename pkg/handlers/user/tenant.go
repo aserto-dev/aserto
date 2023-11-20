@@ -2,28 +2,120 @@ package user
 
 import (
 	"context"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
 
-	auth0 "github.com/aserto-dev/aserto/pkg/auth0/api"
+	"github.com/aserto-dev/aserto/pkg/cc"
+	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/client/tenant"
+	"github.com/aserto-dev/aserto/pkg/filex"
+	"github.com/aserto-dev/aserto/pkg/keyring"
 	"github.com/aserto-dev/go-grpc/aserto/api/v1"
 	"github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"
 	"github.com/aserto-dev/go-grpc/aserto/tenant/connection/v1"
+	"gopkg.in/yaml.v2"
 
 	"github.com/pkg/errors"
 )
 
-func getTenantID(ctx context.Context, client *tenant.Client, token *auth0.Token) error {
+func getTenantID(ctx context.Context, c *cc.CommonCtx, client *tenant.Client, userIdentity, configPath string) (string, error) {
 	resp, err := client.Account.GetAccount(ctx, &account.GetAccountRequest{})
 	if err != nil {
-		return errors.Wrapf(err, "get account")
+		return "", errors.Wrapf(err, "get account")
 	}
 
-	token.TenantID = resp.Result.DefaultTenant
+	if err := writeContexts(c, resp.Result.Tenants, resp.Result.DefaultTenant, userIdentity, configPath); err != nil {
+		return "", err
+	}
 
-	return err
+	return resp.Result.DefaultTenant, nil
 }
 
-func GetConnectionKeys(ctx context.Context, client *tenant.Client, token *auth0.Token) error {
+func writeContexts(c *cc.CommonCtx, tenants []*api.Tenant, defaultTenant, userIdentity, configPath string) error {
+	cfgSymlinkPath, configPath, err := computePaths(configPath, userIdentity)
+	if err != nil {
+		return err
+	}
+
+	cfg := &config.Config{}
+	if filex.FileExists(cfgSymlinkPath) {
+		// user already logged in
+		if err == nil {
+			cfg, err = config.NewConfig(config.Path(cfgSymlinkPath))
+			if err != nil {
+				return err
+			}
+			if len(cfg.Context.Contexts) != 0 {
+				return nil
+			}
+		}
+	}
+
+	if filex.FileExists(configPath) {
+		cfg, err = config.NewConfig(config.Path(configPath))
+		if err != nil {
+			return err
+		}
+		// if the user was logged in before, just create the symlink
+		if !filex.FileExists(cfgSymlinkPath) {
+			err := os.Symlink(configPath, cfgSymlinkPath)
+			if err != nil {
+				return err
+			}
+		}
+		if len(cfg.Context.Contexts) != 0 {
+			return nil
+		}
+	}
+
+	var activeTenant string
+	cfg.Context.Contexts = make([]config.Ctx, 0)
+	for _, tnt := range tenants {
+		cfg.Context.Contexts = append(cfg.Context.Contexts, config.Ctx{Name: tnt.Name, TenantID: tnt.Id})
+		if defaultTenant == tnt.Id {
+			activeTenant = tnt.Name
+		}
+	}
+
+	cfg.Context.ActiveContext = activeTenant
+	cfg.Services = c.Environment
+	cfg.Auth = &config.Auth{Issuer: c.Auth.Issuer, ClientID: c.Auth.ClientID, Audience: c.Auth.Audience}
+
+	fileContent, err := yaml.Marshal(cfg)
+	if err != nil {
+		return err
+	}
+
+	if !filex.DirExists(filepath.Dir(configPath)) {
+		err := os.MkdirAll(filepath.Dir(configPath), 0700)
+		if err != nil {
+			return err
+		}
+	}
+
+	err = os.WriteFile(configPath, fileContent, 0600)
+	if err != nil {
+		return err
+	}
+
+	return os.Symlink(configPath, cfgSymlinkPath)
+}
+
+func computePaths(path, userIdentity string) (string, string, error) {
+	cfgSymlinkPath, err := config.GetSymlinkConfigPath()
+	if err != nil {
+		return "", "", err
+	}
+	cfgSymWOExt := strings.TrimSuffix(cfgSymlinkPath, ".yaml")
+	if path == "" {
+		path = fmt.Sprintf("%s-%s.yaml", cfgSymWOExt, userIdentity)
+	}
+	return cfgSymlinkPath, path, nil
+}
+
+func GetConnectionKeys(ctx context.Context, client *tenant.Client, token *keyring.TenantToken) error {
 	client.SetTenantID(token.TenantID)
 
 	resp, err := client.Connections.ListConnections(

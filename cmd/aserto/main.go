@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 	"strconv"
 	"sync"
@@ -39,16 +40,21 @@ func main() {
 			Tree:                false,
 			FlagsLast:           true,
 			Indenter:            kong.SpaceIndenter,
-			NoExpandSubcommands: false,
+			NoExpandSubcommands: true,
 		}),
 		kong.Resolvers(ConfigResolver()),
 		kong.NamedMapper("conf", conf.ConfigFileMapper(configDir)), // attach to tag `type:"conf"`
 		kong.BindTo(serviceOptions, (*cmd.ServiceOptions)(nil)),
 	)
 
+	configPath := cli.Login.Cfg
+	if configPath == "" {
+		configPath = path.Join(configDir, config.ConfigPath)
+	}
+
 	ctx, err := cc.BuildCommonCtx(
-		config.Path(cli.Cfg),
-		cli.ConfigOverrider,
+		config.Path(configPath),
+		clients.TenantID(cli.TenantID),
 		serviceOptions.ConfigOverrider,
 	)
 	if err != nil {
@@ -75,19 +81,19 @@ func ConfigResolver() kong.Resolver {
 		})
 
 		if err != nil || flag.Tag == nil || flag.Tag.EnvPrefix == "" {
-			return
+			return resolved, err
 		}
 
 		var svcOptions *x.ServiceOptions = nil
 
 		// Only the authorizer and decision logs services have CLI flags to override service options.
 		switch flag.Tag.EnvPrefix {
-		case "ASERTO_AUTHORIZER_":
+		case "ASERTO_SERVICES_AUTHORIZER_":
 			svcOptions = &tmpConfig.Services.AuthorizerService
 		case "ASERTO_DECISION_LOGS_":
 			svcOptions = &tmpConfig.Services.DecisionLogsService
 		default:
-			return
+			return resolved, err
 		}
 
 		switch flag.Name {
@@ -99,12 +105,12 @@ func ConfigResolver() kong.Resolver {
 		case "insecure":
 			flag.Default = strconv.FormatBool(svcOptions.Insecure)
 			resolved = flag.Default
-		case "authorizer":
+		case "address":
 			flag.Default = svcOptions.Address
 			resolved = flag.Default
 		}
 
-		return
+		return resolved, err
 	}
 
 	return f
@@ -119,5 +125,5 @@ func loadConfig(context *kong.Context) (*config.Config, error) {
 		}
 	}
 
-	return nil, nil
+	return config.NewConfig(config.Path(""))
 }

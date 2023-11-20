@@ -73,7 +73,6 @@ linters:
   enable:
     - asciicheck
     - bodyclose
-    - depguard
     - dogsled
     - errcheck
     - exportloopref
@@ -84,7 +83,6 @@ linters:
     - gocritic
     - gocyclo
     - godot
-    # - goerr113 # temporary disabled
     - gofmt
     - goimports
     - goprintffuncname
@@ -95,7 +93,7 @@ linters:
     - misspell
     - nakedret
     - noctx
-    # - rowserrcheck # disable https://github.com/golangci/golangci-lint/issues/2649.
+    - rowserrcheck
     - staticcheck
     - stylecheck
     - testpackage
@@ -105,10 +103,12 @@ linters:
     - unused
 
   # don't enable:
+    # - depguard
     # - dupl
     # - gochecknoglobals
     # - gocognit
     # - godox
+    # - goerr113
     # - gomnd
     # - lll
     # - nestif
@@ -155,6 +155,6 @@ issues:
       - gosec
 
 run:
-  timeout: 5m
+  timeout: 15m
   skip-dirs:
   - pkg/testharness/testdata

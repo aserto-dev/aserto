@@ -7,8 +7,9 @@ import (
 	"github.com/aserto-dev/aserto/pkg/auth0"
 	"github.com/aserto-dev/aserto/pkg/auth0/api"
 	"github.com/aserto-dev/aserto/pkg/cc/clients"
+	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/cc/token"
-	decisionlogger "github.com/aserto-dev/aserto/pkg/decision_logger"
+	"github.com/aserto-dev/aserto/pkg/keyring"
 	"github.com/aserto-dev/aserto/pkg/x"
 	"github.com/aserto-dev/clui"
 )
@@ -16,11 +17,11 @@ import (
 type CommonCtx struct {
 	clients.Factory
 
-	Context        context.Context
-	Environment    *x.Services
-	Auth           *auth0.Settings
-	CachedToken    *token.CachedToken
-	DecisionLogger *decisionlogger.Settings
+	Context       context.Context
+	Environment   x.Services
+	CustomContext config.Context
+	Auth          *auth0.Settings
+	CachedToken   *token.CachedToken
 
 	UI *clui.UI
 }
@@ -38,18 +39,46 @@ func (ctx *CommonCtx) Token() (*api.Token, error) {
 }
 
 func (ctx *CommonCtx) AuthorizerAPIKey() (string, error) {
-	tkn, err := ctx.Token()
+	tenantID := ctx.TenantID()
+	cachedTkn, err := ctx.CachedToken.Get()
+	if err != nil {
+		log.Printf("token: failed to retrieve cached token, %s", err.Error())
+		return "", err
+	}
+
+	kr, err := keyring.NewTenantKeyRing(tenantID + "-" + cachedTkn.Subject)
+	if err != nil {
+		log.Printf("token: instantiating keyring, %s", err.Error())
+		return "", err
+	}
+
+	tkn, err := kr.GetToken()
 	if err != nil {
 		return "", err
 	}
+
 	return tkn.AuthorizerAPIKey, nil
 }
 
 func (ctx *CommonCtx) DecisionLogsKey() (string, error) {
-	tkn, err := ctx.Token()
+	tenantID := ctx.TenantID()
+	cachedTkn, err := ctx.CachedToken.Get()
 	if err != nil {
-		return "", err
+		log.Printf("token: failed to retrieve cached token, %s", err.Error())
+		return "", nil
 	}
+
+	kr, err := keyring.NewTenantKeyRing(tenantID + "-" + cachedTkn.Subject)
+	if err != nil {
+		log.Printf("token: instantiating keyring, %s", err.Error())
+		return "", nil
+	}
+
+	tkn, err := kr.GetToken()
+	if err != nil {
+		return "", nil
+	}
+
 	return tkn.DecisionLogsKey, nil
 }
 

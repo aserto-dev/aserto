@@ -1,9 +1,10 @@
 package cmd
 
 type ConnectionOptions struct {
-	APIKey   string `env:"KEY" help:"service api key" placeholder:"key"`
-	NoAuth   bool   `help:"do not provide any credentials"`
-	Insecure bool   `help:"skip TLS verification" default:"false"`
+	APIKey     string `env:"KEY" help:"service api key" placeholder:"key"`
+	NoAuth     bool   `help:"do not provide any credentials"`
+	Insecure   bool   `help:"skip TLS verification" default:"false"`
+	CACertPath string `help:"path to grpc CA cert"`
 }
 
 func (so *ConnectionOptions) Address() string {
@@ -22,12 +23,16 @@ func (so *ConnectionOptions) IsInsecure() bool {
 	return so.Insecure
 }
 
-type AuthorizerOptions struct {
-	AddressOverride string `name:"authorizer" env:"ADDRESS" help:"authorizer override" default:""`
+func (so *ConnectionOptions) PathToCACert() string {
+	return so.CACertPath
+}
+
+type ServiceOverrideOptions struct {
+	AddressOverride string `name:"address" env:"ADDRESS" help:"address override" default:""`
 
 	ConnectionOptions
 }
 
-func (ao *AuthorizerOptions) Address() string {
+func (ao *ServiceOverrideOptions) Address() string {
 	return ao.AddressOverride
 }
