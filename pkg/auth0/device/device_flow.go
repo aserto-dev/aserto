@@ -3,7 +3,6 @@ package device
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,6 +12,7 @@ import (
 	"time"
 
 	"github.com/aserto-dev/aserto/pkg/auth0/api"
+	errs "github.com/aserto-dev/aserto/pkg/cc/errors"
 	"github.com/lestrrat-go/jwx/jwt"
 )
 
@@ -187,7 +187,7 @@ func (f *DeviceCodeFlow) RequestAccessToken(ctx context.Context) (bool, error) {
 
 func (f *DeviceCodeFlow) AccessToken() (*api.Token, error) {
 	if f.accessToken == nil {
-		return nil, errors.New("access token is nil")
+		return nil, errs.NilTokenErr
 	}
 
 	options := []jwt.ParseOption{
