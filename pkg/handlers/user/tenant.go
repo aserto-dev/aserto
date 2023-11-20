@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
@@ -85,6 +86,13 @@ func writeContexts(c *cc.CommonCtx, tenants []*api.Tenant, defaultTenant, userId
 	fileContent, err := yaml.Marshal(cfg)
 	if err != nil {
 		return err
+	}
+
+	if !filex.DirExists(filepath.Dir(configPath)) {
+		err := os.MkdirAll(filepath.Dir(configPath), 0700)
+		if err != nil {
+			return err
+		}
 	}
 
 	err = os.WriteFile(configPath, fileContent, 0600)
