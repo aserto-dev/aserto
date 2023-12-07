@@ -35,11 +35,11 @@ func (cmd *StartCmd) Run(c *cc.CommonCtx) error {
 		if err != nil {
 			return err
 		}
-		color.Yellow("!!! topaz sidecar is already running")
+		color.Yellow("!!! topaz edge authorizer is already running")
 		return nil
 	}
 
-	color.Green(">>> starting topaz as a sidecar...")
+	color.Green(">>> starting topaz as an edge authorizer...")
 
 	paths, err := localpaths.NewWithDataRoot(cmd.DataPath)
 	if err != nil {

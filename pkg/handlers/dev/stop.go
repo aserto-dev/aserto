@@ -16,7 +16,7 @@ func (cmd StopCmd) Run(c *cc.CommonCtx) error {
 	}
 
 	if running {
-		color.Green(">>> stopping topaz...")
+		color.Green(">>> stopping edge authorizer...")
 		return dockerx.DockerRun("stop", dockerx.AsertoOne)
 	}
 
