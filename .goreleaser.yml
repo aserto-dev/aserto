@@ -1,9 +1,14 @@
 before:
   hooks:
 
+env:
+  - REGISTRY=ghcr.io
+  - ORG=aserto-dev
+  - REPO=aserto
+
 builds:
-  -
-    id: build
+  # https://goreleaser.com/customization/build/
+  - id: build
     main: ./cmd/aserto
     binary: aserto
     goos:
@@ -21,14 +26,16 @@ builds:
     ldflags:
       - -s
       - -w
-      - -X github.com/aserto-dev/aserto/pkg/version.ver={{.Version}}
-      - -X github.com/aserto-dev/aserto/pkg/version.commit={{.ShortCommit}}
-      - -X github.com/aserto-dev/aserto/pkg/version.date={{.Date}}
+      - -X github.com/{{ .Env.ORG }}/{{ .Env.REPO }}/pkg/version.ver={{.Version}}
+      - -X github.com/{{ .Env.ORG }}/{{ .Env.REPO }}/pkg/version.commit={{.ShortCommit}}
+      - -X github.com/{{ .Env.ORG }}/{{ .Env.REPO }}/pkg/version.date={{.Date}}
     mod_timestamp: '{{ .CommitTimestamp }}'
 
 archives:
+  # https://goreleaser.com/customization/archive/
   - format: zip
-    rlcp: true
+    builds:
+    - build
     files:
       - LICENSE.md
       - README.md
@@ -37,43 +44,56 @@ archives:
 
 
 checksum:
+  # https://goreleaser.com/customization/checksum/
   name_template: 'checksums.txt'
 
 snapshot:
+  # https://goreleaser.com/customization/snapshots/
   name_template: "{{ .Tag }}"
 
+source:
+  # https://goreleaser.com/customization/source/
+  enabled: false
+
 changelog:
+  # https://goreleaser.com/customization/changelog/
   sort: asc
   filters:
     exclude:
-      - '^docs:'
-      - '^test:'
+      - "^docs:"
+      - "^test:"
 
 release:
-  disable: true
+  # https://goreleaser.com/customization/release/
+  github:
+    owner: "{{ .Env.ORG }}"
+    name: "{{ .Env.REPO }}"
+
+  draft: false
+  prerelease: "false"
+  name_template: "{{.ProjectName}} {{.Tag}}"
 
 blobs:
-  -
-    provider: gs
+  # https://goreleaser.com/customization/blob/
+  - provider: gs
     bucket: aserto-cli
     folder: "aserto/{{ .Version }}"
     extra_files:
       - glob: VERSION.txt
-  -
-    provider: gs
+  - provider: gs
     bucket: aserto-cli
     folder: "aserto/latest"
     extra_files:
       - glob: VERSION.txt
 
 brews:
-  -
-    name: aserto
+  # https://goreleaser.com/customization/homebrew/
+  - name: aserto
 
-    tap:
-      owner: aserto-dev
+    repository:
+      owner: "{{ .Env.ORG }}"
       name: homebrew-tap
-      token: "{{ .Env.HOMEBREW_TAP }}"
+      token: "{{ .Env.ASERTO_TAP }}"
 
     url_template: "https://storage.googleapis.com/aserto-cli/aserto/{{ .Version }}/{{ .ArtifactName }}"
 

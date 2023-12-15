@@ -75,7 +75,7 @@ func ConfigResolver() kong.Resolver {
 		})
 
 		if err != nil || flag.Tag == nil || flag.Tag.EnvPrefix == "" {
-			return
+			return resolved, err
 		}
 
 		var svcOptions *x.ServiceOptions = nil
@@ -87,7 +87,7 @@ func ConfigResolver() kong.Resolver {
 		case "ASERTO_DECISION_LOGS_":
 			svcOptions = &tmpConfig.Services.DecisionLogsService
 		default:
-			return
+			return resolved, err
 		}
 
 		switch flag.Name {
@@ -104,7 +104,7 @@ func ConfigResolver() kong.Resolver {
 			resolved = flag.Default
 		}
 
-		return
+		return resolved, err
 	}
 
 	return f
