@@ -19,7 +19,10 @@ on:
 env:
   VAULT_ADDR: https://vault.eng.aserto.com/
   PRE_RELEASE: ${{ github.ref == 'refs/heads/main' && 'development' || '' }}
-  GO_VERSION: "1.19"
+  GO_VERSION: "1.20"
+  GO_RELEASER_VERSION: "v1.20.0"
+  GO_LANGCI_LINT_VERSION: "v1.53.3"
+  GO_TESTSUM_VERSION: "1.10.1"
 
 jobs:
   test:
@@ -27,24 +30,42 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
-      -
-        name: Setup caching
-        uses: actions/cache@v3
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
+        uses: actions/checkout@v4
       -
         name: Setup Go
         uses: actions/setup-go@v4
         with:
           go-version: ${{ env.GO_VERSION }}
       -
-        name: Lint and Test
+        name: Build
+        uses: goreleaser/goreleaser-action@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          distribution: goreleaser
+          version: ${{ env.GO_RELEASER_VERSION }}
+          args: build --clean --snapshot --single-target
+      -
+        name: Lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: ${{ env.GO_LANGCI_LINT_VERSION }}
+          args: --timeout=30m
+      -
+        name: Test Setup
+        uses: autero1/action-gotestsum@v2.0.0
+        with:
+          gotestsum_version: ${{ env.GO_TESTSUM_VERSION }}
+      -
+        name: Test
         run: |
-          go run mage.go deps generate build lint test
+          gotestsum --format short-verbose -- -count=1 -parallel=1 -v -timeout=240s -coverprofile=cover.out -coverpkg=./... ./...
+      -
+        name: Upload code coverage
+        uses: shogo82148/actions-goveralls@v1
+        continue-on-error: true
+        with:
+          path-to-profile: cover.out
 
   release:
     needs: test
@@ -54,7 +75,7 @@ jobs:
     steps:
       -
         name: Read Configuration
-        uses: hashicorp/vault-action@v2.5.0
+        uses: hashicorp/vault-action@v2
         id: vault
         with:
           url: ${{ env.VAULT_ADDR }}
@@ -65,7 +86,7 @@ jobs:
             kv/data/gcp       "SERVICE_ACCOUNT_GITHUB_ACTIONS_RELEASE"  | SERVICE_ACCOUNT_GITHUB_ACTIONS_RELEASE;
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       -
@@ -74,20 +95,21 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
       -
-        name: Setup caching
-        uses: actions/cache@v3
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-      -
-        name: Release
-        env:
-          HOMEBREW_TAP: ${{ steps.vault.outputs.ASERTO_TAP }}
-          GITHUB_TOKEN: ${{ steps.vault.outputs.READ_WRITE_TOKEN }}
-          GOOGLE_APPLICATION_CREDENTIALS: /tmp/gs.json
+        name: GCS Application Credentials
         run: |
           echo "${SERVICE_ACCOUNT_GITHUB_ACTIONS_RELEASE}" > /tmp/gs.json
-
-          go run mage.go deps generate release
+      -
+        name: Write Version Info
+        run: |
+          git describe --tags > VERSION.txt
+      -
+        name: Release
+        uses: goreleaser/goreleaser-action@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HOMEBREW_TAP: ${{ secrets.GITHUB_TOKEN }}
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/gs.json
+        with:
+          distribution: goreleaser
+          version: ${{ env.GO_RELEASER_VERSION }}
+          args: release --clean
