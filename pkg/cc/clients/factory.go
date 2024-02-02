@@ -158,7 +158,7 @@ func (c *AsertoFactory) DecisionLogsClient() (dl.DecisionLogsClient, error) {
 		return nil, err
 	}
 
-	return dl.NewDecisionLogsClient(conn.Conn), nil
+	return dl.NewDecisionLogsClient(conn), nil
 }
 
 func (c *AsertoFactory) ControlPlaneClient() (management.ControlPlaneClient, error) {
@@ -172,7 +172,7 @@ func (c *AsertoFactory) ControlPlaneClient() (management.ControlPlaneClient, err
 		return nil, err
 	}
 
-	return management.NewControlPlaneClient(conn.Conn), nil
+	return management.NewControlPlaneClient(conn), nil
 }
 
 func (c *AsertoFactory) options(svc x.Service) ([]aserto.ConnectionOption, error) {

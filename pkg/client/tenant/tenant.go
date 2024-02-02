@@ -23,7 +23,7 @@ import (
 
 // Client provides access to the Aserto control plane services.
 type Client struct {
-	conn *client.Connection
+	conn *grpc.ClientConn
 
 	// Account provides methods for managing a customer account.
 	Account account.AccountClient
@@ -80,30 +80,25 @@ func New(ctx context.Context, opts ...client.ConnectionOption) (*Client, error) 
 
 	return &Client{
 		conn:          conn,
-		Account:       account.NewAccountClient(conn.Conn),
-		Connections:   connection.NewConnectionClient(conn.Conn),
-		Onboarding:    onboarding.NewOnboardingClient(conn.Conn),
-		Policy:        policy.NewPolicyClient(conn.Conn),
-		PolicyBuilder: policy_builder.NewPolicyBuilderClient(conn.Conn),
-		Profile:       profile.NewProfileClient(conn.Conn),
-		Provider:      provider.NewProviderClient(conn.Conn),
-		Registry:      registry.NewRegistryClient(conn.Conn),
-		SCC:           scc.NewSourceCodeCtlClient(conn.Conn),
-		Info:          info.NewInfoClient(conn.Conn),
-		V2Policy:      v2.NewPolicyClient(conn.Conn),
-		V2Repository:  v2.NewRepositoryClient(conn.Conn),
-		V2Source:      v2.NewSourceClient(conn.Conn),
-		V2Instance:    v2.NewInstanceClient(conn.Conn),
-		V2Tenant:      v2.NewTenantClient(conn.Conn),
+		Account:       account.NewAccountClient(conn),
+		Connections:   connection.NewConnectionClient(conn),
+		Onboarding:    onboarding.NewOnboardingClient(conn),
+		Policy:        policy.NewPolicyClient(conn),
+		PolicyBuilder: policy_builder.NewPolicyBuilderClient(conn),
+		Profile:       profile.NewProfileClient(conn),
+		Provider:      provider.NewProviderClient(conn),
+		Registry:      registry.NewRegistryClient(conn),
+		SCC:           scc.NewSourceCodeCtlClient(conn),
+		Info:          info.NewInfoClient(conn),
+		V2Policy:      v2.NewPolicyClient(conn),
+		V2Repository:  v2.NewRepositoryClient(conn),
+		V2Source:      v2.NewSourceClient(conn),
+		V2Instance:    v2.NewInstanceClient(conn),
+		V2Tenant:      v2.NewTenantClient(conn),
 	}, err
-}
-
-// SetTenantID provides a tenantID to be included in outgoing messages.
-func (c *Client) SetTenantID(tenantID string) {
-	c.conn.TenantID = tenantID
 }
 
 // Connection returns the underlying grpc connection.
 func (c *Client) Connection() grpc.ClientConnInterface {
-	return c.conn.Conn
+	return c.conn
 }

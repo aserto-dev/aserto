@@ -15,6 +15,9 @@ import (
 	"github.com/aserto-dev/aserto/pkg/cmd"
 	"github.com/aserto-dev/aserto/pkg/cmd/conf"
 	"github.com/aserto-dev/aserto/pkg/x"
+	topazApp "github.com/aserto-dev/topaz/pkg/app"
+	topazCC "github.com/aserto-dev/topaz/pkg/cli/cc"
+	topaz "github.com/aserto-dev/topaz/pkg/cli/cmd"
 	"github.com/pkg/errors"
 )
 
@@ -29,6 +32,14 @@ func main() {
 	serviceOptions := clients.NewServiceOptions()
 
 	cli := cmd.CLI{}
+
+	cliConfigFile := filepath.Join(topazCC.GetTopazDir(), topaz.CLIConfigurationFile)
+	topazCtx, err := topazCC.NewCommonContext(true, cliConfigFile)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+		os.Exit(1)
+	}
+
 	kongCtx := kong.Parse(&cli,
 		kong.Name(x.AppName),
 		kong.Description(x.AppDescription),
@@ -44,7 +55,19 @@ func main() {
 		}),
 		kong.Resolvers(ConfigResolver()),
 		kong.NamedMapper("conf", conf.ConfigFileMapper(configDir)), // attach to tag `type:"conf"`
+		kong.Bind(topazCtx),
 		kong.BindTo(serviceOptions, (*cmd.ServiceOptions)(nil)),
+		kong.Vars{
+			"topaz_dir":          topazCC.GetTopazDir(),
+			"topaz_certs_dir":    topazCC.GetTopazCertsDir(),
+			"topaz_cfg_dir":      topazCC.GetTopazCfgDir(),
+			"topaz_db_dir":       topazCC.GetTopazDataDir(),
+			"container_registry": topazCC.ContainerRegistry(),
+			"container_image":    topazCC.ContainerImage(),
+			"container_tag":      topazCC.ContainerTag(),
+			"container_platform": topazCC.ContainerPlatform(),
+			"container_name":     topazCC.ContainerName(topazCtx.Config.DefaultConfigFile),
+		},
 	)
 
 	configPath := cli.Login.Cfg
@@ -64,6 +87,14 @@ func main() {
 
 	if err := kongCtx.Run(ctx); err != nil {
 		kongCtx.FatalIfErrorf(err)
+	}
+
+	if topazApp.Contains(kongCtx.Args, "--configure") || topazApp.Contains(kongCtx.Args, "-c") || topazApp.Contains(kongCtx.Args, "--config") {
+		err = topazCtx.SaveContextConfig(topaz.CLIConfigurationFile)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			os.Exit(1)
+		}
 	}
 }
 
