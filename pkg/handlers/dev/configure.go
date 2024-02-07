@@ -6,12 +6,10 @@ import (
 	"io"
 	"os"
 	"path"
-	"text/template"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/client/tenant"
 	decisionlogger "github.com/aserto-dev/aserto/pkg/decision_logger"
-	"github.com/aserto-dev/aserto/pkg/filex"
 	"github.com/aserto-dev/aserto/pkg/x"
 	"google.golang.org/protobuf/types/known/structpb"
 
@@ -19,12 +17,14 @@ import (
 	"github.com/aserto-dev/go-grpc/aserto/tenant/connection/v1"
 	policy "github.com/aserto-dev/go-grpc/aserto/tenant/policy/v1"
 
+	"github.com/aserto-dev/topaz/pkg/cc/config"
+	topazCC "github.com/aserto-dev/topaz/pkg/cli/cc"
+	topaz "github.com/aserto-dev/topaz/pkg/cli/cmd"
 	"github.com/pkg/errors"
 )
 
 type ConfigureCmd struct {
-	Name            string `arg:"" required:"" help:"policy name"`
-	Stdout          bool   `short:"p" help:"generated configuration is printed to stdout but not saved"`
+	topaz.ConfigureCmd
 	EdgeAuthorizer  string `optional:"" help:"id of edge authorizer connection used to register with the Aserto control plane"`
 	DecisionLogging bool   `optional:"" help:"enable decision logging"`
 }
@@ -41,8 +41,38 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 	fmt.Fprintf(c.UI.Err(), ">>> configure policy...\n")
 	fmt.Fprintf(c.UI.Err(), "tenant id: %s\n", c.TenantID())
 
-	configDir, err := CreateConfigDir()
+	if cmd.ConfigFile == "config.yaml" {
+		cmd.ConfigFile = cmd.PolicyName + ".yaml"
+	}
+
+	if cmd.ConfigFile != c.TopazContext.Config.DefaultConfigFile {
+		c.TopazContext.Config.DefaultConfigFile = path.Join(topazCC.GetTopazCfgDir(), cmd.ConfigFile)
+		c.TopazContext.Config.ContainerName = topazCC.ContainerName(c.TopazContext.Config.DefaultConfigFile)
+	}
+
+	configGenerator := config.NewGenerator(cmd.PolicyName).
+		WithVersion(config.ConfigFileVersion).
+		WithLocalPolicyImage(cmd.LocalPolicyImage).
+		WithPolicyName(cmd.PolicyName).
+		WithResource(cmd.Resource).
+		WithEdgeDirectory(cmd.EdgeDirectory).
+		WithEnableDirectoryV2(cmd.EnableDirectoryV2).
+		WithTenantID(c.TenantID())
+
+	_, err := configGenerator.CreateConfigDir()
 	if err != nil {
+		return err
+	}
+
+	if _, err := configGenerator.CreateCertsDir(); err != nil {
+		return err
+	}
+	certGenerator := topaz.GenerateCertsCmd{CertsDir: topazCC.GetTopazCertsDir()}
+	err = certGenerator.Run(c.TopazContext)
+	if err != nil {
+		return err
+	}
+	if _, err := configGenerator.CreateDataDir(); err != nil {
 		return err
 	}
 
@@ -50,62 +80,60 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 	if err != nil {
 		return err
 	}
-
-	policyRef, err := findPolicyRef(c.Context, client, cmd.Name)
+	getDiscovery := true
+	policyRef, err := findPolicyRef(c.Context, client, cmd.PolicyName)
 	if err != nil {
-		return err
+		// policy name not found
+		getDiscovery = false
 	}
-
-	discoveryConf, err := getDiscoveryConfig(c.Context, client)
-	if err != nil {
-		return err
-	}
-
-	params := templateParams{
-		TenantID:        c.TenantID(),
-		PolicyName:      policyRef.Name,
-		PolicyID:        policyRef.Id,
-		DiscoveryURL:    discoveryConf.URL,
-		TenantKey:       discoveryConf.APIKey,
-		DecisionLogging: cmd.DecisionLogging,
+	if getDiscovery {
+		discoveryConf, err := getDiscoveryConfig(c.Context, client)
+		if err != nil {
+			return err
+		}
+		configGenerator = configGenerator.WithDiscovery(discoveryConf.URL, discoveryConf.APIKey)
 	}
 
 	if cmd.EdgeAuthorizer != "" {
-		certFile, keyFile, errCerts := getEdgeAuthorizerCerts(c.Context, client, cmd.EdgeAuthorizer, configDir, policyRef.Name)
+		certFile, keyFile, errCerts := getEdgeAuthorizerCerts(c.Context, client, cmd.EdgeAuthorizer, topazCC.GetTopazCertsDir(), policyRef.Name)
 		if errCerts != nil {
 			return err
 		}
 
-		params.ControlPlane.Enabled = true
-		params.ControlPlane.Address = c.Environment.Get(x.ControlPlaneService).Address
-		params.ControlPlane.ClientCertPath = path.Join("${TOPAZ_DIR}/cfg", certFile)
-		params.ControlPlane.ClientKeyPath = path.Join("${TOPAZ_DIR}/cfg", keyFile)
-
-		params.DecisionLogger.EMSAddress = c.Environment.Get(x.EMSService).Address
-		params.DecisionLogger.StorePath = decisionlogger.ContainerPath
-		params.DecisionLogger.ClientCertPath = path.Join("${TOPAZ_DIR}/cfg", certFile)
-		params.DecisionLogger.ClientKeyPath = path.Join("${TOPAZ_DIR}/cfg", keyFile)
+		configGenerator = configGenerator.WithContoller(c.Environment.Get(x.ControlPlaneService).Address,
+			path.Join("${TOPAZ_CERTS_DIR}/", certFile),
+			path.Join("${TOPAZ_CERTS_DIR}/", keyFile),
+		).WithSelfDecisionLogger(c.Environment.Get(x.EMSService).Address,
+			path.Join("${TOPAZ_CERTS_DIR}/", certFile),
+			path.Join("${TOPAZ_CERTS_DIR}/", keyFile),
+			decisionlogger.Dir,
+		)
 	}
 
-	if params.TenantKey == "" {
-		return errors.Errorf("missing $ASERTO_TENANT_KEY env var")
-	}
-
-	fmt.Fprintf(c.UI.Err(), "policy id: %s\n", params.PolicyID)
-	fmt.Fprintf(c.UI.Err(), "policy name: %s\n", params.PolicyName)
+	fmt.Fprintf(c.UI.Err(), "policy name: %s\n", cmd.PolicyName)
 
 	var w io.Writer
 
 	if cmd.Stdout {
 		w = c.UI.Output()
 	} else {
-		w, err = os.Create(path.Join(configDir, params.PolicyName+".yaml"))
+		if !cmd.Force {
+			if _, err := os.Stat(c.TopazContext.Config.DefaultConfigFile); err == nil {
+				c.UI.Exclamation().Msg("A configuration file already exists.")
+				if !topaz.PromptYesNo("Do you want to continue?", false) {
+					return nil
+				}
+			}
+		}
+		w, err = os.Create(c.TopazContext.Config.DefaultConfigFile)
 		if err != nil {
 			return err
 		}
 	}
-
-	return WriteConfig(w, configTemplate, &params)
+	if configGenerator.DiscoveryURL != "" {
+		return configGenerator.GenerateConfig(w, config.EdgeTemplate)
+	}
+	return configGenerator.GenerateConfig(w, config.Template)
 }
 
 func findPolicyRef(ctx context.Context, client *tenant.Client, policyName string) (*api.PolicyRef, error) {
@@ -229,33 +257,6 @@ func fileFromConfigField(structVal *structpb.Struct, field, configDir, fileName 
 	defer file.Close()
 
 	_, err = file.WriteString(strVal)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func CreateConfigDir() (string, error) {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return "", err
-	}
-
-	configDir := path.Join(home, "/.config/aserto/sidecar/cfg")
-	if filex.DirExists(configDir) {
-		return configDir, nil
-	}
-	return configDir, os.MkdirAll(configDir, 0700)
-}
-
-func WriteConfig(w io.Writer, templ string, params *templateParams) error {
-	t, err := template.New("config").Parse(templ)
-	if err != nil {
-		return err
-	}
-
-	err = t.Execute(w, params)
 	if err != nil {
 		return err
 	}

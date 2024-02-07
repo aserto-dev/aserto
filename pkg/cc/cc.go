@@ -12,6 +12,8 @@ import (
 	"github.com/aserto-dev/aserto/pkg/keyring"
 	"github.com/aserto-dev/aserto/pkg/x"
 	"github.com/aserto-dev/clui"
+
+	topazCC "github.com/aserto-dev/topaz/pkg/cli/cc"
 )
 
 type CommonCtx struct {
@@ -22,8 +24,8 @@ type CommonCtx struct {
 	CustomContext config.Context
 	Auth          *auth0.Settings
 	CachedToken   *token.CachedToken
-
-	UI *clui.UI
+	TopazContext  *topazCC.CommonCtx
+	UI            *clui.UI
 }
 
 func (ctx *CommonCtx) AccessToken() (string, error) {
