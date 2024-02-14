@@ -16,7 +16,7 @@ require (
 	github.com/aserto-dev/go-decision-logs v0.0.4
 	github.com/aserto-dev/go-directory v0.30.10
 	github.com/aserto-dev/go-grpc v0.8.60
-	github.com/aserto-dev/topaz v0.30.30-0.20240207104644-adb4c799ef83
+	github.com/aserto-dev/topaz v0.30.30-0.20240209150626-11c59ace3bd3
 	github.com/cli/browser v1.3.0
 	github.com/google/wire v0.5.0
 	github.com/hashicorp/go-multierror v1.1.1

@@ -463,6 +463,8 @@ github.com/aserto-dev/service-host v0.0.9 h1:RwSkFtD5CRacVnj1CxYjA3HMpJfmOESmUk+
 github.com/aserto-dev/service-host v0.0.9/go.mod h1:NfLZZW2Y3+1Adgfaw/BAoW8ttPTvFuyapJAow9YdvHU=
 github.com/aserto-dev/topaz v0.30.30-0.20240207104644-adb4c799ef83 h1:eta/TtsDjgslTD3q2fk99xkIHfGYPvLYX2S1fwQDnbY=
 github.com/aserto-dev/topaz v0.30.30-0.20240207104644-adb4c799ef83/go.mod h1:VEw6vXbHhZJsPg1RknoaqK6Qecq+58b9BoFZFfkH5Ww=
+github.com/aserto-dev/topaz v0.30.30-0.20240209150626-11c59ace3bd3 h1:PuJJRQEg5zxcjgFy9853kRfwFCH3b/4LoK3JyemEv0o=
+github.com/aserto-dev/topaz v0.30.30-0.20240209150626-11c59ace3bd3/go.mod h1:VEw6vXbHhZJsPg1RknoaqK6Qecq+58b9BoFZFfkH5Ww=
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
