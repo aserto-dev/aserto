@@ -12,7 +12,6 @@ import (
 	"github.com/aserto-dev/aserto/pkg/handlers/user"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	"github.com/aserto-dev/aserto/pkg/keyring"
-	"github.com/aserto-dev/aserto/pkg/x"
 	"github.com/aserto-dev/clui"
 	"github.com/aserto-dev/go-grpc/aserto/api/v1"
 	"github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"
@@ -291,32 +290,9 @@ func changeTokenToTenantID(c *cc.CommonCtx, tenantID string) error {
 
 func printContext(ui *clui.UI) error {
 	req := config.Ctx{
-		Name:     "context_name",
-		TenantID: "tenant_id",
-		AuthorizerService: &x.ServiceOptions{
-			Address:    "address:port",
-			APIKey:     "key",
-			Insecure:   true,
-			CACertPath: "path_to_ca_certs",
-		},
-		DirectoryReader: &x.ServiceOptions{
-			Address:    "address:port",
-			APIKey:     "key",
-			Insecure:   true,
-			CACertPath: "path_to_ca_certs",
-		},
-		DirectoryWriter: &x.ServiceOptions{
-			Address:    "address:port",
-			APIKey:     "key",
-			Insecure:   true,
-			CACertPath: "path_to_ca_certs",
-		},
-		DirectoryModel: &x.ServiceOptions{
-			Address:    "address:port",
-			APIKey:     "key",
-			Insecure:   true,
-			CACertPath: "path_to_ca_certs",
-		},
+		Name:            "context_name",
+		TenantID:        "tenant_id",
+		TopazConfigFile: "path_to_topaz_config_file",
 	}
 	return jsonx.OutputJSON(ui.Output(), req)
 }

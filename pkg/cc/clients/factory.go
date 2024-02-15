@@ -15,6 +15,8 @@ import (
 	"github.com/aserto-dev/go-grpc/aserto/management/v2"
 	"github.com/pkg/errors"
 	"github.com/samber/lo"
+
+	topazConfig "github.com/aserto-dev/topaz/pkg/cc/config"
 )
 
 type Factory interface {
@@ -71,7 +73,7 @@ func NewClientFactory(
 		}
 
 		if found {
-			if opts := overrideFromContext(activeCtx, svc); opts != nil {
+			if opts, err := overrideFromContext(activeCtx, svc); err == nil && opts != nil {
 				cfg.options = opts
 			}
 		}
@@ -87,20 +89,31 @@ func NewClientFactory(
 	}, nil
 }
 
-func overrideFromContext(activeCtx config.Ctx, svc x.Service) *x.ServiceOptions {
+func overrideFromContext(activeCtx config.Ctx, svc x.Service) (*x.ServiceOptions, error) {
 	//nolint:exhaustive // we only override the topaz services if provided.
+
+	loader, err := topazConfig.LoadConfiguration(activeCtx.TopazConfigFile)
+	if err != nil {
+		return nil, err
+	}
+
 	switch svc {
 	case x.AuthorizerService:
-		return activeCtx.AuthorizerService
+		return &x.ServiceOptions{
+			Address:    loader.Configuration.APIConfig.Services["authorizer"].GRPC.ListenAddress,
+			CACertPath: loader.Configuration.APIConfig.Services["authorizer"].GRPC.Certs.TLSCACertPath,
+		}, nil
+		// 	return activeCtx.AuthorizerService
 	case x.DirectoryReaderService:
-		return activeCtx.DirectoryReader
+		// 	return activeCtx.DirectoryReader
 	case x.DirectoryWriterService:
-		return activeCtx.DirectoryWriter
+		// 	return activeCtx.DirectoryWriter
 	case x.DirectoryModelService:
-		return activeCtx.DirectoryModel
+	// 	return activeCtx.DirectoryModel
 	default:
-		return nil
+		return nil, nil
 	}
+	return nil, nil
 }
 
 func (c *AsertoFactory) TenantID() string {

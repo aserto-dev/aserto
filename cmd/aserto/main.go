@@ -15,6 +15,7 @@ import (
 	"github.com/aserto-dev/aserto/pkg/cmd"
 	"github.com/aserto-dev/aserto/pkg/cmd/conf"
 	"github.com/aserto-dev/aserto/pkg/x"
+	"github.com/aserto-dev/go-aserto/client"
 	topazApp "github.com/aserto-dev/topaz/pkg/app"
 	topazCC "github.com/aserto-dev/topaz/pkg/cli/cc"
 	topaz "github.com/aserto-dev/topaz/pkg/cli/cmd"
@@ -80,6 +81,9 @@ func main() {
 		clients.TenantID(cli.TenantID),
 		serviceOptions.ConfigOverrider,
 	)
+
+	// Override the Tenant ID in topaz common ctx also.
+	topazCtx.Context = client.SetTenantContext(topazCtx.Context, cli.TenantID)
 	ctx.TopazContext = topazCtx
 
 	if err != nil {

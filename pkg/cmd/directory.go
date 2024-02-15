@@ -1,9 +1,19 @@
 package cmd
 
 import (
+	"os"
+
 	"github.com/aserto-dev/aserto/pkg/cc"
-	topaz "github.com/aserto-dev/topaz/pkg/cli/cmd"
+	"github.com/aserto-dev/aserto/pkg/cc/config"
+	"github.com/aserto-dev/aserto/pkg/filex"
 	"github.com/aserto-dev/topaz/pkg/cli/cmd/directory"
+	"github.com/go-http-utils/headers"
+	"google.golang.org/grpc/metadata"
+
+	aErr "github.com/aserto-dev/aserto/pkg/cc/errors"
+	topazCC "github.com/aserto-dev/topaz/pkg/cli/cc"
+	topazClients "github.com/aserto-dev/topaz/pkg/cli/clients"
+	topaz "github.com/aserto-dev/topaz/pkg/cli/cmd"
 )
 
 type DirectoryCmd struct {
@@ -23,7 +33,65 @@ type DirectoryCmd struct {
 	GetGraph        directory.GetGraphCmd        `cmd:"" help:"get relation graph" group:"directory"`
 }
 
-func (cmd *DirectoryCmd) AfterApply(so ServiceOptions) error {
+func (cmd *DirectoryCmd) AfterApply(c *topazCC.CommonCtx) error {
+	cfgPath, err := config.GetSymlinkConfigPath()
+	if err != nil {
+		return err
+	}
+
+	if !filex.FileExists(cfgPath) {
+		return aErr.NeedLoginErr
+	}
+
+	cfg, err := config.NewConfig(config.Path(cfgPath))
+	if err != nil {
+		return err
+	}
+
+	for _, ctxs := range cfg.Context.Contexts {
+		if cfg.Context.ActiveContext == ctxs.Name {
+			if ctxs.TopazConfigFile != "" {
+				err = setServicesConfig(cfg, ctxs.TopazConfigFile)
+				if err != nil {
+					return err
+				}
+			}
+			err = os.Setenv(topazClients.EnvTopazDirectorySvc, cfg.Services.DirectoryReaderService.Address)
+			if err != nil {
+				return err
+			}
+
+			tenantToken, err := getTenantTokenDetails(ctxs.TenantID, cfg.Auth)
+			if err != nil {
+				return err
+			}
+
+			dirConfig := topazClients.Config{
+				Host:     cfg.Services.DirectoryReaderService.Address,
+				APIKey:   tenantToken.DirectoryWriteKey,
+				Insecure: cfg.Services.DirectoryReaderService.Insecure,
+				TenantID: ctxs.TenantID,
+			}
+
+			c.Context = metadata.AppendToOutgoingContext(c.Context, string(headers.Authorization), "Basic "+tenantToken.DirectoryWriteKey)
+
+			cmd.GetManifest.Config = dirConfig
+			cmd.SetManifest.Config = dirConfig
+			cmd.DeleteManifest.Config = dirConfig
+			cmd.GetObject.Config = dirConfig
+			cmd.SetObject.Config = dirConfig
+			cmd.DeleteObject.Config = dirConfig
+			cmd.ListObjects.Config = dirConfig
+			cmd.GetRelation.Config = dirConfig
+			cmd.SetRelation.Config = dirConfig
+			cmd.DeleteRelation.Config = dirConfig
+			cmd.ListRelations.Config = dirConfig
+			cmd.CheckRelation.Config = dirConfig
+			cmd.CheckPermission.Config = dirConfig
+			cmd.GetGraph.Config = dirConfig
+
+		}
+	}
 	return nil
 }
 
