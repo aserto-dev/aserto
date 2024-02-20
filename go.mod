@@ -15,7 +15,6 @@ require (
 	github.com/aserto-dev/go-decision-logs v0.0.4
 	github.com/aserto-dev/go-directory v0.30.11
 	github.com/aserto-dev/go-grpc v0.8.60
-	github.com/aserto-dev/topaz v0.30.30-0.20240209150626-11c59ace3bd3
 	github.com/cli/browser v1.3.0
 	github.com/go-http-utils/headers v0.0.0-20181008091004-fed159eddc2a
 	github.com/google/wire v0.5.0
@@ -52,7 +51,7 @@ require (
 	github.com/aserto-dev/certs v0.0.5 // indirect
 	github.com/aserto-dev/errors v0.0.6 // indirect
 	github.com/aserto-dev/go-authorizer v0.20.5 // indirect
-	github.com/aserto-dev/go-directory-cli v0.30.1 // indirect
+	github.com/aserto-dev/go-directory-cli v0.30.2 // indirect
 	github.com/aserto-dev/go-edge-ds v0.30.12-0.20240126235511-b23846831d9f // indirect
 	github.com/aserto-dev/go-http-metrics v0.10.1-20221024-1 // indirect
 	github.com/aserto-dev/go-topaz-ui v0.0.5 // indirect
@@ -63,6 +62,7 @@ require (
 	github.com/aserto-dev/runtime v0.60.0 // indirect
 	github.com/aserto-dev/self-decision-logger v0.0.5 // indirect
 	github.com/aserto-dev/service-host v0.0.9 // indirect
+	github.com/aserto-dev/topaz v0.30.30-0.20240220095846-d84e37d43eb2 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bufbuild/protocompile v0.7.1 // indirect
 	github.com/bufbuild/protovalidate-go v0.5.0 // indirect

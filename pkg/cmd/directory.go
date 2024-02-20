@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"os"
-
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/filex"
@@ -56,10 +54,10 @@ func (cmd *DirectoryCmd) AfterApply(c *topazCC.CommonCtx) error {
 					return err
 				}
 			}
-			err = os.Setenv(topazClients.EnvTopazDirectorySvc, cfg.Services.DirectoryReaderService.Address)
-			if err != nil {
-				return err
-			}
+			// err = os.Setenv(topazClients.EnvTopazDirectorySvc, cfg.Services.DirectoryReaderService.Address)
+			// if err != nil {
+			// 	return err
+			// }
 
 			tenantToken, err := getTenantTokenDetails(ctxs.TenantID, cfg.Auth)
 			if err != nil {
@@ -68,12 +66,13 @@ func (cmd *DirectoryCmd) AfterApply(c *topazCC.CommonCtx) error {
 
 			dirConfig := topazClients.Config{
 				Host:     cfg.Services.DirectoryReaderService.Address,
-				APIKey:   tenantToken.DirectoryWriteKey,
+				APIKey:   "",
+				Token:    tenantToken,
 				Insecure: cfg.Services.DirectoryReaderService.Insecure,
 				TenantID: ctxs.TenantID,
 			}
 
-			c.Context = metadata.AppendToOutgoingContext(c.Context, string(headers.Authorization), "Basic "+tenantToken.DirectoryWriteKey)
+			c.Context = metadata.AppendToOutgoingContext(c.Context, string(headers.Authorization), "Bearer "+tenantToken)
 
 			cmd.GetManifest.Config = dirConfig
 			cmd.SetManifest.Config = dirConfig

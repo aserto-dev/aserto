@@ -439,6 +439,7 @@ github.com/aserto-dev/go-directory v0.30.11 h1:xVzs/AWpXx3Nuy7lNfQ37TiLmJNqvstrR
 github.com/aserto-dev/go-directory v0.30.11/go.mod h1:XW9IRp2u3TTkaqxcZG4sFXttJO4sia2S0j79CYkJfUg=
 github.com/aserto-dev/go-directory-cli v0.30.1 h1:5tEDG7uj//NXEzKkF4cbQbsvPuZzn/3hrhTA0GuG/7A=
 github.com/aserto-dev/go-directory-cli v0.30.1/go.mod h1:EvTAQdfREB8Wq5aRJxk3krkBz6/4LUwJjfbc0MjVUl8=
+github.com/aserto-dev/go-directory-cli v0.30.2/go.mod h1:EvTAQdfREB8Wq5aRJxk3krkBz6/4LUwJjfbc0MjVUl8=
 github.com/aserto-dev/go-edge-ds v0.30.12-0.20240126235511-b23846831d9f h1:5yn4FVVeyRAIcx+v/F7MuCpd2+9M9jhnoTq3PakSLNY=
 github.com/aserto-dev/go-edge-ds v0.30.12-0.20240126235511-b23846831d9f/go.mod h1:81K5P7im+V121ep0Ejhe3gTf6PqioIYkaMQTRJsh97w=
 github.com/aserto-dev/go-grpc v0.8.60 h1:0keqgCNqa2l4o/1+CHYMeG0qP+xT507cYFCEsGPAr/M=
@@ -461,8 +462,8 @@ github.com/aserto-dev/self-decision-logger v0.0.5 h1:SXEo984ZasskvrRZ4LrLwqDOvQM
 github.com/aserto-dev/self-decision-logger v0.0.5/go.mod h1:CJUe5pfaaHzemWr7LqMOA8b9fuf/n0V2ekKsH7X28R4=
 github.com/aserto-dev/service-host v0.0.9 h1:RwSkFtD5CRacVnj1CxYjA3HMpJfmOESmUk+VJjUr0HY=
 github.com/aserto-dev/service-host v0.0.9/go.mod h1:NfLZZW2Y3+1Adgfaw/BAoW8ttPTvFuyapJAow9YdvHU=
-github.com/aserto-dev/topaz v0.30.30-0.20240209150626-11c59ace3bd3 h1:PuJJRQEg5zxcjgFy9853kRfwFCH3b/4LoK3JyemEv0o=
-github.com/aserto-dev/topaz v0.30.30-0.20240209150626-11c59ace3bd3/go.mod h1:VEw6vXbHhZJsPg1RknoaqK6Qecq+58b9BoFZFfkH5Ww=
+github.com/aserto-dev/topaz v0.30.30-0.20240220095846-d84e37d43eb2 h1:mU1Xcc+RCKX5tnHWomYiQBlPBjt2kVkhd0H6S2Diy/I=
+github.com/aserto-dev/topaz v0.30.30-0.20240220095846-d84e37d43eb2/go.mod h1:VEw6vXbHhZJsPg1RknoaqK6Qecq+58b9BoFZFfkH5Ww=
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=

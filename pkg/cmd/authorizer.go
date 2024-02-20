@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"os"
-
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/filex"
@@ -47,10 +45,10 @@ func (cmd *AuthorizerCmd) AfterApply(c *topazCC.CommonCtx) error {
 					return err
 				}
 			}
-			err = os.Setenv(topazClients.EnvTopazAuthorizerSvc, cfg.Services.AuthorizerService.Address)
-			if err != nil {
-				return err
-			}
+			// err = os.Setenv(topazClients.EnvTopazAuthorizerSvc, cfg.Services.AuthorizerService.Address)
+			// if err != nil {
+			// 	return err
+			// }
 			tenantToken, err := getTenantTokenDetails(ctxs.TenantID, cfg.Auth)
 			if err != nil {
 				return err
@@ -58,12 +56,13 @@ func (cmd *AuthorizerCmd) AfterApply(c *topazCC.CommonCtx) error {
 
 			authorizerConfig := topazClients.AuthorizerConfig{
 				Host:     cfg.Services.AuthorizerService.Address,
-				APIKey:   tenantToken.AuthorizerAPIKey,
+				APIKey:   "",
+				Token:    tenantToken,
 				Insecure: cfg.Services.AuthorizerService.Insecure,
 				TenantID: ctxs.TenantID,
 			}
 
-			c.Context = metadata.AppendToOutgoingContext(c.Context, string(headers.Authorization), "Basic "+tenantToken.AuthorizerAPIKey)
+			c.Context = metadata.AppendToOutgoingContext(c.Context, string(headers.Authorization), "Bearer "+tenantToken)
 
 			cmd.EvalDecision.AuthorizerConfig = authorizerConfig
 			cmd.Compile.AuthorizerConfig = authorizerConfig

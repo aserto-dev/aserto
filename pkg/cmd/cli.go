@@ -8,7 +8,6 @@ import (
 	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/cc/token"
 	"github.com/aserto-dev/aserto/pkg/handlers/user"
-	"github.com/aserto-dev/aserto/pkg/keyring"
 	"github.com/aserto-dev/aserto/pkg/version"
 	"github.com/aserto-dev/aserto/pkg/x"
 	topazConfig "github.com/aserto-dev/topaz/pkg/cc/config"
@@ -79,21 +78,21 @@ func setServicesConfig(cfg *config.Config, topazConfigFile string) error {
 	return nil
 }
 
-func getTenantTokenDetails(tenantID string, cfg *config.Auth) (*keyring.TenantToken, error) {
+func getTenantTokenDetails(tenantID string, cfg *config.Auth) (string, error) {
 	cachedToken := cc.GetCacheKey(cfg)
 	tkn := token.Load(cachedToken)
 	authToken, err := tkn.Get()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-
-	tenantKeyRing, err := keyring.NewTenantKeyRing(tenantID + "-" + authToken.Subject)
-	if err != nil {
-		return nil, err
-	}
-	tenantToken, err := tenantKeyRing.GetToken()
-	if err != nil {
-		return nil, err
-	}
-	return tenantToken, nil
+	return authToken.Access, nil
+	// tenantKeyRing, err := keyring.NewTenantKeyRing(tenantID + "-" + authToken.Subject)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// tenantToken, err := tenantKeyRing.GetToken()
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// return tenantToken, nil
 }
