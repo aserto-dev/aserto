@@ -16,10 +16,10 @@ import (
 	"github.com/aserto-dev/aserto/pkg/cmd/conf"
 	"github.com/aserto-dev/aserto/pkg/x"
 	"github.com/aserto-dev/go-aserto/client"
-	topazApp "github.com/aserto-dev/topaz/pkg/app"
 	topazCC "github.com/aserto-dev/topaz/pkg/cli/cc"
 	topaz "github.com/aserto-dev/topaz/pkg/cli/cmd"
 	"github.com/pkg/errors"
+	"github.com/samber/lo"
 )
 
 func main() {
@@ -67,7 +67,7 @@ func main() {
 			"container_image":    topazCC.ContainerImage(),
 			"container_tag":      topazCC.ContainerTag(),
 			"container_platform": topazCC.ContainerPlatform(),
-			"container_name":     topazCC.ContainerName(topazCtx.Config.DefaultConfigFile),
+			"container_name":     topazCC.ContainerName(topazCtx.Config.TopazConfigFile),
 		},
 	)
 
@@ -95,7 +95,7 @@ func main() {
 		kongCtx.FatalIfErrorf(err)
 	}
 
-	if topazApp.Contains(kongCtx.Args, "--configure") || topazApp.Contains(kongCtx.Args, "-c") || topazApp.Contains(kongCtx.Args, "--config") {
+	if lo.Contains(kongCtx.Args, "--configure") || lo.Contains(kongCtx.Args, "-c") || lo.Contains(kongCtx.Args, "--config") {
 		err = topazCtx.SaveContextConfig(topaz.CLIConfigurationFile)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())

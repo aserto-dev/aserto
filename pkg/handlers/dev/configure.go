@@ -45,9 +45,9 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 		cmd.ConfigFile = cmd.PolicyName + ".yaml"
 	}
 
-	if cmd.ConfigFile != c.TopazContext.Config.DefaultConfigFile {
-		c.TopazContext.Config.DefaultConfigFile = path.Join(topazCC.GetTopazCfgDir(), cmd.ConfigFile)
-		c.TopazContext.Config.ContainerName = topazCC.ContainerName(c.TopazContext.Config.DefaultConfigFile)
+	if cmd.ConfigFile != c.TopazContext.Config.TopazConfigFile {
+		c.TopazContext.Config.TopazConfigFile = path.Join(topazCC.GetTopazCfgDir(), cmd.ConfigFile)
+		c.TopazContext.Config.ContainerName = topazCC.ContainerName(c.TopazContext.Config.TopazConfigFile)
 	}
 
 	configGenerator := config.NewGenerator(cmd.PolicyName).
@@ -118,14 +118,14 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 		w = c.UI.Output()
 	} else {
 		if !cmd.Force {
-			if _, err := os.Stat(c.TopazContext.Config.DefaultConfigFile); err == nil {
+			if _, err := os.Stat(c.TopazContext.Config.TopazConfigFile); err == nil {
 				c.UI.Exclamation().Msg("A configuration file already exists.")
 				if !topaz.PromptYesNo("Do you want to continue?", false) {
 					return nil
 				}
 			}
 		}
-		w, err = os.Create(c.TopazContext.Config.DefaultConfigFile)
+		w, err = os.Create(c.TopazContext.Config.TopazConfigFile)
 		if err != nil {
 			return err
 		}
