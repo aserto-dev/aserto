@@ -14,7 +14,7 @@ import (
 )
 
 type CLI struct {
-	Topaz        TopazCmd        `cmd:"" aliases:"xp" help:"topaz commands"`
+	Topaz        TopazCmd        `cmd:"" aliases:"tz" help:"topaz commands"`
 	Directory    DirectoryCmd    `cmd:"" aliases:"ds" help:"directory commands"`
 	Authorizer   AuthorizerCmd   `cmd:"" aliases:"az" help:"authorizer commands"`
 	DecisionLogs DecisionLogsCmd `cmd:"" aliases:"dl" help:"decision logs commands"`
