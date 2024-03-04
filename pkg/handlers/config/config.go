@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
 	config "github.com/aserto-dev/aserto/pkg/cc/config"
@@ -15,6 +16,7 @@ import (
 	"github.com/aserto-dev/clui"
 	"github.com/aserto-dev/go-grpc/aserto/api/v1"
 	"github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"
+	topazConfig "github.com/aserto-dev/topaz/pkg/cli/cc"
 	"github.com/samber/lo"
 	"gopkg.in/yaml.v2"
 
@@ -38,6 +40,11 @@ func (cmd *GetContextsCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
+	err = attachTopazContexts(&cfg.Context.Contexts)
+	if err != nil {
+		return err
+	}
+
 	return jsonx.OutputJSON(c.UI.Output(), cfg.Context.Contexts)
 }
 
@@ -54,6 +61,11 @@ func (cmd *GetActiveContextCmd) Run(c *cc.CommonCtx) error {
 	}
 
 	cfg, err := config.NewConfig(config.Path(cfgPath))
+	if err != nil {
+		return err
+	}
+
+	err = attachTopazContexts(&cfg.Context.Contexts)
 	if err != nil {
 		return err
 	}
@@ -217,7 +229,15 @@ func (cmd *UseContextCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	_, found := lo.Find(cfg.Context.Contexts, func(c config.Ctx) bool { return c.Name == cmd.ContextName })
+	// use separate variable for all contexts.
+	var allContexts []config.Ctx
+	allContexts = append(allContexts, cfg.Context.Contexts...)
+	err = attachTopazContexts(&allContexts)
+	if err != nil {
+		return err
+	}
+
+	_, found := lo.Find(allContexts, func(c config.Ctx) bool { return c.Name == cmd.ContextName })
 
 	if !found {
 		return errors.Errorf("the context name provided doesn't exists")
@@ -295,4 +315,22 @@ func printContext(ui *clui.UI) error {
 		TopazConfigFile: "path_to_topaz_config_file",
 	}
 	return jsonx.OutputJSON(ui.Output(), req)
+}
+
+func attachTopazContexts(contextList *[]config.Ctx) error {
+	files, err := os.ReadDir(topazConfig.GetTopazCfgDir())
+	if err != nil {
+		return err
+	}
+
+	for _, file := range files {
+		_, found := lo.Find(*contextList, func(c config.Ctx) bool { return c.Name == file.Name() })
+		if !found {
+			*contextList = append(*contextList, config.Ctx{
+				Name:            file.Name(),
+				TopazConfigFile: filepath.Join(topazConfig.GetTopazCfgDir(), file.Name()),
+			})
+		}
+	}
+	return nil
 }
