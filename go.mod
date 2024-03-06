@@ -54,15 +54,15 @@ require (
 	github.com/aserto-dev/go-directory-cli v0.31.0 // indirect
 	github.com/aserto-dev/go-edge-ds v0.31.0 // indirect
 	github.com/aserto-dev/go-http-metrics v0.10.1-20221024-1 // indirect
-	github.com/aserto-dev/go-topaz-ui v0.1.2 // indirect
+	github.com/aserto-dev/go-topaz-ui v0.1.3 // indirect
 	github.com/aserto-dev/header v0.0.6 // indirect
 	github.com/aserto-dev/logger v0.0.4 // indirect
 	github.com/aserto-dev/openapi-authorizer v0.20.4 // indirect
 	github.com/aserto-dev/openapi-directory v0.31.0 // indirect
-	github.com/aserto-dev/runtime v0.60.0 // indirect
+	github.com/aserto-dev/runtime v0.60.2 // indirect
 	github.com/aserto-dev/self-decision-logger v0.0.5 // indirect
 	github.com/aserto-dev/service-host v0.0.9 // indirect
-	github.com/aserto-dev/topaz v0.31.4-0.20240229130125-f02d89e87069 // indirect
+	github.com/aserto-dev/topaz v0.31.7-0.20240307093335-d4d16b66950c // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bufbuild/protocompile v0.7.1 // indirect
 	github.com/bufbuild/protovalidate-go v0.5.0 // indirect
