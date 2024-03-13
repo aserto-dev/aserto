@@ -14,7 +14,7 @@ import (
 )
 
 func init() {
-	os.Setenv("GO_VERSION", "1.20")
+	os.Setenv("GO_VERSION", "1.22")
 	os.Setenv("DOCKER_BUILDKIT", "1")
 }
 

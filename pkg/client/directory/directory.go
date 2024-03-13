@@ -12,21 +12,21 @@ import (
 )
 
 type ClientReader struct {
-	conn *client.Connection
+	conn *grpc.ClientConn
 
 	// Reader client for directory
 	Reader ds3.ReaderClient
 }
 
 type ClientWriter struct {
-	conn *client.Connection
+	conn *grpc.ClientConn
 
 	// Writer client for directory
 	Writer dw3.WriterClient
 }
 
 type ClientModel struct {
-	conn *client.Connection
+	conn *grpc.ClientConn
 
 	// Model client for directory service
 	Model model.ModelClient
@@ -41,18 +41,13 @@ func NewReader(ctx context.Context, opts ...client.ConnectionOption) (*ClientRea
 
 	return &ClientReader{
 		conn:   conn,
-		Reader: ds3.NewReaderClient(conn.Conn),
+		Reader: ds3.NewReaderClient(conn),
 	}, err
-}
-
-// SetTenantID provides a tenantID to be included in outgoing messages.
-func (c *ClientReader) SetTenantID(tenantID string) {
-	c.conn.TenantID = tenantID
 }
 
 // Connection returns the underlying grpc connection.
 func (c *ClientReader) Connection() grpc.ClientConnInterface {
-	return c.conn.Conn
+	return c.conn
 }
 
 // New creates a directory writer Client with the specified connection options.
@@ -64,18 +59,13 @@ func NewWriter(ctx context.Context, opts ...client.ConnectionOption) (*ClientWri
 
 	return &ClientWriter{
 		conn:   conn,
-		Writer: dw3.NewWriterClient(conn.Conn),
+		Writer: dw3.NewWriterClient(conn),
 	}, err
-}
-
-// SetTenantID provides a tenantID to be included in outgoing messages.
-func (c *ClientWriter) SetTenantID(tenantID string) {
-	c.conn.TenantID = tenantID
 }
 
 // Connection returns the underlying grpc connection.
 func (c *ClientWriter) Connection() grpc.ClientConnInterface {
-	return c.conn.Conn
+	return c.conn
 }
 
 // New creates a directory model Client with the specified connection options.
@@ -87,16 +77,11 @@ func NewModel(ctx context.Context, opts ...client.ConnectionOption) (*ClientMode
 
 	return &ClientModel{
 		conn:  conn,
-		Model: model.NewModelClient(conn.Conn),
+		Model: model.NewModelClient(conn),
 	}, err
-}
-
-// SetTenantID provides a tenantID to be included in outgoing messages.
-func (c *ClientModel) SetTenantID(tenantID string) {
-	c.conn.TenantID = tenantID
 }
 
 // Connection returns the underlying grpc connection.
 func (c *ClientModel) Connection() grpc.ClientConnInterface {
-	return c.conn.Conn
+	return c.conn
 }

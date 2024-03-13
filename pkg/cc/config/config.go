@@ -42,12 +42,9 @@ type Context struct {
 }
 
 type Ctx struct {
-	Name              string            `json:"name" yaml:"name"`
-	TenantID          string            `json:"tenant_id,omitempty" yaml:"tenant_id,omitempty"`
-	AuthorizerService *x.ServiceOptions `json:"authorizer,omitempty" yaml:"authorizer,omitempty"`
-	DirectoryReader   *x.ServiceOptions `json:"directory_reader,omitempty" yaml:"directory_reader,omitempty"`
-	DirectoryWriter   *x.ServiceOptions `json:"directory_writer,omitempty" yaml:"directory_writer,omitempty"`
-	DirectoryModel    *x.ServiceOptions `json:"directory_model,omitempty" yaml:"directory_model,omitempty"`
+	Name            string `json:"name" yaml:"name"`
+	TenantID        string `json:"tenant_id,omitempty" yaml:"tenant_id,omitempty"`
+	TopazConfigFile string `json:"topaz_config_file,omitempty" yaml:"topaz_config_file,omitempty"`
 }
 
 type Path string
