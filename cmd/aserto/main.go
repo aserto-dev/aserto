@@ -19,7 +19,6 @@ import (
 	topazCC "github.com/aserto-dev/topaz/pkg/cli/cc"
 	topaz "github.com/aserto-dev/topaz/pkg/cli/cmd"
 	"github.com/pkg/errors"
-	"github.com/samber/lo"
 )
 
 func main() {
@@ -95,9 +94,9 @@ func main() {
 		kongCtx.FatalIfErrorf(err)
 	}
 
-	if lo.Contains(kongCtx.Args, "--configure") || lo.Contains(kongCtx.Args, "-c") || lo.Contains(kongCtx.Args, "--config") {
-		err = topazCtx.SaveContextConfig(topaz.CLIConfigurationFile)
-		if err != nil {
+	// only save on config change.
+	if _, ok := topazCtx.Context.Value(topaz.Save).(bool); ok {
+		if err := topazCtx.SaveContextConfig(topaz.CLIConfigurationFile); err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())
 			os.Exit(1)
 		}

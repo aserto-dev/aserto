@@ -6,7 +6,7 @@ go 1.20
 
 // replace github.com/aserto-dev/go-grpc-authz => ../go-grpc-authz
 
-// replace github.com/aserto-dev/topaz => ../topaz
+replace github.com/aserto-dev/topaz => ../topaz
 
 require (
 	github.com/alecthomas/kong v0.8.1
@@ -62,7 +62,7 @@ require (
 	github.com/aserto-dev/runtime v0.60.2 // indirect
 	github.com/aserto-dev/self-decision-logger v0.0.5 // indirect
 	github.com/aserto-dev/service-host v0.0.9 // indirect
-	github.com/aserto-dev/topaz v0.31.7-0.20240307093335-d4d16b66950c // indirect
+	github.com/aserto-dev/topaz v0.31.7-0.20240312155519-affcf8f98cf0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bufbuild/protocompile v0.7.1 // indirect
 	github.com/bufbuild/protovalidate-go v0.5.0 // indirect

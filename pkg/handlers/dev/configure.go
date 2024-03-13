@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path"
+	"path/filepath"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/client/tenant"
@@ -41,19 +41,21 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 	fmt.Fprintf(c.UI.Err(), ">>> configure policy...\n")
 	fmt.Fprintf(c.UI.Err(), "tenant id: %s\n", c.TenantID())
 
-	if cmd.ConfigFile == "config.yaml" {
-		cmd.ConfigFile = cmd.PolicyName + ".yaml"
+	if cmd.Name == "" && cmd.Resource == "" {
+		if cmd.LocalPolicyImage == "" {
+			return errors.New("you either need to provide a local policy image or the resource and the policy name for the configuration")
+		}
 	}
-
-	if cmd.ConfigFile != c.TopazContext.Config.TopazConfigFile {
-		c.TopazContext.Config.TopazConfigFile = path.Join(topazCC.GetTopazCfgDir(), cmd.ConfigFile)
+	configFile := cmd.Name + ".yaml"
+	if configFile != c.TopazContext.Config.TopazConfigFile {
+		c.TopazContext.Config.TopazConfigFile = filepath.Join(topazCC.GetTopazCfgDir(), configFile)
 		c.TopazContext.Config.ContainerName = topazCC.ContainerName(c.TopazContext.Config.TopazConfigFile)
 	}
 
-	configGenerator := config.NewGenerator(cmd.PolicyName).
+	configGenerator := config.NewGenerator(cmd.Name).
 		WithVersion(config.ConfigFileVersion).
 		WithLocalPolicyImage(cmd.LocalPolicyImage).
-		WithPolicyName(cmd.PolicyName).
+		WithPolicyName(cmd.Name).
 		WithResource(cmd.Resource).
 		WithEdgeDirectory(cmd.EdgeDirectory).
 		WithEnableDirectoryV2(cmd.EnableDirectoryV2).
@@ -81,7 +83,7 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 	getDiscovery := true
-	policyRef, err := findPolicyRef(c.Context, client, cmd.PolicyName)
+	policyRef, err := findPolicyRef(c.Context, client, cmd.Name)
 	if err != nil {
 		// policy name not found
 		getDiscovery = false
@@ -101,16 +103,16 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 		}
 
 		configGenerator = configGenerator.WithContoller(c.Environment.Get(x.ControlPlaneService).Address,
-			path.Join("${TOPAZ_CERTS_DIR}/", certFile),
-			path.Join("${TOPAZ_CERTS_DIR}/", keyFile),
+			filepath.Join("${TOPAZ_CERTS_DIR}/", certFile),
+			filepath.Join("${TOPAZ_CERTS_DIR}/", keyFile),
 		).WithSelfDecisionLogger(c.Environment.Get(x.EMSService).Address,
-			path.Join("${TOPAZ_CERTS_DIR}/", certFile),
-			path.Join("${TOPAZ_CERTS_DIR}/", keyFile),
-			decisionlogger.Dir,
+			filepath.Join("${TOPAZ_CERTS_DIR}/", certFile),
+			filepath.Join("${TOPAZ_CERTS_DIR}/", keyFile),
+			filepath.Join(cmd.Name, decisionlogger.Dir),
 		)
 	}
 
-	fmt.Fprintf(c.UI.Err(), "policy name: %s\n", cmd.PolicyName)
+	fmt.Fprintf(c.UI.Err(), "policy name: %s\n", cmd.Name)
 
 	var w io.Writer
 
@@ -249,7 +251,7 @@ func fileFromConfigField(structVal *structpb.Struct, field, configDir, fileName 
 		return errors.Errorf("empty field: %s", field)
 	}
 
-	filePath := path.Join(configDir, fileName)
+	filePath := filepath.Join(configDir, fileName)
 	file, err := os.Create(filePath)
 	if err != nil {
 		return err
