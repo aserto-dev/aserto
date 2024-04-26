@@ -14,11 +14,11 @@ import (
 )
 
 type AuthorizerCmd struct {
-	EvalDecision topazAuthz.CheckDecisionCmd `cmd:"" help:"evaluate policy decision" group:"authorizer"`
-	DecisionTree topazAuthz.DecisionTreeCmd  `cmd:"" help:"get decision tree" group:"authorizer"`
-	ExecQuery    topazAuthz.ExecQueryCmd     `cmd:"" help:"execute query" group:"authorizer"`
-	GetPolicy    topazAuthz.GetPolicyCmd     `cmd:"" help:"get policy" group:"authorizer"`
-	ListPolicies topazAuthz.ListPoliciesCmd  `cmd:"" help:"list policies" group:"authorizer"`
+	EvalDecision topazAuthz.EvalCmd         `cmd:"" help:"evaluate policy decision" group:"authorizer"`
+	DecisionTree topazAuthz.DecisionTreeCmd `cmd:"" help:"get decision tree" group:"authorizer"`
+	ExecQuery    topazAuthz.QueryCmd        `cmd:"" help:"execute query" group:"authorizer"`
+	GetPolicy    topazAuthz.GetPolicyCmd    `cmd:"" help:"get policy" group:"authorizer"`
+	ListPolicies topazAuthz.ListPoliciesCmd `cmd:"" help:"list policies" group:"authorizer"`
 }
 
 func (cmd *AuthorizerCmd) AfterApply(c *topazCC.CommonCtx) error {
@@ -53,7 +53,7 @@ func (cmd *AuthorizerCmd) AfterApply(c *topazCC.CommonCtx) error {
 				return err
 			}
 
-			authorizerConfig := topazClients.Config{
+			authorizerConfig := topazClients.AuthorizerConfig{
 				Host:     cfg.Services.AuthorizerService.Address,
 				APIKey:   "",
 				Token:    tenantToken,
@@ -63,11 +63,11 @@ func (cmd *AuthorizerCmd) AfterApply(c *topazCC.CommonCtx) error {
 
 			c.Context = metadata.AppendToOutgoingContext(c.Context, string(headers.Authorization), "Bearer "+tenantToken)
 
-			cmd.EvalDecision.Config = authorizerConfig
-			cmd.ExecQuery.Config = authorizerConfig
-			cmd.GetPolicy.Config = authorizerConfig
-			cmd.DecisionTree.Config = authorizerConfig
-			cmd.ListPolicies.Config = authorizerConfig
+			cmd.EvalDecision.AuthorizerConfig = authorizerConfig
+			cmd.ExecQuery.AuthorizerConfig = authorizerConfig
+			cmd.GetPolicy.AuthorizerConfig = authorizerConfig
+			cmd.DecisionTree.AuthorizerConfig = authorizerConfig
+			cmd.ListPolicies.AuthorizerConfig = authorizerConfig
 		}
 	}
 	return nil

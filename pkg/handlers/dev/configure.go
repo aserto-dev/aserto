@@ -24,7 +24,7 @@ import (
 )
 
 type ConfigureCmd struct {
-	topaz.ConfigureCmd
+	topaz.NewConfigCmd
 	EdgeAuthorizer  string `optional:"" help:"id of edge authorizer connection used to register with the Aserto control plane"`
 	DecisionLogging bool   `optional:"" help:"enable decision logging"`
 }
@@ -46,19 +46,18 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 			return errors.New("you either need to provide a local policy image or the resource and the policy name for the configuration")
 		}
 	}
-	configFile := cmd.Name + ".yaml"
-	if configFile != c.TopazContext.Config.TopazConfigFile {
-		c.TopazContext.Config.TopazConfigFile = filepath.Join(topazCC.GetTopazCfgDir(), configFile)
-		c.TopazContext.Config.ContainerName = topazCC.ContainerName(c.TopazContext.Config.TopazConfigFile)
+	configFile := cmd.Name.String() + ".yaml"
+	if configFile != c.TopazContext.Config.Active.ConfigFile {
+		c.TopazContext.Config.Active.Config = cmd.Name.String()
+		c.TopazContext.Config.Active.ConfigFile = filepath.Join(topazCC.GetTopazCfgDir(), configFile)
 	}
 
-	configGenerator := config.NewGenerator(cmd.Name).
+	configGenerator := config.NewGenerator(cmd.Name.String()).
 		WithVersion(config.ConfigFileVersion).
 		WithLocalPolicyImage(cmd.LocalPolicyImage).
-		WithPolicyName(cmd.Name).
+		WithPolicyName(cmd.Name.String()).
 		WithResource(cmd.Resource).
 		WithEdgeDirectory(cmd.EdgeDirectory).
-		WithEnableDirectoryV2(cmd.EnableDirectoryV2).
 		WithTenantID(c.TenantID())
 
 	_, err := configGenerator.CreateConfigDir()
@@ -83,7 +82,7 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 	getDiscovery := true
-	policyRef, err := findPolicyRef(c.Context, client, cmd.Name)
+	policyRef, err := findPolicyRef(c.Context, client, cmd.Name.String())
 	if err != nil {
 		// policy name not found
 		getDiscovery = false
@@ -101,15 +100,15 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 		if errCerts != nil {
 			return err
 		}
-
-		configGenerator = configGenerator.WithContoller(c.Environment.Get(x.ControlPlaneService).Address,
-			filepath.Join("${TOPAZ_CERTS_DIR}/", certFile),
-			filepath.Join("${TOPAZ_CERTS_DIR}/", keyFile),
-		).WithSelfDecisionLogger(c.Environment.Get(x.EMSService).Address,
-			filepath.Join("${TOPAZ_CERTS_DIR}/", certFile),
-			filepath.Join("${TOPAZ_CERTS_DIR}/", keyFile),
-			filepath.Join(cmd.Name, decisionlogger.Dir),
-		)
+		configGenerator = configGenerator.
+			WithController(c.Environment.Get(x.ControlPlaneService).Address,
+				filepath.Join("${TOPAZ_CERTS_DIR}/", certFile),
+				filepath.Join("${TOPAZ_CERTS_DIR}/", keyFile)).
+			WithSelfDecisionLogger(c.Environment.Get(x.EMSService).Address,
+				filepath.Join("${TOPAZ_CERTS_DIR}/", certFile),
+				filepath.Join("${TOPAZ_CERTS_DIR}/", keyFile),
+				filepath.Join(cmd.Name.String(), decisionlogger.Dir),
+			)
 	}
 
 	fmt.Fprintf(c.UI.Err(), "policy name: %s\n", cmd.Name)
@@ -120,14 +119,14 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 		w = c.UI.Output()
 	} else {
 		if !cmd.Force {
-			if _, err := os.Stat(c.TopazContext.Config.TopazConfigFile); err == nil {
+			if _, err := os.Stat(c.TopazContext.Config.Active.ConfigFile); err == nil {
 				c.UI.Exclamation().Msg("A configuration file already exists.")
 				if !topaz.PromptYesNo("Do you want to continue?", false) {
 					return nil
 				}
 			}
 		}
-		w, err = os.Create(c.TopazContext.Config.TopazConfigFile)
+		w, err = os.Create(c.TopazContext.Config.Active.ConfigFile)
 		if err != nil {
 			return err
 		}

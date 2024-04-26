@@ -27,7 +27,7 @@ type DirectoryCmd struct {
 	DeleteRelation directory.DeleteRelationCmd `cmd:"" help:"delete relation" group:"directory"`
 	ListRelations  directory.ListRelationsCmd  `cmd:"" help:"list relations" group:"directory"`
 	Check          directory.CheckCmd          `cmd:"" help:"check" group:"directory"`
-	GetGraph       directory.GetGraphCmd       `cmd:"" help:"get relation graph" group:"directory"`
+	Search         directory.SearchCmd         `cmd:"" help:"get relation graph" group:"directory"`
 }
 
 func (cmd *DirectoryCmd) AfterApply(c *topazCC.CommonCtx) error {
@@ -63,7 +63,7 @@ func (cmd *DirectoryCmd) AfterApply(c *topazCC.CommonCtx) error {
 				return err
 			}
 
-			dirConfig := topazClients.Config{
+			dirConfig := topazClients.DirectoryConfig{
 				Host:     cfg.Services.DirectoryReaderService.Address,
 				APIKey:   "",
 				Token:    tenantToken,
@@ -73,19 +73,19 @@ func (cmd *DirectoryCmd) AfterApply(c *topazCC.CommonCtx) error {
 
 			c.Context = metadata.AppendToOutgoingContext(c.Context, string(headers.Authorization), "Bearer "+tenantToken)
 
-			cmd.GetManifest.Config = dirConfig
-			cmd.SetManifest.Config = dirConfig
-			cmd.DeleteManifest.Config = dirConfig
-			cmd.GetObject.Config = dirConfig
-			cmd.SetObject.Config = dirConfig
-			cmd.DeleteObject.Config = dirConfig
-			cmd.ListObjects.Config = dirConfig
-			cmd.GetRelation.Config = dirConfig
-			cmd.SetRelation.Config = dirConfig
-			cmd.DeleteRelation.Config = dirConfig
-			cmd.ListRelations.Config = dirConfig
-			cmd.Check.Config = dirConfig
-			cmd.GetGraph.Config = dirConfig
+			cmd.GetManifest.DirectoryConfig = dirConfig
+			cmd.SetManifest.DirectoryConfig = dirConfig
+			cmd.DeleteManifest.DirectoryConfig = dirConfig
+			cmd.GetObject.DirectoryConfig = dirConfig
+			cmd.SetObject.DirectoryConfig = dirConfig
+			cmd.DeleteObject.DirectoryConfig = dirConfig
+			cmd.ListObjects.DirectoryConfig = dirConfig
+			cmd.GetRelation.DirectoryConfig = dirConfig
+			cmd.SetRelation.DirectoryConfig = dirConfig
+			cmd.DeleteRelation.DirectoryConfig = dirConfig
+			cmd.ListRelations.DirectoryConfig = dirConfig
+			cmd.Check.DirectoryConfig = dirConfig
+			cmd.Search.DirectoryConfig = dirConfig
 
 		}
 	}

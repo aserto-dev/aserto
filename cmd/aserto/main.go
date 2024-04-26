@@ -66,7 +66,7 @@ func main() {
 			"container_image":    topazCC.ContainerImage(),
 			"container_tag":      topazCC.ContainerTag(),
 			"container_platform": topazCC.ContainerPlatform(),
-			"container_name":     topazCC.ContainerName(topazCtx.Config.TopazConfigFile),
+			"container_name":     topazCC.ContainerName(topazCtx.Config.Active.ConfigFile),
 		},
 	)
 
