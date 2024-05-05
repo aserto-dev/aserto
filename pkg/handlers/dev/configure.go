@@ -99,7 +99,7 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 	if cmd.Stdout {
 		w = c.UI.Output()
 	} else {
-		w, err = os.Create(path.Join(configDir, params.PolicyName+".yaml"))
+		w, err = os.Create(path.Join(configDir, dotYAMLFile(params.PolicyName)))
 		if err != nil {
 			return err
 		}

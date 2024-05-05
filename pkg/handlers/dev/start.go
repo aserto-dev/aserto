@@ -17,8 +17,13 @@ import (
 )
 
 const (
-	local = "local"
+	local   = "local"
+	dotYAML = ".yaml"
 )
+
+func dotYAMLFile(name string) string {
+	return name + dotYAML
+}
 
 type StartCmd struct {
 	Name             string `arg:"" required:"" help:"policy name"`
@@ -66,7 +71,7 @@ func (cmd *StartCmd) Run(c *cc.CommonCtx) error {
 	default:
 		cmdArgs := []string{
 			"run",
-			"--config-file", "/cfg/" + cmd.Name + ".yaml",
+			"--config-file", path.Join("/cfg", dotYAMLFile(cmd.Name)),
 		}
 
 		args = append(args, cmdArgs...)
@@ -180,11 +185,11 @@ func (cmd *StartCmd) validateConfig(c *cc.CommonCtx, paths *localpaths.Paths) er
 		if err := setupLocalRun(c, paths, cmd.SrcPath); err != nil {
 			return err
 		}
-	} else if !filex.FileExists(path.Join(paths.Config, cmd.Name+".yaml")) {
+	} else if !filex.FileExists(path.Join(paths.Config, dotYAMLFile(cmd.Name))) {
 		return errors.Errorf("config for policy [%s] not found\nplease ensure the name is correct or\n run \"aserto developer configure <name>\" to create or update the policy configuration file", cmd.Name)
 	}
 
-	cfgPath := path.Join(paths.Config, cmd.Name+".yaml")
+	cfgPath := path.Join(paths.Config, dotYAMLFile(cmd.Name))
 	v := viper.New()
 	v.SetConfigType("yaml")
 	v.SetConfigFile(cfgPath)
