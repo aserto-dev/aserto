@@ -5,6 +5,7 @@ import (
 
 	auth0 "github.com/aserto-dev/aserto/pkg/auth0/api"
 	"github.com/aserto-dev/aserto/pkg/client/tenant"
+	aserto "github.com/aserto-dev/go-aserto/client"
 	"github.com/aserto-dev/go-grpc/aserto/api/v1"
 	"github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"
 	"github.com/aserto-dev/go-grpc/aserto/tenant/connection/v1"
@@ -24,10 +25,8 @@ func getTenantID(ctx context.Context, client *tenant.Client, token *auth0.Token)
 }
 
 func GetConnectionKeys(ctx context.Context, client *tenant.Client, token *auth0.Token) error {
-	client.SetTenantID(token.TenantID)
-
 	resp, err := client.Connections.ListConnections(
-		ctx,
+		aserto.SetTenantContext(ctx, token.TenantID),
 		&connection.ListConnectionsRequest{
 			Kind: api.ProviderKind_PROVIDER_KIND_UNKNOWN,
 		})
