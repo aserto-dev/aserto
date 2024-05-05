@@ -3,6 +3,7 @@ package clients
 import (
 	"context"
 	"log"
+	"time"
 
 	token_ "github.com/aserto-dev/aserto/pkg/cc/token"
 	tenant_ "github.com/aserto-dev/aserto/pkg/client/tenant"
@@ -12,6 +13,8 @@ import (
 	dl "github.com/aserto-dev/go-decision-logs/aserto/decision-logs/v2"
 	"github.com/aserto-dev/go-grpc/aserto/management/v2"
 	"github.com/pkg/errors"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/keepalive"
 )
 
 type Factory interface {
@@ -89,12 +92,18 @@ func (c *AsertoFactory) DecisionLogsClient() (dl.DecisionLogsClient, error) {
 		return nil, err
 	}
 
+	kacp := keepalive.ClientParameters{
+		Time:    30 * time.Second, // send pings every 30 seconds if there is no activity
+		Timeout: 5 * time.Second,  // wait 5 seconds for ping ack before considering the connection dead
+	}
+	options = append(options, aserto.WithDialOptions(grpc.WithKeepaliveParams(kacp)))
+
 	conn, err := aserto.NewConnection(c.ctx, options...)
 	if err != nil {
 		return nil, err
 	}
 
-	return dl.NewDecisionLogsClient(conn.Conn), nil
+	return dl.NewDecisionLogsClient(conn), nil
 }
 
 func (c *AsertoFactory) ControlPlaneClient() (management.ControlPlaneClient, error) {
@@ -108,7 +117,7 @@ func (c *AsertoFactory) ControlPlaneClient() (management.ControlPlaneClient, err
 		return nil, err
 	}
 
-	return management.NewControlPlaneClient(conn.Conn), nil
+	return management.NewControlPlaneClient(conn), nil
 }
 
 func (c *AsertoFactory) options(svc x.Service) ([]aserto.ConnectionOption, error) {

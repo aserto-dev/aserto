@@ -16,6 +16,8 @@ const (
 	IdentityTypeJwt  IdentityType = "jwt"
 )
 
+var ErrInvalidJSON = fmt.Errorf("resource must be a JSON object")
+
 type AuthParams struct {
 	Identity     string       `name:"identity" help:"caller identity" default:""`
 	IdentityType IdentityType `name:"identity-type" enum:"sub,jwt,none" help:"type of identity [sub|jwt|none]"  default:"none"`
@@ -51,7 +53,7 @@ func (a AuthParams) ResourceContext() (*structpb.Struct, error) {
 
 		m, ok := r.(map[string]interface{})
 		if !ok {
-			return result, fmt.Errorf("resource must be a JSON object")
+			return result, ErrInvalidJSON
 		}
 
 		return structpb.NewStruct(m)
