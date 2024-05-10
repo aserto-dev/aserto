@@ -41,33 +41,33 @@ func GetConnectionKeys(ctx context.Context, client *tenant.Client, token *auth0.
 			if respX, err := GetConnection(ctx, client, cn.Id); err == nil {
 				token.AuthorizerAPIKey = respX.Result.Config.Fields["api_key"].GetStringValue()
 			} else {
-				return errors.Wrapf(err, "get connection [%s]", cn.Id)
+				return errors.Wrapf(err, "get authorizer connection [%s]", cn.Id)
 			}
 		case cn.Kind == api.ProviderKind_PROVIDER_KIND_DECISION_LOGS:
 			if respX, err := GetConnection(ctx, client, cn.Id); err == nil {
 				token.DecisionLogsKey = respX.Result.Config.Fields["api_key"].GetStringValue()
 			} else {
-				return errors.Wrapf(err, "get connection [%s]", cn.Id)
+				return errors.Wrapf(err, "get decision-logs connection [%s]", cn.Id)
 			}
 		case cn.Kind == api.ProviderKind_PROVIDER_KIND_DISCOVERY:
 			if respX, err := GetConnection(ctx, client, cn.Id); err == nil {
 				token.DiscoveryKey = respX.Result.Config.Fields["api_key"].GetStringValue()
 			} else {
-				return errors.Wrapf(err, "get connection [%s]", cn.Id)
+				return errors.Wrapf(err, "get discovery connection [%s]", cn.Id)
 			}
 		case cn.Kind == api.ProviderKind_PROVIDER_KIND_DIRECTORY && cn.Name == "aserto-directory":
 			if respX, err := GetConnection(ctx, client, cn.Id); err == nil {
 				token.DirectoryReadKey = respX.Result.Config.Fields["api_key_read"].GetStringValue()
 				token.DirectoryWriteKey = respX.Result.Config.Fields["api_key_write"].GetStringValue()
 			} else {
-				return errors.Wrapf(err, "get connection [%s]", cn.Id)
+				return errors.Wrapf(err, "get directory connection [%s]", cn.Id)
 			}
 		case cn.Kind == api.ProviderKind_PROVIDER_KIND_POLICY_REGISTRY && cn.Name == "aserto-policy-registry":
 			if respX, err := GetConnection(ctx, client, cn.Id); err == nil {
 				token.RegistryDownloadKey = respX.Result.Config.Fields["api_key_read"].GetStringValue()
 				token.RegistryUploadKey = respX.Result.Config.Fields["api_key_write"].GetStringValue()
 			} else {
-				return errors.Wrapf(err, "get connection [%s]", cn.Id)
+				return errors.Wrapf(err, "get registry connection [%s]", cn.Id)
 			}
 		}
 	}
