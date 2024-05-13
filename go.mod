@@ -8,15 +8,15 @@ toolchain go1.22.1
 
 // replace github.com/aserto-dev/go-grpc-authz => ../go-grpc-authz
 
-replace github.com/aserto-dev/topaz => ../topaz
+// replace github.com/aserto-dev/topaz => ../topaz
 
 require (
 	github.com/alecthomas/kong v0.9.0
 	github.com/aserto-dev/clui v0.8.3
-	github.com/aserto-dev/go-aserto v0.31.3
+	github.com/aserto-dev/go-aserto v0.31.4
 	github.com/aserto-dev/go-decision-logs v0.0.4
-	github.com/aserto-dev/go-directory v0.31.3
-	github.com/aserto-dev/go-grpc v0.8.63
+	github.com/aserto-dev/go-directory v0.31.4
+	github.com/aserto-dev/go-grpc v0.8.65
 	github.com/cli/browser v1.3.0
 	github.com/go-http-utils/headers v0.0.0-20181008091004-fed159eddc2a
 	github.com/google/wire v0.6.0
@@ -30,18 +30,18 @@ require (
 	github.com/stretchr/testify v1.9.0
 	github.com/zalando/go-keyring v0.2.3
 	github.com/zenizh/go-capturer v0.0.0-20211219060012-52ea6c8fed04
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240401170217-c3f982113cda
-	google.golang.org/grpc v1.63.2
-	google.golang.org/protobuf v1.33.1-0.20240408130810-98873a205002
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240515191416-fc5f0ca64291
+	google.golang.org/grpc v1.64.0
+	google.golang.org/protobuf v1.34.1
 	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.33.0-20240401165935-b983156c5e99.1 // indirect
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.34.1-20240508200655-46a4cf4ba109.1 // indirect
 	contrib.go.opencensus.io/exporter/prometheus v0.4.2 // indirect
 	github.com/AdaLogics/go-fuzz-headers v0.0.0-20230811130428-ced1acdcaa24 // indirect
 	github.com/Masterminds/semver v1.5.0 // indirect
-	github.com/Microsoft/hcsshim v0.12.2 // indirect
+	github.com/Microsoft/hcsshim v0.12.3 // indirect
 	github.com/OneOfOne/xxhash v1.2.8 // indirect
 	github.com/adrg/xdg v0.4.0 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
@@ -51,26 +51,26 @@ require (
 	github.com/aserto-dev/aserto-management v0.9.4 // indirect
 	github.com/aserto-dev/azm v0.1.8 // indirect
 	github.com/aserto-dev/certs v0.0.6 // indirect
-	github.com/aserto-dev/errors v0.0.7 // indirect
+	github.com/aserto-dev/errors v0.0.8 // indirect
 	github.com/aserto-dev/go-authorizer v0.20.6 // indirect
-	github.com/aserto-dev/go-directory-cli v0.31.1 // indirect
-	github.com/aserto-dev/go-edge-ds v0.31.4 // indirect
+	github.com/aserto-dev/go-directory-cli v0.31.2 // indirect
+	github.com/aserto-dev/go-edge-ds v0.31.5 // indirect
 	github.com/aserto-dev/go-http-metrics v0.10.1-20221024-1 // indirect
-	github.com/aserto-dev/go-topaz-ui v0.1.6 // indirect
+	github.com/aserto-dev/go-topaz-ui v0.1.7 // indirect
 	github.com/aserto-dev/header v0.0.7 // indirect
 	github.com/aserto-dev/logger v0.0.4 // indirect
 	github.com/aserto-dev/openapi-authorizer v0.20.4 // indirect
-	github.com/aserto-dev/openapi-directory v0.31.1 // indirect
-	github.com/aserto-dev/runtime v0.62.1 // indirect
+	github.com/aserto-dev/openapi-directory v0.31.2 // indirect
+	github.com/aserto-dev/runtime v0.64.0 // indirect
 	github.com/aserto-dev/self-decision-logger v0.0.5 // indirect
 	github.com/aserto-dev/service-host v0.0.11 // indirect
-	github.com/aserto-dev/topaz v0.32.1-0.20240425074018-ab5b98f52c01 // indirect
+	github.com/aserto-dev/topaz v0.32.5 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bufbuild/protocompile v0.10.0 // indirect
-	github.com/bufbuild/protovalidate-go v0.6.1 // indirect
+	github.com/bufbuild/protovalidate-go v0.6.2 // indirect
 	github.com/bytecodealliance/wasmtime-go/v3 v3.0.2 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/containerd/containerd v1.7.15 // indirect
+	github.com/containerd/containerd v1.7.16 // indirect
 	github.com/containerd/log v0.1.0 // indirect
 	github.com/danieljoos/wincred v1.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
@@ -98,7 +98,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus v1.0.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0 // indirect
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.1 // indirect
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.20.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jhump/protoreflect v1.16.0 // indirect
@@ -126,15 +126,15 @@ require (
 	github.com/nats-io/nkeys v0.4.7 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
-	github.com/open-policy-agent/opa v0.63.0 // indirect
+	github.com/open-policy-agent/opa v0.64.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.0 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus/client_golang v1.19.0 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
-	github.com/prometheus/common v0.52.2 // indirect
-	github.com/prometheus/procfs v0.13.0 // indirect
+	github.com/prometheus/common v0.53.0 // indirect
+	github.com/prometheus/procfs v0.14.0 // indirect
 	github.com/prometheus/statsd_exporter v0.26.1 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
@@ -153,26 +153,26 @@ require (
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/yashtewari/glob-intersection v0.2.0 // indirect
-	go.etcd.io/bbolt v1.3.9 // indirect
+	go.etcd.io/bbolt v1.3.10 // indirect
 	go.opencensus.io v0.24.0 // indirect
-	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.50.0 // indirect
-	go.opentelemetry.io/otel v1.25.0 // indirect
-	go.opentelemetry.io/otel/metric v1.25.0 // indirect
-	go.opentelemetry.io/otel/sdk v1.25.0 // indirect
-	go.opentelemetry.io/otel/trace v1.25.0 // indirect
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.51.0 // indirect
+	go.opentelemetry.io/otel v1.26.0 // indirect
+	go.opentelemetry.io/otel/metric v1.26.0 // indirect
+	go.opentelemetry.io/otel/sdk v1.26.0 // indirect
+	go.opentelemetry.io/otel/trace v1.26.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.22.0 // indirect
-	golang.org/x/exp v0.0.0-20240409090435-93d18d7e34b8 // indirect
+	golang.org/x/crypto v0.23.0 // indirect
+	golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842 // indirect
 	golang.org/x/mod v0.17.0 // indirect
-	golang.org/x/net v0.24.0 // indirect
+	golang.org/x/net v0.25.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.19.0 // indirect
-	golang.org/x/term v0.19.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/sys v0.20.0 // indirect
+	golang.org/x/term v0.20.0 // indirect
+	golang.org/x/text v0.15.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
-	golang.org/x/tools v0.20.0 // indirect
+	golang.org/x/tools v0.21.0 // indirect
 	google.golang.org/genproto v0.0.0-20240227224415-6ceb2ff114de // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20240401170217-c3f982113cda // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20240515191416-fc5f0ca64291 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

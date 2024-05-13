@@ -3,7 +3,8 @@ package cmd
 import (
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/handlers/dev"
-	topaz "github.com/aserto-dev/topaz/pkg/cli/cmd"
+	topazConfig "github.com/aserto-dev/topaz/pkg/cli/cmd/configure"
+	topaz "github.com/aserto-dev/topaz/pkg/cli/cmd/topaz"
 )
 
 type TopazCmd struct {
@@ -19,10 +20,10 @@ type TopazCmd struct {
 }
 
 type AsertoConfigCmd struct {
-	New    dev.ConfigureCmd      `cmd:"" help:"create new configuration"`
-	List   topaz.ListConfigCmd   `cmd:"" help:"list configurations"`
-	Rename topaz.RenameConfigCmd `cmd:"" help:"rename configuration"`
-	Delete topaz.DeleteConfigCmd `cmd:"" help:"delete configuration"`
+	New    dev.ConfigureCmd            `cmd:"" help:"create new configuration"`
+	List   topazConfig.ListConfigCmd   `cmd:"" help:"list configurations"`
+	Rename topazConfig.RenameConfigCmd `cmd:"" help:"rename configuration"`
+	Delete topazConfig.DeleteConfigCmd `cmd:"" help:"delete configuration"`
 }
 
 func (cmd *TopazCmd) Run(c *cc.CommonCtx) error {

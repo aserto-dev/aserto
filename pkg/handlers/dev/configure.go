@@ -19,12 +19,14 @@ import (
 
 	"github.com/aserto-dev/topaz/pkg/cc/config"
 	topazCC "github.com/aserto-dev/topaz/pkg/cli/cc"
-	topaz "github.com/aserto-dev/topaz/pkg/cli/cmd"
+	topazCerts "github.com/aserto-dev/topaz/pkg/cli/cmd/certs"
+	topazCommon "github.com/aserto-dev/topaz/pkg/cli/cmd/common"
+	topazConfigure "github.com/aserto-dev/topaz/pkg/cli/cmd/configure"
 	"github.com/pkg/errors"
 )
 
 type ConfigureCmd struct {
-	topaz.NewConfigCmd
+	topazConfigure.NewConfigCmd
 	EdgeAuthorizer  string `optional:"" help:"id of edge authorizer connection used to register with the Aserto control plane"`
 	DecisionLogging bool   `optional:"" help:"enable decision logging"`
 }
@@ -68,7 +70,7 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 	if _, err := configGenerator.CreateCertsDir(); err != nil {
 		return err
 	}
-	certGenerator := topaz.GenerateCertsCmd{CertsDir: topazCC.GetTopazCertsDir()}
+	certGenerator := topazCerts.GenerateCertsCmd{CertsDir: topazCC.GetTopazCertsDir()}
 	err = certGenerator.Run(c.TopazContext)
 	if err != nil {
 		return err
@@ -121,7 +123,7 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 		if !cmd.Force {
 			if _, err := os.Stat(c.TopazContext.Config.Active.ConfigFile); err == nil {
 				c.UI.Exclamation().Msg("A configuration file already exists.")
-				if !topaz.PromptYesNo("Do you want to continue?", false) {
+				if !topazCommon.PromptYesNo("Do you want to continue?", false) {
 					return nil
 				}
 			}

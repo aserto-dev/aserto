@@ -11,13 +11,12 @@ import (
 	aErr "github.com/aserto-dev/aserto/pkg/cc/errors"
 	topazCC "github.com/aserto-dev/topaz/pkg/cli/cc"
 	topazClients "github.com/aserto-dev/topaz/pkg/cli/clients"
-	topaz "github.com/aserto-dev/topaz/pkg/cli/cmd"
 )
 
 type DirectoryCmd struct {
-	GetManifest    topaz.GetManifestCmd        `cmd:"" help:"get manifest" group:"directory"`
-	SetManifest    topaz.SetManifestCmd        `cmd:"" help:"set manifest" group:"directory"`
-	DeleteManifest topaz.DeleteManifestCmd     `cmd:"" help:"delete manifest" group:"directory"`
+	GetManifest    directory.GetManifestCmd    `cmd:"" help:"get manifest" group:"directory"`
+	SetManifest    directory.SetManifestCmd    `cmd:"" help:"set manifest" group:"directory"`
+	DeleteManifest directory.DeleteManifestCmd `cmd:"" help:"delete manifest" group:"directory"`
 	GetObject      directory.GetObjectCmd      `cmd:"" help:"get object" group:"directory"`
 	SetObject      directory.SetObjectCmd      `cmd:"" help:"set object" group:"directory"`
 	DeleteObject   directory.DeleteObjectCmd   `cmd:"" help:"delete object" group:"directory"`

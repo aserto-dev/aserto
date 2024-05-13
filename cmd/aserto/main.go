@@ -5,7 +5,9 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"runtime/debug"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/alecthomas/kong"
@@ -40,6 +42,16 @@ func main() {
 		os.Exit(1)
 	}
 
+	containerVersion := topazCC.ContainerTag()
+	bi, ok := debug.ReadBuildInfo()
+	if ok {
+		for _, dep := range bi.Deps {
+			if strings.Contains(dep.Path, "github.com/aserto-dev/topaz") {
+				containerVersion = strings.TrimPrefix(dep.Version, "v")
+			}
+		}
+	}
+
 	kongCtx := kong.Parse(&cli,
 		kong.Name(x.AppName),
 		kong.Description(x.AppDescription),
@@ -64,9 +76,18 @@ func main() {
 			"topaz_db_dir":       topazCC.GetTopazDataDir(),
 			"container_registry": topazCC.ContainerRegistry(),
 			"container_image":    topazCC.ContainerImage(),
-			"container_tag":      topazCC.ContainerTag(),
+			"container_tag":      containerVersion,
 			"container_platform": topazCC.ContainerPlatform(),
 			"container_name":     topazCC.ContainerName(topazCtx.Config.Active.ConfigFile),
+			"directory_svc":      topazCC.DirectorySvc(),
+			"directory_key":      topazCC.DirectoryKey(),
+			"directory_token":    topazCC.DirectoryToken(),
+			"authorizer_svc":     topazCC.AuthorizerSvc(),
+			"authorizer_key":     topazCC.AuthorizerKey(),
+			"authorizer_token":   topazCC.AuthorizerToken(),
+			"tenant_id":          topazCC.TenantID(),
+			"insecure":           strconv.FormatBool(topazCC.Insecure()),
+			"no_check":           strconv.FormatBool(topazCC.NoCheck()),
 		},
 	)
 
@@ -92,14 +113,6 @@ func main() {
 
 	if err := kongCtx.Run(ctx); err != nil {
 		kongCtx.FatalIfErrorf(err)
-	}
-
-	// only save on config change.
-	if _, ok := topazCtx.Context.Value(topaz.Save).(bool); ok {
-		if err := topazCtx.SaveContextConfig(topaz.CLIConfigurationFile); err != nil {
-			fmt.Fprintln(os.Stderr, err.Error())
-			os.Exit(1)
-		}
 	}
 }
 

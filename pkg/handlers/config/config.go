@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
 	config "github.com/aserto-dev/aserto/pkg/cc/config"
@@ -17,6 +18,7 @@ import (
 	"github.com/aserto-dev/go-grpc/aserto/api/v1"
 	"github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"
 	topazConfig "github.com/aserto-dev/topaz/pkg/cli/cc"
+	topazConfigCmd "github.com/aserto-dev/topaz/pkg/cli/cmd/configure"
 	"github.com/samber/lo"
 	"gopkg.in/yaml.v2"
 
@@ -243,7 +245,23 @@ func (cmd *UseContextCmd) Run(c *cc.CommonCtx) error {
 		return errors.Errorf("the context name provided doesn't exists")
 	}
 
+	usingTopazConfig := false
+	configFilePath := filepath.Join(topazConfig.GetTopazCfgDir(), cmd.ContextName+".yaml")
+	if _, err := os.Stat(configFilePath); err == nil {
+		configUse := topazConfigCmd.UseConfigCmd{}
+		configUse.Name = topazConfigCmd.ConfigName(cmd.ContextName)
+		configUse.ConfigDir = topazConfig.GetTopazCfgDir()
+		err = configUse.Run(c.TopazContext)
+		if err != nil {
+			return err
+		}
+		usingTopazConfig = true
+	}
+
 	cfg.Context.ActiveContext = cmd.ContextName
+	if !usingTopazConfig {
+		c.UI.Normal().Msgf("Using configuration %q", cmd.ContextName)
+	}
 
 	data, err := yaml.Marshal(cfg)
 	if err != nil {
@@ -327,7 +345,7 @@ func attachTopazContexts(contextList *[]config.Ctx) error {
 		_, found := lo.Find(*contextList, func(c config.Ctx) bool { return c.Name == file.Name() })
 		if !found {
 			*contextList = append(*contextList, config.Ctx{
-				Name:            file.Name(),
+				Name:            strings.TrimSuffix(file.Name(), filepath.Ext(file.Name())),
 				TopazConfigFile: filepath.Join(topazConfig.GetTopazCfgDir(), file.Name()),
 			})
 		}
