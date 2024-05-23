@@ -45,48 +45,45 @@ func (cmd *DirectoryCmd) AfterApply(c *topazCC.CommonCtx) error {
 	}
 
 	for _, ctxs := range cfg.Context.Contexts {
-		if cfg.Context.ActiveContext == ctxs.Name {
-			if ctxs.TopazConfigFile != "" {
-				err = setServicesConfig(cfg, ctxs.TopazConfigFile)
-				if err != nil {
-					return err
-				}
-			}
-			// err = os.Setenv(topazClients.EnvTopazDirectorySvc, cfg.Services.DirectoryReaderService.Address)
-			// if err != nil {
-			// 	return err
-			// }
-
-			tenantToken, err := getTenantTokenDetails(ctxs.TenantID, cfg.Auth)
+		if cfg.Context.ActiveContext != ctxs.Name {
+			continue
+		}
+		if ctxs.TopazConfigFile != "" {
+			err = setServicesConfig(cfg, ctxs.TopazConfigFile)
 			if err != nil {
 				return err
 			}
-
-			dirConfig := topazClients.DirectoryConfig{
-				Host:     cfg.Services.DirectoryReaderService.Address,
-				APIKey:   "",
-				Token:    tenantToken,
-				Insecure: cfg.Services.DirectoryReaderService.Insecure,
-				TenantID: ctxs.TenantID,
-			}
-
-			c.Context = metadata.AppendToOutgoingContext(c.Context, string(headers.Authorization), "Bearer "+tenantToken)
-
-			cmd.GetManifest.DirectoryConfig = dirConfig
-			cmd.SetManifest.DirectoryConfig = dirConfig
-			cmd.DeleteManifest.DirectoryConfig = dirConfig
-			cmd.GetObject.DirectoryConfig = dirConfig
-			cmd.SetObject.DirectoryConfig = dirConfig
-			cmd.DeleteObject.DirectoryConfig = dirConfig
-			cmd.ListObjects.DirectoryConfig = dirConfig
-			cmd.GetRelation.DirectoryConfig = dirConfig
-			cmd.SetRelation.DirectoryConfig = dirConfig
-			cmd.DeleteRelation.DirectoryConfig = dirConfig
-			cmd.ListRelations.DirectoryConfig = dirConfig
-			cmd.Check.DirectoryConfig = dirConfig
-			cmd.Search.DirectoryConfig = dirConfig
-
 		}
+
+		tenantToken, err := getTenantTokenDetails(cfg.Auth)
+		if err != nil {
+			return err
+		}
+
+		dirConfig := topazClients.DirectoryConfig{
+			Host:     cfg.Services.DirectoryReaderService.Address,
+			APIKey:   "",
+			Token:    tenantToken,
+			Insecure: cfg.Services.DirectoryReaderService.Insecure,
+			TenantID: ctxs.TenantID,
+		}
+
+		c.Context = metadata.AppendToOutgoingContext(c.Context, string(headers.Authorization), "Bearer "+tenantToken)
+
+		cmd.GetManifest.DirectoryConfig = dirConfig
+		cmd.SetManifest.DirectoryConfig = dirConfig
+		cmd.DeleteManifest.DirectoryConfig = dirConfig
+		cmd.GetObject.DirectoryConfig = dirConfig
+		cmd.SetObject.DirectoryConfig = dirConfig
+		cmd.DeleteObject.DirectoryConfig = dirConfig
+		cmd.ListObjects.DirectoryConfig = dirConfig
+		cmd.GetRelation.DirectoryConfig = dirConfig
+		cmd.SetRelation.DirectoryConfig = dirConfig
+		cmd.DeleteRelation.DirectoryConfig = dirConfig
+		cmd.ListRelations.DirectoryConfig = dirConfig
+		cmd.Check.DirectoryConfig = dirConfig
+		cmd.Search.DirectoryConfig = dirConfig
+
 	}
 	return nil
 }

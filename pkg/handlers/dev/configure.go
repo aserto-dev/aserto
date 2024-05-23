@@ -17,7 +17,7 @@ import (
 	"github.com/aserto-dev/go-grpc/aserto/tenant/connection/v1"
 	policy "github.com/aserto-dev/go-grpc/aserto/tenant/policy/v1"
 
-	"github.com/aserto-dev/topaz/pkg/cc/config"
+	topazConfig "github.com/aserto-dev/topaz/pkg/cc/config"
 	topazCC "github.com/aserto-dev/topaz/pkg/cli/cc"
 	topazCerts "github.com/aserto-dev/topaz/pkg/cli/cmd/certs"
 	topazCommon "github.com/aserto-dev/topaz/pkg/cli/cmd/common"
@@ -31,7 +31,7 @@ type ConfigureCmd struct {
 	DecisionLogging bool   `optional:"" help:"enable decision logging"`
 }
 
-func (cmd ConfigureCmd) Validate() error {
+func (cmd *ConfigureCmd) Validate() error {
 	if cmd.DecisionLogging && cmd.EdgeAuthorizer == "" {
 		return errors.New("decision logging requires an edge authorizer to be configured")
 	}
@@ -39,7 +39,7 @@ func (cmd ConfigureCmd) Validate() error {
 	return nil
 }
 
-func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
+func (cmd *ConfigureCmd) Run(c *cc.CommonCtx) error {
 	fmt.Fprintf(c.UI.Err(), ">>> configure policy...\n")
 	fmt.Fprintf(c.UI.Err(), "tenant id: %s\n", c.TenantID())
 
@@ -54,8 +54,8 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 		c.TopazContext.Config.Active.ConfigFile = filepath.Join(topazCC.GetTopazCfgDir(), configFile)
 	}
 
-	configGenerator := config.NewGenerator(cmd.Name.String()).
-		WithVersion(config.ConfigFileVersion).
+	configGenerator := topazConfig.NewGenerator(cmd.Name.String()).
+		WithVersion(topazConfig.ConfigFileVersion).
 		WithLocalPolicyImage(cmd.LocalPolicyImage).
 		WithPolicyName(cmd.Name.String()).
 		WithResource(cmd.Resource).
@@ -104,11 +104,11 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 		}
 		configGenerator = configGenerator.
 			WithController(c.Environment.Get(x.ControlPlaneService).Address,
-				filepath.Join("${TOPAZ_CERTS_DIR}/", certFile),
-				filepath.Join("${TOPAZ_CERTS_DIR}/", keyFile)).
+				filepath.Join("${TOPAZ_CERTS_DIR}", certFile),
+				filepath.Join("${TOPAZ_CERTS_DIR}", keyFile)).
 			WithSelfDecisionLogger(c.Environment.Get(x.EMSService).Address,
-				filepath.Join("${TOPAZ_CERTS_DIR}/", certFile),
-				filepath.Join("${TOPAZ_CERTS_DIR}/", keyFile),
+				filepath.Join("${TOPAZ_CERTS_DIR}", certFile),
+				filepath.Join("${TOPAZ_CERTS_DIR}", keyFile),
 				filepath.Join(cmd.Name.String(), decisionlogger.Dir),
 			)
 	}
@@ -134,9 +134,9 @@ func (cmd ConfigureCmd) Run(c *cc.CommonCtx) error {
 		}
 	}
 	if configGenerator.DiscoveryURL != "" {
-		return configGenerator.GenerateConfig(w, config.EdgeTemplate)
+		return configGenerator.GenerateConfig(w, topazConfig.EdgeTemplate)
 	}
-	return configGenerator.GenerateConfig(w, config.Template)
+	return configGenerator.GenerateConfig(w, topazConfig.Template)
 }
 
 func findPolicyRef(ctx context.Context, client *tenant.Client, policyName string) (*api.PolicyRef, error) {

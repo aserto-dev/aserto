@@ -3,6 +3,7 @@ package clients
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/aserto-dev/aserto/pkg/cc/config"
 	token_ "github.com/aserto-dev/aserto/pkg/cc/token"
@@ -15,6 +16,8 @@ import (
 	"github.com/aserto-dev/go-grpc/aserto/management/v2"
 	"github.com/pkg/errors"
 	"github.com/samber/lo"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/keepalive"
 
 	topazConfig "github.com/aserto-dev/topaz/pkg/cc/config"
 )
@@ -89,8 +92,8 @@ func NewClientFactory(
 	}, nil
 }
 
+//nolint:exhaustive, gocritic // we only override the topaz services if provided.
 func overrideFromContext(activeCtx config.Ctx, svc x.Service) (*x.ServiceOptions, error) {
-	//nolint:exhaustive // we only override the topaz services if provided.
 
 	loader, err := topazConfig.LoadConfiguration(activeCtx.TopazConfigFile)
 	if err != nil {
@@ -166,6 +169,14 @@ func (c *AsertoFactory) DecisionLogsClient() (dl.DecisionLogsClient, error) {
 		return nil, err
 	}
 
+	// add keepalive options for decision logs client.
+	options = append(options, aserto.WithDialOptions(
+		grpc.WithKeepaliveParams(keepalive.ClientParameters{
+			Time:    30 * time.Second,
+			Timeout: 5 * time.Second,
+		}),
+	))
+
 	conn, err := aserto.NewConnection(c.ctx, options...)
 	if err != nil {
 		return nil, err
@@ -179,6 +190,14 @@ func (c *AsertoFactory) ControlPlaneClient() (management.ControlPlaneClient, err
 	if err != nil {
 		return nil, err
 	}
+
+	// add keepalive options for control plane client.
+	options = append(options, aserto.WithDialOptions(
+		grpc.WithKeepaliveParams(keepalive.ClientParameters{
+			Time:    30 * time.Second,
+			Timeout: 5 * time.Second,
+		}),
+	))
 
 	conn, err := aserto.NewConnection(c.ctx, options...)
 	if err != nil {

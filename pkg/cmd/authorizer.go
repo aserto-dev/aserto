@@ -13,6 +13,10 @@ import (
 	topazAuthz "github.com/aserto-dev/topaz/pkg/cli/cmd/authorizer"
 )
 
+const (
+	BearerToken = `Bearer `
+)
+
 type AuthorizerCmd struct {
 	EvalDecision topazAuthz.EvalCmd         `cmd:"" help:"evaluate policy decision" group:"authorizer"`
 	DecisionTree topazAuthz.DecisionTreeCmd `cmd:"" help:"get decision tree" group:"authorizer"`
@@ -37,38 +41,37 @@ func (cmd *AuthorizerCmd) AfterApply(c *topazCC.CommonCtx) error {
 	}
 
 	for _, ctxs := range cfg.Context.Contexts {
-		if cfg.Context.ActiveContext == ctxs.Name {
-			if ctxs.TopazConfigFile != "" {
-				err = setServicesConfig(cfg, ctxs.TopazConfigFile)
-				if err != nil {
-					return err
-				}
-			}
-			// err = os.Setenv(topazClients.EnvTopazAuthorizerSvc, cfg.Services.AuthorizerService.Address)
-			// if err != nil {
-			// 	return err
-			// }
-			tenantToken, err := getTenantTokenDetails(ctxs.TenantID, cfg.Auth)
+		if cfg.Context.ActiveContext != ctxs.Name {
+			continue
+		}
+		if ctxs.TopazConfigFile != "" {
+			err = setServicesConfig(cfg, ctxs.TopazConfigFile)
 			if err != nil {
 				return err
 			}
-
-			authorizerConfig := topazClients.AuthorizerConfig{
-				Host:     cfg.Services.AuthorizerService.Address,
-				APIKey:   "",
-				Token:    tenantToken,
-				Insecure: cfg.Services.AuthorizerService.Insecure,
-				TenantID: ctxs.TenantID,
-			}
-
-			c.Context = metadata.AppendToOutgoingContext(c.Context, string(headers.Authorization), "Bearer "+tenantToken)
-
-			cmd.EvalDecision.AuthorizerConfig = authorizerConfig
-			cmd.ExecQuery.AuthorizerConfig = authorizerConfig
-			cmd.GetPolicy.AuthorizerConfig = authorizerConfig
-			cmd.DecisionTree.AuthorizerConfig = authorizerConfig
-			cmd.ListPolicies.AuthorizerConfig = authorizerConfig
 		}
+
+		tenantToken, err := getTenantTokenDetails(cfg.Auth)
+		if err != nil {
+			return err
+		}
+
+		authorizerConfig := topazClients.AuthorizerConfig{
+			Host:     cfg.Services.AuthorizerService.Address,
+			APIKey:   "",
+			Token:    tenantToken,
+			Insecure: cfg.Services.AuthorizerService.Insecure,
+			TenantID: ctxs.TenantID,
+		}
+
+		c.Context = metadata.AppendToOutgoingContext(c.Context, string(headers.Authorization), BearerToken+tenantToken)
+
+		cmd.EvalDecision.AuthorizerConfig = authorizerConfig
+		cmd.ExecQuery.AuthorizerConfig = authorizerConfig
+		cmd.GetPolicy.AuthorizerConfig = authorizerConfig
+		cmd.DecisionTree.AuthorizerConfig = authorizerConfig
+		cmd.ListPolicies.AuthorizerConfig = authorizerConfig
+
 	}
 	return nil
 }
