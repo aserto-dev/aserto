@@ -91,20 +91,23 @@ func main() {
 			"no_check":           strconv.FormatBool(topazCC.NoCheck()),
 		},
 	)
+	configPath := config.DefaultConfigFilePath
+	if cli.Cfg != "" {
+		configPath = cli.Cfg
+	}
 
 	ctx, err := cc.BuildCommonCtx(
-		config.Path(cli.Cfg),
+		config.Path(configPath),
 		cli.ConfigOverrider,
 		serviceOptions.ConfigOverrider,
 	)
-
-	topazCtx.Context = client.SetTenantContext(topazCtx.Context, ctx.TenantID())
-	ctx.TopazContext = topazCtx
-
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(1)
 	}
+
+	topazCtx.Context = client.SetTenantContext(topazCtx.Context, ctx.TenantID())
+	ctx.TopazContext = topazCtx
 
 	if err := kongCtx.Run(ctx); err != nil {
 		kongCtx.FatalIfErrorf(err)

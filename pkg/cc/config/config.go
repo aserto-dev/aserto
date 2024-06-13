@@ -2,10 +2,13 @@ package config
 
 import (
 	"io"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/aserto-dev/aserto/pkg/auth0"
 	decisionlogger "github.com/aserto-dev/aserto/pkg/decision_logger"
+	"github.com/aserto-dev/aserto/pkg/filex"
 	"github.com/aserto-dev/aserto/pkg/x"
 	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
@@ -15,6 +18,8 @@ import (
 var (
 	EnvironmentErr = errors.New("unknown environment")
 )
+
+var DefaultConfigFilePath = filepath.Join(os.Getenv("HOME"), ".config", "aserto", "config.json")
 
 // Overrider is a func that mutates configuration.
 type Overrider func(*Config)
@@ -29,12 +34,19 @@ func (auth *Auth) GetSettings() *auth0.Settings {
 	return auth0.GetSettings(auth.Issuer, auth.ClientID, auth.Audience)
 }
 
+type Target int8
+
+const (
+	Remote Target = iota
+	Local
+)
+
 type Config struct {
-	TenantID        string                `json:"tenant_id"`
-	Services        x.Services            `json:"services"`
-	Auth            *Auth                 `json:"auth"`
-	DecisionLogger  decisionlogger.Config `json:"decision_logger"`
-	TopazConfigFile string                `json:"topaz_config_file,omitempty" yaml:"topaz_config_file,omitempty"`
+	TenantID          string                `json:"tenant_id"`
+	Services          x.Services            `json:"services"`
+	Auth              *Auth                 `json:"auth"`
+	DecisionLogger    decisionlogger.Config `json:"decision_logger"`
+	TargetEnvironment Target
 }
 
 type Path string
@@ -44,7 +56,7 @@ func NewConfig(path Path, overrides ...Overrider) (*Config, error) {
 
 	return newConfig(
 		func(v *viper.Viper) error {
-			if configFile != "" {
+			if filex.FileExists(configFile) {
 				v.SetConfigFile(configFile)
 				if err := v.ReadInConfig(); err != nil {
 					return errors.Wrapf(err, "failed to read config file [%s]", configFile)

@@ -12,6 +12,8 @@ import (
 	account "github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"
 
 	"github.com/pkg/errors"
+
+	asertoConfig "github.com/aserto-dev/aserto/pkg/cc/config"
 )
 
 type GetEnvCmd struct{}
@@ -120,5 +122,22 @@ func (cmd *SetTenantCmd) Run(c *cc.CommonCtx) error {
 		}
 	}
 
+	return nil
+}
+
+type SetTarget struct {
+	Target string `enum:"local,remote" required:"true" default:"remote" help:"aserto CLI target environment (remote or local)"`
+}
+
+func (cmd *SetTarget) Run(c *cc.CommonCtx) error {
+	switch cmd.Target {
+	case "local":
+		c.Config.TargetEnvironment = asertoConfig.Local
+	case "remote":
+		c.Config.TargetEnvironment = asertoConfig.Remote
+	default:
+		c.UI.Exclamation().Msg("Only local or remote can be set for target")
+	}
+	c.SaveContextConfig(asertoConfig.DefaultConfigFilePath)
 	return nil
 }

@@ -36,6 +36,9 @@ func (cmd *DirectoryCmd) AfterApply(context *kong.Context, c *topazCC.CommonCtx)
 	for _, f := range allFlags {
 		if f.Name == "config" {
 			configPath := context.FlagValue(f).(string)
+			if configPath == "" {
+				configPath = config.DefaultConfigFilePath
+			}
 			cfg, err = config.NewConfig(config.Path(configPath))
 			if err != nil {
 				return err
@@ -43,13 +46,12 @@ func (cmd *DirectoryCmd) AfterApply(context *kong.Context, c *topazCC.CommonCtx)
 		}
 	}
 
-	if cfg.TopazConfigFile != "" {
-		err = setServicesConfig(cfg, cfg.TopazConfigFile)
+	if cfg.TargetEnvironment == config.Local {
+		err = setServicesConfig(cfg, c.Config.Active.ConfigFile)
 		if err != nil {
 			return err
 		}
 	}
-
 	tenantToken, err := getTenantTokenDetails(cfg.Auth)
 	if err != nil {
 		return err

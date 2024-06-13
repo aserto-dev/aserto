@@ -43,6 +43,7 @@ func BuildCommonCtx(configPath config.Path, overrides ...config.Overrider) (*Com
 	commonCtx := &CommonCtx{
 		Factory:        asertoFactory,
 		Context:        contextContext,
+		Config:         configConfig,
 		Environment:    services,
 		Auth:           settings,
 		CachedToken:    cachedToken,
