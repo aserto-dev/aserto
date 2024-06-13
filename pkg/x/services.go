@@ -14,20 +14,26 @@ const (
 	TenantService
 	ControlPlaneService
 	EMSService
+	DirectoryReaderService
+	DirectoryWriterService
+	DirectoryModelService
 )
 
 var (
 	UnknownSvcErr = errors.New("unknown service")
 
 	serviceNames = map[Service]string{
-		AuthorizerService:   "authorizer",
-		DecisionLogsService: "decision logs",
-		TenantService:       "tenant",
-		ControlPlaneService: "control plane",
-		EMSService:          "ems",
+		AuthorizerService:      "authorizer",
+		DecisionLogsService:    "decision logs",
+		TenantService:          "tenant",
+		ControlPlaneService:    "control plane",
+		EMSService:             "ems",
+		DirectoryReaderService: "directory_reader",
+		DirectoryWriterService: "directory_writer",
+		DirectoryModelService:  "directory_model",
 	}
 
-	AllServices = []Service{AuthorizerService, DecisionLogsService, TenantService, ControlPlaneService, EMSService}
+	AllServices = []Service{AuthorizerService, DecisionLogsService, TenantService, ControlPlaneService, EMSService, DirectoryReaderService, DirectoryWriterService, DirectoryModelService}
 )
 
 func (s Service) Name() string {
@@ -40,18 +46,22 @@ func (s Service) Name() string {
 }
 
 type ServiceOptions struct {
-	Address   string `json:"address"`
-	APIKey    string `json:"api_key,omitempty"`
-	Anonymous bool   `json:"anonymous,omitempty"`
-	Insecure  bool   `json:"insecure,omitempty"`
+	Address    string `json:"address,omitempty" yaml:"address,omitempty"`
+	APIKey     string `json:"api_key,omitempty" yaml:"api_key,omitempty"`
+	Anonymous  bool   `json:"anonymous,omitempty" yaml:"anonymous,omitempty"`
+	Insecure   bool   `json:"insecure,omitempty" yaml:"insecure,omitempty"`
+	CACertPath string `json:"ca_cert_path,omitempty" yaml:"ca_cert_path,omitempty"`
 }
 
 type Services struct {
-	AuthorizerService   ServiceOptions `json:"authorizer"`
-	DecisionLogsService ServiceOptions `json:"decision_logs"`
-	TenantService       ServiceOptions `json:"tenant"`
-	ControlPlaneService ServiceOptions `json:"control_plane"`
-	EMSService          ServiceOptions `json:"ems"`
+	DecisionLogsService    ServiceOptions `json:"decision_logs" yaml:"decision_logs"`
+	TenantService          ServiceOptions `json:"tenant" yaml:"tenant"`
+	ControlPlaneService    ServiceOptions `json:"control_plane" yaml:"control_plane"`
+	EMSService             ServiceOptions `json:"ems" yaml:"ems"`
+	AuthorizerService      ServiceOptions `json:"authorizer" yaml:"authorizer"`
+	DirectoryReaderService ServiceOptions `json:"directory_reader" yaml:"directory_reader"`
+	DirectoryWriterService ServiceOptions `json:"directory_writer" yaml:"directory_writer"`
+	DirectoryModelService  ServiceOptions `json:"directory_model" yaml:"directory_model"`
 }
 
 func (s *Services) Get(svc Service) *ServiceOptions {
@@ -66,6 +76,12 @@ func (s *Services) Get(svc Service) *ServiceOptions {
 		return &s.ControlPlaneService
 	case EMSService:
 		return &s.EMSService
+	case DirectoryReaderService:
+		return &s.DirectoryReaderService
+	case DirectoryWriterService:
+		return &s.DirectoryWriterService
+	case DirectoryModelService:
+		return &s.DirectoryModelService
 	default:
 		log.Panicf("unknown service [%d]\n", svc)
 	}
@@ -74,7 +90,7 @@ func (s *Services) Get(svc Service) *ServiceOptions {
 }
 
 func (s *Services) SetAddress(svc Service, address string) error {
-	switch svc {
+	switch svc { //nolint:exhaustive
 	case AuthorizerService:
 		s.AuthorizerService.Address = address
 	case DecisionLogsService:
@@ -85,6 +101,12 @@ func (s *Services) SetAddress(svc Service, address string) error {
 		s.ControlPlaneService.Address = address
 	case EMSService:
 		s.EMSService.Address = address
+	case DirectoryReaderService:
+		s.DirectoryReaderService.Address = address
+	case DirectoryWriterService:
+		s.DirectoryWriterService.Address = address
+	case DirectoryModelService:
+		s.DirectoryModelService.Address = address
 	default:
 		return errors.Wrapf(UnknownSvcErr, "[%d]", svc)
 	}
@@ -94,10 +116,13 @@ func (s *Services) SetAddress(svc Service, address string) error {
 
 func DefaultEnvironment() *Services {
 	return &Services{
-		TenantService:       ServiceOptions{Address: "tenant.prod.aserto.com:8443"},
-		AuthorizerService:   ServiceOptions{Address: "authorizer.prod.aserto.com:8443"},
-		DecisionLogsService: ServiceOptions{Address: "decision-logs.prod.aserto.com:8443"},
-		ControlPlaneService: ServiceOptions{Address: "relay.prod.aserto.com:8443"},
-		EMSService:          ServiceOptions{Address: "ems.prod.aserto.com:8443"},
+		AuthorizerService:      ServiceOptions{Address: "authorizer.prod.aserto.com:8443"},
+		TenantService:          ServiceOptions{Address: "tenant.prod.aserto.com:8443"},
+		DecisionLogsService:    ServiceOptions{Address: "decision-logs.prod.aserto.com:8443"},
+		ControlPlaneService:    ServiceOptions{Address: "relay.prod.aserto.com:8443"},
+		EMSService:             ServiceOptions{Address: "ems.prod.aserto.com:8443"},
+		DirectoryReaderService: ServiceOptions{Address: "directory.prod.aserto.com:8443"},
+		DirectoryWriterService: ServiceOptions{Address: "directory.prod.aserto.com:8443"},
+		DirectoryModelService:  ServiceOptions{Address: "directory.prod.aserto.com:8443"},
 	}
 }

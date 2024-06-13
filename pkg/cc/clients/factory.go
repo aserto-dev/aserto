@@ -21,7 +21,6 @@ type Factory interface {
 	TenantID() string
 
 	TenantClient() (*tenant_.Client, error)
-	AuthorizerClient() (*authorizer.Client, error)
 	DecisionLogsClient() (dl.DecisionLogsClient, error)
 	ControlPlaneClient() (management.ControlPlaneClient, error)
 }

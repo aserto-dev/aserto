@@ -7,6 +7,7 @@ import (
 	"github.com/aserto-dev/aserto/pkg/handlers/user"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	"github.com/aserto-dev/aserto/pkg/keyring"
+	"github.com/aserto-dev/go-aserto/client"
 	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
 	account "github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"
 
@@ -114,7 +115,7 @@ func (cmd *SetTenantCmd) Run(c *cc.CommonCtx) error {
 			Account: &api.Account{DefaultTenant: cmd.ID},
 		}
 
-		if _, err := conn.Account.UpdateAccount(c.Context, req); err != nil {
+		if _, err := conn.Account.UpdateAccount(client.SetTenantContext(c.Context, tok.TenantID), req); err != nil {
 			return errors.Wrapf(err, "update account")
 		}
 	}

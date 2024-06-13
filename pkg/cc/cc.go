@@ -7,19 +7,23 @@ import (
 	"github.com/aserto-dev/aserto/pkg/auth0"
 	"github.com/aserto-dev/aserto/pkg/auth0/api"
 	"github.com/aserto-dev/aserto/pkg/cc/clients"
+	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/cc/token"
 	decisionlogger "github.com/aserto-dev/aserto/pkg/decision_logger"
 	"github.com/aserto-dev/aserto/pkg/x"
 	"github.com/aserto-dev/clui"
+	topazCC "github.com/aserto-dev/topaz/pkg/cli/cc"
 )
 
 type CommonCtx struct {
 	clients.Factory
 
+	Config         *config.Config
 	Context        context.Context
 	Environment    *x.Services
 	Auth           *auth0.Settings
 	CachedToken    *token.CachedToken
+	TopazContext   *topazCC.CommonCtx
 	DecisionLogger *decisionlogger.Settings
 
 	UI *clui.UI

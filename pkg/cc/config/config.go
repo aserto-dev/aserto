@@ -30,10 +30,11 @@ func (auth *Auth) GetSettings() *auth0.Settings {
 }
 
 type Config struct {
-	TenantID       string                `json:"tenant_id"`
-	Services       x.Services            `json:"services"`
-	Auth           *Auth                 `json:"auth"`
-	DecisionLogger decisionlogger.Config `json:"decision_logger"`
+	TenantID        string                `json:"tenant_id"`
+	Services        x.Services            `json:"services"`
+	Auth            *Auth                 `json:"auth"`
+	DecisionLogger  decisionlogger.Config `json:"decision_logger"`
+	TopazConfigFile string                `json:"topaz_config_file,omitempty" yaml:"topaz_config_file,omitempty"`
 }
 
 type Path string
@@ -73,7 +74,7 @@ func newConfig(reader configReader, overrides ...Overrider) (*Config, error) {
 
 	v := viper.New()
 	v.SetEnvPrefix("ASERTO")
-	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	v.SetDefault("tenant_id", "")
 	v.SetDefault("services", x.DefaultEnvironment())
 	v.SetDefault("auth.issuer", auth0.Issuer)
