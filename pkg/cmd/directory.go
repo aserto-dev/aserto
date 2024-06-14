@@ -46,7 +46,7 @@ func (cmd *DirectoryCmd) AfterApply(context *kong.Context, c *topazCC.CommonCtx)
 		}
 	}
 
-	if cfg.TargetEnvironment == config.Local {
+	if !cc.IsAsertoAccount(cfg.ConfigName) {
 		err = setServicesConfig(cfg, c.Config.Active.ConfigFile)
 		if err != nil {
 			return err

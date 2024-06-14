@@ -21,8 +21,6 @@ type TopazCmd struct {
 
 type AsertoConfigCmd struct {
 	New    dev.ConfigureCmd            `cmd:"" help:"create new configuration"`
-	Use    topazConfig.UseConfigCmd    `cmd:"" help:"use a topaz configuration"`
-	List   topazConfig.ListConfigCmd   `cmd:"" help:"list configurations"`
 	Rename topazConfig.RenameConfigCmd `cmd:"" help:"rename configuration"`
 	Delete topazConfig.DeleteConfigCmd `cmd:"" help:"delete configuration"`
 }

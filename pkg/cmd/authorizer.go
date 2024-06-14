@@ -42,7 +42,7 @@ func (cmd *AuthorizerCmd) AfterApply(context *kong.Context, c *topazCC.CommonCtx
 		}
 	}
 
-	if cfg.TargetEnvironment == config.Local {
+	if !cc.IsAsertoAccount(cfg.ConfigName) {
 		err = setServicesConfig(cfg, c.Config.Active.ConfigFile)
 		if err != nil {
 			return err
@@ -53,13 +53,17 @@ func (cmd *AuthorizerCmd) AfterApply(context *kong.Context, c *topazCC.CommonCtx
 	if err != nil {
 		return err
 	}
+	useTenantID := ""
+	if tenantToken == "" {
+		useTenantID = cfg.TenantID
+	}
 
 	authorizerConfig := topazClients.AuthorizerConfig{
 		Host:     cfg.Services.AuthorizerService.Address,
 		APIKey:   cfg.Services.AuthorizerService.APIKey,
 		Token:    tenantToken,
 		Insecure: cfg.Services.AuthorizerService.Insecure,
-		TenantID: cfg.TenantID,
+		TenantID: useTenantID,
 	}
 
 	c.Context = metadata.AppendToOutgoingContext(c.Context, string(headers.Authorization), BearerToken+tenantToken)

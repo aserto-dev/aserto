@@ -34,19 +34,12 @@ func (auth *Auth) GetSettings() *auth0.Settings {
 	return auth0.GetSettings(auth.Issuer, auth.ClientID, auth.Audience)
 }
 
-type Target int8
-
-const (
-	Remote Target = iota
-	Local
-)
-
 type Config struct {
-	TenantID          string                `json:"tenant_id"`
-	Services          x.Services            `json:"services"`
-	Auth              *Auth                 `json:"auth"`
-	DecisionLogger    decisionlogger.Config `json:"decision_logger"`
-	TargetEnvironment Target
+	TenantID       string                `json:"tenant_id"`
+	Services       x.Services            `json:"services"`
+	Auth           *Auth                 `json:"auth"`
+	DecisionLogger decisionlogger.Config `json:"decision_logger"`
+	ConfigName     string                `json:"config_name"`
 }
 
 type Path string

@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 
 	"github.com/aserto-dev/aserto/pkg/auth0"
 	"github.com/aserto-dev/aserto/pkg/auth0/api"
@@ -82,4 +83,9 @@ func (ctx *CommonCtx) SaveContextConfig(configurationFile string) error {
 		return err
 	}
 	return nil
+}
+
+func IsAsertoAccount(name string) bool {
+	isAsertoAccount, _ := regexp.MatchString(`\w+[.][0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}`, name)
+	return isAsertoAccount
 }
