@@ -34,7 +34,7 @@ func (cmd *DirectoryCmd) AfterApply(context *kong.Context, c *topazCC.CommonCtx)
 
 	allFlags := context.Flags()
 	for _, f := range allFlags {
-		if f.Name == "config" {
+		if f.Name == ConfigFlag {
 			configPath := context.FlagValue(f).(string)
 			if configPath == "" {
 				configPath = config.DefaultConfigFilePath
@@ -56,13 +56,17 @@ func (cmd *DirectoryCmd) AfterApply(context *kong.Context, c *topazCC.CommonCtx)
 	if err != nil {
 		return err
 	}
+	useTenantID := ""
+	if tenantToken == "" {
+		useTenantID = cfg.TenantID
+	}
 
 	dirConfig := topazClients.DirectoryConfig{
 		Host:     cfg.Services.DirectoryReaderService.Address,
 		APIKey:   cfg.Services.DirectoryReaderService.APIKey,
 		Token:    "",
 		Insecure: cfg.Services.DirectoryReaderService.Insecure,
-		TenantID: cfg.TenantID,
+		TenantID: useTenantID,
 	}
 
 	c.Context = metadata.AppendToOutgoingContext(c.Context, string(headers.Authorization), "Bearer "+tenantToken)

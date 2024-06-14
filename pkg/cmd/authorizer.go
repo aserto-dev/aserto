@@ -14,6 +14,7 @@ import (
 
 const (
 	BearerToken = `Bearer `
+	ConfigFlag  = `config`
 )
 
 type AuthorizerCmd struct {
@@ -30,7 +31,7 @@ func (cmd *AuthorizerCmd) AfterApply(context *kong.Context, c *topazCC.CommonCtx
 
 	allFlags := context.Flags()
 	for _, f := range allFlags {
-		if f.Name == "config" {
+		if f.Name == ConfigFlag {
 			configPath := context.FlagValue(f).(string)
 			if configPath == "" {
 				configPath = config.DefaultConfigFilePath
