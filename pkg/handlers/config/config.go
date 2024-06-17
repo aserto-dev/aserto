@@ -7,7 +7,6 @@ import (
 
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/cc/config"
-	"github.com/aserto-dev/aserto/pkg/jsonx"
 	account "github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"
 
 	"github.com/pkg/errors"
@@ -16,18 +15,12 @@ import (
 	topazConfig "github.com/aserto-dev/topaz/pkg/cli/cmd/configure"
 )
 
-type GetEnvCmd struct{}
-
-func (cmd *GetEnvCmd) Run(c *cc.CommonCtx) error {
-	return jsonx.OutputJSON(c.UI.Output(), c.Environment)
-}
-
 type ListConfigCmd struct {
 	topazConfig.ListConfigCmd
 }
 
 func (cmd *ListConfigCmd) Run(c *cc.CommonCtx) error {
-	table := c.UI.Normal().WithTable("", "Name", "Config File")
+	table := c.UI.Normal().WithTable("", "Name", "Config File", "Target")
 
 	client, err := c.TenantClient()
 	if err != nil {
@@ -65,7 +58,7 @@ func (cmd *ListConfigCmd) Run(c *cc.CommonCtx) error {
 		if c.Config.ConfigName == name {
 			active = "*"
 		}
-		table.WithTableRow(active, name, "")
+		table.WithTableRow(active, name, "", "remote")
 	}
 
 	files, err := os.ReadDir(cmd.ConfigDir)
@@ -83,7 +76,7 @@ func (cmd *ListConfigCmd) Run(c *cc.CommonCtx) error {
 			active = "*"
 		}
 
-		table.WithTableRow(active, name, files[i].Name())
+		table.WithTableRow(active, name, files[i].Name(), "local")
 	}
 	table.Do()
 

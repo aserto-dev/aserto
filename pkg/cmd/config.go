@@ -6,9 +6,8 @@ import (
 )
 
 type ConfigCmd struct {
-	GetEnv config.GetEnvCmd     `cmd:"" help:"get environment info" group:"config"`
-	Use    config.UseConfigCmd  `cmd:"" help:"use a topaz configuration" group:"config"`
-	List   config.ListConfigCmd `cmd:"" help:"list configurations" group:"config"`
+	Use  config.UseConfigCmd  `cmd:"" help:"use a topaz configuration" group:"config"`
+	List config.ListConfigCmd `cmd:"" help:"list configurations" group:"config"`
 }
 
 func (cmd *ConfigCmd) Run(c *cc.CommonCtx) error {
