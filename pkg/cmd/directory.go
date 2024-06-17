@@ -12,19 +12,7 @@ import (
 )
 
 type DirectoryCmd struct {
-	GetManifest    directory.GetManifestCmd    `cmd:"" help:"get manifest" group:"directory"`
-	SetManifest    directory.SetManifestCmd    `cmd:"" help:"set manifest" group:"directory"`
-	DeleteManifest directory.DeleteManifestCmd `cmd:"" help:"delete manifest" group:"directory"`
-	GetObject      directory.GetObjectCmd      `cmd:"" help:"get object" group:"directory"`
-	SetObject      directory.SetObjectCmd      `cmd:"" help:"set object" group:"directory"`
-	DeleteObject   directory.DeleteObjectCmd   `cmd:"" help:"delete object" group:"directory"`
-	ListObjects    directory.ListObjectsCmd    `cmd:"" help:"list objects" group:"directory"`
-	GetRelation    directory.GetRelationCmd    `cmd:"" help:"get relation" group:"directory"`
-	SetRelation    directory.SetRelationCmd    `cmd:"" help:"set relation" group:"directory"`
-	DeleteRelation directory.DeleteRelationCmd `cmd:"" help:"delete relation" group:"directory"`
-	ListRelations  directory.ListRelationsCmd  `cmd:"" help:"list relations" group:"directory"`
-	Check          directory.CheckCmd          `cmd:"" help:"check" group:"directory"`
-	Search         directory.SearchCmd         `cmd:"" help:"get relation graph" group:"directory"`
+	directory.DirectoryCmd
 }
 
 func (cmd *DirectoryCmd) AfterApply(context *kong.Context, c *topazCC.CommonCtx) error {
@@ -58,19 +46,19 @@ func (cmd *DirectoryCmd) AfterApply(context *kong.Context, c *topazCC.CommonCtx)
 
 	c.Context = metadata.AppendToOutgoingContext(c.Context, string(headers.Authorization), "Bearer "+tenantToken)
 
-	cmd.GetManifest.DirectoryConfig = dirConfig
-	cmd.SetManifest.DirectoryConfig = dirConfig
-	cmd.DeleteManifest.DirectoryConfig = dirConfig
-	cmd.GetObject.DirectoryConfig = dirConfig
-	cmd.SetObject.DirectoryConfig = dirConfig
-	cmd.DeleteObject.DirectoryConfig = dirConfig
-	cmd.ListObjects.DirectoryConfig = dirConfig
-	cmd.GetRelation.DirectoryConfig = dirConfig
-	cmd.SetRelation.DirectoryConfig = dirConfig
-	cmd.DeleteRelation.DirectoryConfig = dirConfig
-	cmd.ListRelations.DirectoryConfig = dirConfig
-	cmd.Check.DirectoryConfig = dirConfig
-	cmd.Search.DirectoryConfig = dirConfig
+	cmd.DirectoryCmd.Get.Manifest.DirectoryConfig = dirConfig
+	cmd.DirectoryCmd.Set.Manifest.DirectoryConfig = dirConfig
+	cmd.DirectoryCmd.Delete.Manifest.DirectoryConfig = dirConfig
+	cmd.DirectoryCmd.Get.Object.DirectoryConfig = dirConfig
+	cmd.DirectoryCmd.Set.Object.DirectoryConfig = dirConfig
+	cmd.DirectoryCmd.Delete.Object.DirectoryConfig = dirConfig
+	cmd.DirectoryCmd.List.Objects.DirectoryConfig = dirConfig
+	cmd.DirectoryCmd.Get.Relation.DirectoryConfig = dirConfig
+	cmd.DirectoryCmd.Set.Relation.DirectoryConfig = dirConfig
+	cmd.DirectoryCmd.Delete.Relation.DirectoryConfig = dirConfig
+	cmd.DirectoryCmd.List.Relations.DirectoryConfig = dirConfig
+	cmd.DirectoryCmd.Check.DirectoryConfig = dirConfig
+	cmd.DirectoryCmd.Search.DirectoryConfig = dirConfig
 
 	return nil
 }

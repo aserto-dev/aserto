@@ -2,7 +2,7 @@ module github.com/aserto-dev/aserto
 
 go 1.22.0
 
-toolchain go1.22.1
+toolchain go1.22.4
 
 // replace github.com/aserto-dev/go-grpc => ../go-grpc
 // replace github.com/aserto-dev/go-grpc-authz => ../go-grpc-authz
@@ -14,7 +14,7 @@ require (
 	github.com/aserto-dev/go-aserto v0.31.4
 	github.com/aserto-dev/go-decision-logs v0.0.4
 	github.com/aserto-dev/go-grpc v0.8.65
-	github.com/aserto-dev/topaz v0.32.9
+	github.com/aserto-dev/topaz v0.32.10
 	github.com/cli/browser v1.3.0
 	github.com/go-http-utils/headers v0.0.0-20181008091004-fed159eddc2a
 	github.com/google/wire v0.6.0
@@ -23,13 +23,13 @@ require (
 	github.com/magefile/mage v1.15.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/pkg/errors v0.9.1
-	github.com/spf13/viper v1.18.2
+	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
-	github.com/zalando/go-keyring v0.2.3
+	github.com/zalando/go-keyring v0.2.5
 	github.com/zenizh/go-capturer v0.0.0-20211219060012-52ea6c8fed04
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240528184218-531527333157
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240610135401-a8a62080eff3
 	google.golang.org/grpc v1.64.0
-	google.golang.org/protobuf v1.34.1
+	google.golang.org/protobuf v1.34.2
 	gopkg.in/auth0.v5 v5.21.1
 )
 
@@ -38,7 +38,6 @@ require (
 	contrib.go.opencensus.io/exporter/prometheus v0.4.2 // indirect
 	github.com/AdaLogics/go-fuzz-headers v0.0.0-20230811130428-ced1acdcaa24 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 // indirect
-	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/Masterminds/semver/v3 v3.2.1 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/Microsoft/hcsshim v0.12.3 // indirect
@@ -53,9 +52,9 @@ require (
 	github.com/aserto-dev/certs v0.0.6 // indirect
 	github.com/aserto-dev/errors v0.0.8 // indirect
 	github.com/aserto-dev/go-authorizer v0.20.6 // indirect
-	github.com/aserto-dev/go-directory v0.31.4 // indirect
+	github.com/aserto-dev/go-directory v0.31.5 // indirect
 	github.com/aserto-dev/go-directory-cli v0.31.2 // indirect
-	github.com/aserto-dev/go-edge-ds v0.31.7 // indirect
+	github.com/aserto-dev/go-edge-ds v0.32.0 // indirect
 	github.com/aserto-dev/header v0.0.7 // indirect
 	github.com/aserto-dev/logger v0.0.4 // indirect
 	github.com/aserto-dev/runtime v0.65.0 // indirect
@@ -74,7 +73,7 @@ require (
 	github.com/deckarep/golang-set/v2 v2.6.0 // indirect
 	github.com/dgryski/go-metro v0.0.0-20211217172704-adc40b04c140 // indirect
 	github.com/distribution/reference v0.6.0 // indirect
-	github.com/docker/docker v26.1.3+incompatible // indirect
+	github.com/docker/docker v26.1.4+incompatible // indirect
 	github.com/docker/go-connections v0.5.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/envoyproxy/go-control-plane v0.12.0 // indirect
@@ -106,8 +105,8 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.20.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/itchyny/gojq v0.12.15 // indirect
-	github.com/itchyny/timefmt-go v0.1.5 // indirect
+	github.com/itchyny/gojq v0.12.16 // indirect
+	github.com/itchyny/timefmt-go v0.1.6 // indirect
 	github.com/jhump/protoreflect v1.16.0 // indirect
 	github.com/klauspost/compress v1.17.8 // indirect
 	github.com/kyokomi/emoji v2.2.4+incompatible // indirect
@@ -175,7 +174,7 @@ require (
 	golang.org/x/net v0.25.0 // indirect
 	golang.org/x/oauth2 v0.20.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.20.0 // indirect
+	golang.org/x/sys v0.21.0 // indirect
 	golang.org/x/term v0.20.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
