@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 
+	"github.com/alecthomas/kong"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/cc/clients"
 	"github.com/aserto-dev/aserto/pkg/cc/config"
@@ -12,6 +14,13 @@ import (
 	"github.com/aserto-dev/aserto/pkg/x"
 
 	topazConfig "github.com/aserto-dev/topaz/pkg/cc/config"
+)
+
+var (
+	ErrControlPlaneCmd = errors.New("control plane commands are only available with remote configurations")
+	ErrDecisionLogsCmd = errors.New("decision log commands are only available with remote configurations")
+	ErrTenantCmd       = errors.New("tenant service commands are only available with remote configurations")
+	ErrConfigNotFound  = errors.New("aserto config not found")
 )
 
 type CLI struct {
@@ -95,4 +104,23 @@ func getTenantTokenDetails(cfg *config.Auth) (string, error) {
 		return "", err
 	}
 	return authToken.Access, nil
+}
+
+func getConfig(context *kong.Context) (*config.Config, error) {
+	allFlags := context.Flags()
+	for _, f := range allFlags {
+		if f.Name != ConfigFlag {
+			continue
+		}
+		configPath := context.FlagValue(f).(string)
+		if configPath == "" {
+			configPath = config.DefaultConfigFilePath
+		}
+		cfg, err := config.NewConfig(config.Path(configPath))
+		if err != nil {
+			return nil, err
+		}
+		return cfg, nil
+	}
+	return nil, ErrConfigNotFound
 }

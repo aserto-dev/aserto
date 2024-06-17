@@ -3,7 +3,6 @@ package cmd
 import (
 	"github.com/alecthomas/kong"
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/topaz/pkg/cli/cmd/directory"
 	"github.com/go-http-utils/headers"
 	"google.golang.org/grpc/metadata"
@@ -29,21 +28,9 @@ type DirectoryCmd struct {
 }
 
 func (cmd *DirectoryCmd) AfterApply(context *kong.Context, c *topazCC.CommonCtx) error {
-	var cfg *config.Config
-	var err error
-
-	allFlags := context.Flags()
-	for _, f := range allFlags {
-		if f.Name == ConfigFlag {
-			configPath := context.FlagValue(f).(string)
-			if configPath == "" {
-				configPath = config.DefaultConfigFilePath
-			}
-			cfg, err = config.NewConfig(config.Path(configPath))
-			if err != nil {
-				return err
-			}
-		}
+	cfg, err := getConfig(context)
+	if err != nil {
+		return err
 	}
 
 	if !cc.IsAsertoAccount(cfg.ConfigName) {

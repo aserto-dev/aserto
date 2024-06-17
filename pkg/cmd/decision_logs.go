@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/alecthomas/kong"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/handlers/decision_logs"
 	"github.com/aserto-dev/aserto/pkg/x"
@@ -12,6 +13,17 @@ type DecisionLogsCmd struct {
 	Stream decision_logs.StreamCmd `cmd:"" help:"stream decision log events to stdout" group:"decision-logs"`
 
 	SvcOpts ConnectionOptions `embed:"" envprefix:"ASERTO_DECISION_LOGS_"`
+}
+
+func (cmd *DecisionLogsCmd) BeforeApply(context *kong.Context) error {
+	cfg, err := getConfig(context)
+	if err != nil {
+		return err
+	}
+	if !cc.IsAsertoAccount(cfg.ConfigName) {
+		return ErrDecisionLogsCmd
+	}
+	return nil
 }
 
 func (cmd *DecisionLogsCmd) AfterApply(so ServiceOptions) error {
