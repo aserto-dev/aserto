@@ -73,7 +73,7 @@ func (ctx *CommonCtx) Logf(format string, v ...interface{}) {
 func (ctx *CommonCtx) SaveContextConfig(configurationFile string) error {
 	configDir := filepath.Dir(configurationFile)
 	if !filex.DirExists(configDir) {
-		err := os.MkdirAll(configDir, 0o700)
+		err := os.MkdirAll(configDir, 0700)
 		if err != nil {
 			return err
 		}
@@ -82,7 +82,7 @@ func (ctx *CommonCtx) SaveContextConfig(configurationFile string) error {
 	if err != nil {
 		return err
 	}
-	err = os.WriteFile(configurationFile, kongConfigBytes, 0o600)
+	err = os.WriteFile(configurationFile, kongConfigBytes, 0600)
 	if err != nil {
 		return err
 	}
