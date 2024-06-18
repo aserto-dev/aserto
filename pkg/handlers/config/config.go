@@ -7,7 +7,9 @@ import (
 
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/cc/config"
+	"github.com/aserto-dev/go-grpc/aserto/api/v1"
 	account "github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"
+	"github.com/samber/lo"
 
 	"github.com/pkg/errors"
 
@@ -27,7 +29,7 @@ type tenant struct {
 }
 
 func (cmd *ListConfigCmd) Run(c *cc.CommonCtx) error {
-	table := c.UI.Normal().WithTable("", "Name", "Config", "Target")
+	table := c.UI.Normal().WithTable("", "Name", "Config")
 
 	resp, err := getAccountDetails(c)
 	if err != nil {
@@ -45,12 +47,14 @@ func (cmd *ListConfigCmd) Run(c *cc.CommonCtx) error {
 			Default: isDefault,
 		}
 		tenants[i] = &tt
-		name := fmt.Sprintf("%s.aserto.com", t.Name)
+		name := fmt.Sprintf("%s%s", t.Name, cc.TenantSuffix)
+
 		active := ""
 		if c.Config.ConfigName == name {
 			active = "*"
 		}
-		table.WithTableRow(active, name, t.Id, "remote")
+
+		table.WithTableRow(active, name, t.Id)
 	}
 
 	files, err := os.ReadDir(cmd.ConfigDir)
@@ -68,8 +72,9 @@ func (cmd *ListConfigCmd) Run(c *cc.CommonCtx) error {
 			active = "*"
 		}
 
-		table.WithTableRow(active, name, files[i].Name(), "local")
+		table.WithTableRow(active, name, files[i].Name())
 	}
+
 	table.Do()
 
 	return nil
@@ -88,22 +93,37 @@ func (cmd *UseConfigCmd) Run(c *cc.CommonCtx) error {
 			Name:      cmd.Name,
 			ConfigDir: topazCC.GetTopazCfgDir(),
 		}
+
 		err := topazUse.Run(c.TopazContext)
 		if err != nil {
 			return err
 		}
+
+		c.Config.TenantID = ""
 	} else {
-		resp, err := getAccountDetails(c)
+		tenantName := strings.TrimSuffix(c.Config.ConfigName, cc.TenantSuffix)
+
+		client, err := c.TenantClient()
 		if err != nil {
 			return err
 		}
-		for _, t := range resp.Result.Tenants {
-			if t.Name == strings.TrimSuffix(string(cmd.Name), ".aserto.com") {
-				c.Config.ConfigName = string(cmd.Name)
-				c.Config.TenantID = t.Id
-				break
-			}
+
+		req := &account.GetAccountRequest{}
+
+		resp, err := client.Account.GetAccount(c.Context, req)
+		if err != nil {
+			return errors.Wrapf(err, "get account")
 		}
+
+		tenant := lo.Filter(resp.Result.Tenants, func(item *api.Tenant, index int) bool {
+			return item.Name == tenantName
+		})
+
+		if len(tenant) != 1 {
+			return fmt.Errorf("cannot resolve tenant name %q to tenant ID", tenantName)
+		}
+
+		c.Config.TenantID = tenant[0].Id
 	}
 
 	return c.SaveContextConfig(config.DefaultConfigFilePath)

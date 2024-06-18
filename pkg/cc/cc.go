@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"regexp"
+	"strings"
 
 	"github.com/aserto-dev/aserto/pkg/auth0"
 	"github.com/aserto-dev/aserto/pkg/auth0/api"
@@ -18,6 +18,10 @@ import (
 	"github.com/aserto-dev/aserto/pkg/x"
 	"github.com/aserto-dev/clui"
 	topazCC "github.com/aserto-dev/topaz/pkg/cli/cc"
+)
+
+const (
+	TenantSuffix string = ".aserto.com"
 )
 
 type CommonCtx struct {
@@ -78,7 +82,7 @@ func (ctx *CommonCtx) SaveContextConfig(configurationFile string) error {
 	if err != nil {
 		return err
 	}
-	err = os.WriteFile(configurationFile, kongConfigBytes, 0666) // nolint
+	err = os.WriteFile(configurationFile, kongConfigBytes, 0600)
 	if err != nil {
 		return err
 	}
@@ -86,6 +90,5 @@ func (ctx *CommonCtx) SaveContextConfig(configurationFile string) error {
 }
 
 func IsAsertoAccount(name string) bool {
-	isAsertoAccount, _ := regexp.MatchString(`\w+[.]aserto.com`, name)
-	return isAsertoAccount
+	return strings.HasSuffix(name, TenantSuffix)
 }
