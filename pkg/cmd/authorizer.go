@@ -8,7 +8,7 @@ import (
 
 	topazCC "github.com/aserto-dev/topaz/pkg/cli/cc"
 	topazClients "github.com/aserto-dev/topaz/pkg/cli/clients"
-	topazAuthz "github.com/aserto-dev/topaz/pkg/cli/cmd/authorizer"
+	"github.com/aserto-dev/topaz/pkg/cli/cmd/authorizer"
 )
 
 const (
@@ -17,11 +17,7 @@ const (
 )
 
 type AuthorizerCmd struct {
-	EvalDecision topazAuthz.EvalCmd         `cmd:"" help:"evaluate policy decision" group:"authorizer"`
-	DecisionTree topazAuthz.DecisionTreeCmd `cmd:"" help:"get decision tree" group:"authorizer"`
-	ExecQuery    topazAuthz.QueryCmd        `cmd:"" help:"execute query" group:"authorizer"`
-	GetPolicy    topazAuthz.GetPolicyCmd    `cmd:"" help:"get policy" group:"authorizer"`
-	ListPolicies topazAuthz.ListPoliciesCmd `cmd:"" help:"list policies" group:"authorizer"`
+	authorizer.AuthorizerCmd
 }
 
 func (cmd *AuthorizerCmd) AfterApply(context *kong.Context, c *topazCC.CommonCtx) error {
@@ -56,11 +52,11 @@ func (cmd *AuthorizerCmd) AfterApply(context *kong.Context, c *topazCC.CommonCtx
 
 	c.Context = metadata.AppendToOutgoingContext(c.Context, string(headers.Authorization), BearerToken+tenantToken)
 
-	cmd.EvalDecision.AuthorizerConfig = authorizerConfig
-	cmd.ExecQuery.AuthorizerConfig = authorizerConfig
-	cmd.GetPolicy.AuthorizerConfig = authorizerConfig
-	cmd.DecisionTree.AuthorizerConfig = authorizerConfig
-	cmd.ListPolicies.AuthorizerConfig = authorizerConfig
+	cmd.AuthorizerCmd.CheckDecision.AuthorizerConfig = authorizerConfig
+	cmd.AuthorizerCmd.ExecQuery.AuthorizerConfig = authorizerConfig
+	cmd.AuthorizerCmd.GetPolicy.AuthorizerConfig = authorizerConfig
+	cmd.AuthorizerCmd.DecisionTree.AuthorizerConfig = authorizerConfig
+	cmd.AuthorizerCmd.ListPolicies.AuthorizerConfig = authorizerConfig
 
 	return nil
 }

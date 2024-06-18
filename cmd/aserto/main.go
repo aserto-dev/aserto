@@ -16,6 +16,7 @@ import (
 	"github.com/aserto-dev/aserto/pkg/cmd"
 	"github.com/aserto-dev/aserto/pkg/cmd/conf"
 	"github.com/aserto-dev/aserto/pkg/x"
+	"github.com/aserto-dev/topaz/pkg/cli/fflag"
 	"github.com/pkg/errors"
 
 	"github.com/aserto-dev/go-aserto/client"
@@ -25,6 +26,8 @@ import (
 )
 
 func main() {
+	fflag.Init()
+
 	home, err := os.UserHomeDir()
 	if err != nil {
 		panic(errors.Wrap(err, "failed to determine user home directory"))
@@ -64,7 +67,7 @@ func main() {
 			Tree:                false,
 			FlagsLast:           true,
 			Indenter:            kong.SpaceIndenter,
-			NoExpandSubcommands: false,
+			NoExpandSubcommands: true,
 		}),
 		kong.Resolvers(ConfigResolver()),
 		kong.Bind(topazCtx),

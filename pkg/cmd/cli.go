@@ -14,6 +14,7 @@ import (
 	"github.com/aserto-dev/aserto/pkg/x"
 
 	topazConfig "github.com/aserto-dev/topaz/pkg/cc/config"
+	topaz "github.com/aserto-dev/topaz/pkg/cli/cmd/topaz"
 )
 
 var (
@@ -24,16 +25,25 @@ var (
 )
 
 type CLI struct {
-	Topaz        TopazCmd        `cmd:"" aliases:"tz" help:"topaz commands"`
-	Directory    DirectoryCmd    `cmd:"" aliases:"ds" help:"directory commands"`
-	Authorizer   AuthorizerCmd   `cmd:"" aliases:"az" help:"authorizer commands"`
-	DecisionLogs DecisionLogsCmd `cmd:"" aliases:"dl" help:"decision logs commands"`
-	ControlPlane ControlPlaneCmd `cmd:"" aliases:"cp" help:"control plane commands"`
-	Tenant       TenantCmd       `cmd:"" aliases:"tn" help:"tenant commands"`
-	Login        user.LoginCmd   `cmd:"" help:"login"`
-	Logout       user.LogoutCmd  `cmd:"" help:"logout"`
-	Config       ConfigCmd       `cmd:"" help:"configuration commands"`
-	Version      VersionCmd      `cmd:"" help:"version information"`
+	Login        user.LoginCmd      `cmd:"" help:"login to aserto.com"`
+	Logout       user.LogoutCmd     `cmd:"" help:"logout from aserto.com"`
+	Start        topaz.StartCmd     `cmd:"" help:"start a topaz instance"`
+	Stop         topaz.StopCmd      `cmd:"" help:"stop a topaz instance"`
+	Restart      topaz.RestartCmd   `cmd:"" help:"restart topaz instance"`
+	Status       topaz.StatusCmd    `cmd:"" help:"status of topaz instance"`
+	RunCmd       topaz.RunCmd       `cmd:"" name:"run" help:"run topaz instance in interactive mode"`
+	Console      topaz.ConsoleCmd   `cmd:"" help:"launch web console"`
+	Config       ConfigCmd          `cmd:"" help:"configuration commands"`
+	Directory    DirectoryCmd       `cmd:"" aliases:"ds" help:"directory commands"`
+	Authorizer   AuthorizerCmd      `cmd:"" aliases:"az" help:"authorizer commands"`
+	DecisionLogs DecisionLogsCmd    `cmd:"" aliases:"dl" help:"decision logs commands"`
+	ControlPlane ControlPlaneCmd    `cmd:"" aliases:"cp" help:"control plane commands"`
+	Tenant       TenantCmd          `cmd:"" aliases:"tn" help:"tenant commands"`
+	User         UserCmd            `cmd:"" help:"user commands"`
+	Install      topaz.InstallCmd   `cmd:"" help:"install topaz"`
+	Uninstall    topaz.UninstallCmd `cmd:"" help:"uninstall topaz, removes all locally installed artifacts"`
+	Update       topaz.UpdateCmd    `cmd:"" help:"update topaz container version"`
+	Version      VersionCmd         `cmd:"" help:"version information"`
 
 	// ConfigFileMapper implements the `type:"conf"` tag.
 	Cfg            string `name:"config" short:"c" type:"conf" env:"ASERTO_CLI_CONFIG_FILE" help:"path to the configuration file"`
