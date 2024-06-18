@@ -19,28 +19,20 @@ type ListConfigCmd struct {
 	topazConfig.ListConfigCmd
 }
 
-func (cmd *ListConfigCmd) Run(c *cc.CommonCtx) error {
-	table := c.UI.Normal().WithTable("", "Name", "Config File", "Target")
+type tenant struct {
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	Current bool   `json:"current"`
+	Default bool   `json:"default"`
+}
 
-	client, err := c.TenantClient()
+func (cmd *ListConfigCmd) Run(c *cc.CommonCtx) error {
+	table := c.UI.Normal().WithTable("", "Name", "Config", "Target")
+
+	resp, err := getAccountDetails(c)
 	if err != nil {
 		return err
 	}
-
-	req := &account.GetAccountRequest{}
-
-	resp, err := client.Account.GetAccount(c.Context, req)
-	if err != nil {
-		return errors.Wrapf(err, "get account")
-	}
-
-	type tenant struct {
-		ID      string `json:"id"`
-		Name    string `json:"name"`
-		Current bool   `json:"current"`
-		Default bool   `json:"default"`
-	}
-
 	tenants := make([]*tenant, len(resp.Result.Tenants))
 
 	for i, t := range resp.Result.Tenants {
@@ -53,12 +45,12 @@ func (cmd *ListConfigCmd) Run(c *cc.CommonCtx) error {
 			Default: isDefault,
 		}
 		tenants[i] = &tt
-		name := fmt.Sprintf("%s.%s", t.Name, t.Id)
+		name := fmt.Sprintf("%s.aserto.com", t.Name)
 		active := ""
 		if c.Config.ConfigName == name {
 			active = "*"
 		}
-		table.WithTableRow(active, name, "", "remote")
+		table.WithTableRow(active, name, t.Id, "remote")
 	}
 
 	files, err := os.ReadDir(cmd.ConfigDir)
@@ -89,6 +81,7 @@ type UseConfigCmd struct {
 
 func (cmd *UseConfigCmd) Run(c *cc.CommonCtx) error {
 	c.Config.ConfigName = string(cmd.Name)
+
 	if !cc.IsAsertoAccount(c.Config.ConfigName) {
 		topazUse := topazConfig.UseConfigCmd{
 			Name:      cmd.Name,
@@ -99,9 +92,34 @@ func (cmd *UseConfigCmd) Run(c *cc.CommonCtx) error {
 			return err
 		}
 	} else {
-		tenantDetails := strings.Split(c.Config.ConfigName, ".")
-		c.Config.TenantID = tenantDetails[1]
+		resp, err := getAccountDetails(c)
+		if err != nil {
+			return err
+		}
+		for _, t := range resp.Result.Tenants {
+			if t.Name == strings.TrimSuffix(string(cmd.Name), ".aserto.com") {
+				c.Config.ConfigName = string(cmd.Name)
+				c.Config.TenantID = t.Id
+				break
+			}
+		}
 	}
 
 	return c.SaveContextConfig(config.DefaultConfigFilePath)
+}
+
+func getAccountDetails(c *cc.CommonCtx) (*account.GetAccountResponse, error) {
+	client, err := c.TenantClient()
+	if err != nil {
+		return nil, err
+	}
+
+	req := &account.GetAccountRequest{}
+
+	resp, err := client.Account.GetAccount(c.Context, req)
+	if err != nil {
+		return nil, errors.Wrapf(err, "get account")
+	}
+
+	return resp, nil
 }

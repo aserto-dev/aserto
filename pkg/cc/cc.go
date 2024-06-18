@@ -86,6 +86,6 @@ func (ctx *CommonCtx) SaveContextConfig(configurationFile string) error {
 }
 
 func IsAsertoAccount(name string) bool {
-	isAsertoAccount, _ := regexp.MatchString(`\w+[.][0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}`, name)
+	isAsertoAccount, _ := regexp.MatchString(`\w+[.]aserto.com`, name)
 	return isAsertoAccount
 }
