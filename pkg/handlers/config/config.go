@@ -21,28 +21,20 @@ type ListConfigCmd struct {
 	topazConfig.ListConfigCmd
 }
 
+type tenant struct {
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	Current bool   `json:"current"`
+	Default bool   `json:"default"`
+}
+
 func (cmd *ListConfigCmd) Run(c *cc.CommonCtx) error {
 	table := c.UI.Normal().WithTable("", "Name", "Config")
 
-	client, err := c.TenantClient()
+	resp, err := getAccountDetails(c)
 	if err != nil {
 		return err
 	}
-
-	req := &account.GetAccountRequest{}
-
-	resp, err := client.Account.GetAccount(c.Context, req)
-	if err != nil {
-		return errors.Wrapf(err, "get account")
-	}
-
-	type tenant struct {
-		ID      string `json:"id"`
-		Name    string `json:"name"`
-		Current bool   `json:"current"`
-		Default bool   `json:"default"`
-	}
-
 	tenants := make([]*tenant, len(resp.Result.Tenants))
 
 	for i, t := range resp.Result.Tenants {
@@ -94,7 +86,9 @@ type UseConfigCmd struct {
 
 func (cmd *UseConfigCmd) Run(c *cc.CommonCtx) error {
 	c.Config.ConfigName = string(cmd.Name)
+
 	if !cc.IsAsertoAccount(c.Config.ConfigName) {
+		c.Config.TenantID = ""
 		topazUse := topazConfig.UseConfigCmd{
 			Name:      cmd.Name,
 			ConfigDir: topazCC.GetTopazCfgDir(),
@@ -133,4 +127,20 @@ func (cmd *UseConfigCmd) Run(c *cc.CommonCtx) error {
 	}
 
 	return c.SaveContextConfig(config.DefaultConfigFilePath)
+}
+
+func getAccountDetails(c *cc.CommonCtx) (*account.GetAccountResponse, error) {
+	client, err := c.TenantClient()
+	if err != nil {
+		return nil, err
+	}
+
+	req := &account.GetAccountRequest{}
+
+	resp, err := client.Account.GetAccount(c.Context, req)
+	if err != nil {
+		return nil, errors.Wrapf(err, "get account")
+	}
+
+	return resp, nil
 }
