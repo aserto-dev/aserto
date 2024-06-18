@@ -99,7 +99,7 @@ config
 
 Flags:
   -h, --help             Show context-sensitive help.
-  -c, --config=STRING    name or path of configuration file ($ASERTO_ENV)
+  -c, --config=STRING    path of configuration file ($ASERTO_CLI_CONFIG_FILE)
   -v, --verbosity=INT    Use to increase output verbosity.
       --tenant=STRING    tenant id override ($ASERTO_TENANT_ID)
 
