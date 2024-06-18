@@ -83,6 +83,7 @@ func (cmd *UseConfigCmd) Run(c *cc.CommonCtx) error {
 	c.Config.ConfigName = string(cmd.Name)
 
 	if !cc.IsAsertoAccount(c.Config.ConfigName) {
+		c.Config.TenantID = ""
 		topazUse := topazConfig.UseConfigCmd{
 			Name:      cmd.Name,
 			ConfigDir: topazCC.GetTopazCfgDir(),
