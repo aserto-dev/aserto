@@ -1,8 +1,11 @@
 package cmd
 
 import (
+	"errors"
+
 	"github.com/alecthomas/kong"
 	"github.com/aserto-dev/aserto/pkg/cc"
+	errs "github.com/aserto-dev/aserto/pkg/cc/errors"
 	"github.com/aserto-dev/topaz/pkg/cli/cmd/directory"
 	"github.com/go-http-utils/headers"
 	"google.golang.org/grpc/metadata"
@@ -28,7 +31,7 @@ func (cmd *DirectoryCmd) AfterApply(context *kong.Context, c *topazCC.CommonCtx)
 		}
 	}
 	tenantToken, err := getTenantTokenDetails(cfg.Auth)
-	if err != nil {
+	if err != nil && !errors.Is(err, errs.NeedLoginErr) {
 		return err
 	}
 	useTenantID := ""

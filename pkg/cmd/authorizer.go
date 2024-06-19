@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"errors"
+
 	"github.com/alecthomas/kong"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/go-http-utils/headers"
@@ -9,6 +11,8 @@ import (
 	topazCC "github.com/aserto-dev/topaz/pkg/cli/cc"
 	topazClients "github.com/aserto-dev/topaz/pkg/cli/clients"
 	"github.com/aserto-dev/topaz/pkg/cli/cmd/authorizer"
+
+	errs "github.com/aserto-dev/aserto/pkg/cc/errors"
 )
 
 const (
@@ -34,7 +38,7 @@ func (cmd *AuthorizerCmd) AfterApply(context *kong.Context, c *topazCC.CommonCtx
 	}
 
 	tenantToken, err := getTenantTokenDetails(cfg.Auth)
-	if err != nil {
+	if err != nil && !errors.Is(err, errs.NeedLoginErr) {
 		return err
 	}
 	useTenantID := ""
