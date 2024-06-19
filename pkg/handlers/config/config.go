@@ -7,6 +7,7 @@ import (
 
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/cc/config"
+	errs "github.com/aserto-dev/aserto/pkg/cc/errors"
 	"github.com/aserto-dev/go-grpc/aserto/api/v1"
 	account "github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"
 	"github.com/samber/lo"
@@ -120,7 +121,7 @@ func (cmd *UseConfigCmd) Run(c *cc.CommonCtx) error {
 		})
 
 		if len(tenant) != 1 {
-			return fmt.Errorf("cannot resolve tenant name %q to tenant ID", tenantName)
+			return errors.Wrapf(errs.ResolveTenantErr, tenantName)
 		}
 
 		c.Config.TenantID = tenant[0].Id

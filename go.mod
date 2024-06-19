@@ -19,7 +19,6 @@ require (
 	github.com/go-http-utils/headers v0.0.0-20181008091004-fed159eddc2a
 	github.com/google/wire v0.6.0
 	github.com/hashicorp/go-multierror v1.1.1
-	github.com/magefile/mage v1.15.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/pkg/errors v0.9.1
 	github.com/samber/lo v1.39.0
@@ -109,6 +108,7 @@ require (
 	github.com/klauspost/compress v1.17.8 // indirect
 	github.com/kyokomi/emoji v2.2.4+incompatible // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
+	github.com/magefile/mage v1.15.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
