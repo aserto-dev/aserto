@@ -20,7 +20,7 @@ func (cmd *DecisionLogsCmd) BeforeApply(context *kong.Context) error {
 	if err != nil {
 		return err
 	}
-	if !cc.IsAsertoAccount(cfg.ConfigName) {
+	if !cc.IsAsertoAccount(cfg.ConfigName) && cfg.TenantID == "" {
 		return ErrDecisionLogsCmd
 	}
 	return nil

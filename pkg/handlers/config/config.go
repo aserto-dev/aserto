@@ -14,12 +14,13 @@ import (
 
 	"github.com/pkg/errors"
 
+	topazConfig "github.com/aserto-dev/topaz/pkg/cc/config"
 	topazCC "github.com/aserto-dev/topaz/pkg/cli/cc"
-	topazConfig "github.com/aserto-dev/topaz/pkg/cli/cmd/configure"
+	topazConfigure "github.com/aserto-dev/topaz/pkg/cli/cmd/configure"
 )
 
 type ListConfigCmd struct {
-	topazConfig.ListConfigCmd
+	topazConfigure.ListConfigCmd
 }
 
 type tenant struct {
@@ -82,7 +83,7 @@ func (cmd *ListConfigCmd) Run(c *cc.CommonCtx) error {
 }
 
 type UseConfigCmd struct {
-	topazConfig.UseConfigCmd
+	topazConfigure.UseConfigCmd
 }
 
 func (cmd *UseConfigCmd) Run(c *cc.CommonCtx) error {
@@ -90,7 +91,8 @@ func (cmd *UseConfigCmd) Run(c *cc.CommonCtx) error {
 
 	if !cc.IsAsertoAccount(c.Config.ConfigName) {
 		c.Config.TenantID = ""
-		topazUse := topazConfig.UseConfigCmd{
+
+		topazUse := topazConfigure.UseConfigCmd{
 			Name:      cmd.Name,
 			ConfigDir: topazCC.GetTopazCfgDir(),
 		}
@@ -100,20 +102,29 @@ func (cmd *UseConfigCmd) Run(c *cc.CommonCtx) error {
 			return err
 		}
 
-		c.Config.TenantID = ""
-	} else {
-		tenantName := strings.TrimSuffix(c.Config.ConfigName, cc.TenantSuffix)
-
-		client, err := c.TenantClient()
+		loader, err := topazConfig.LoadConfiguration(c.TopazContext.Config.Active.ConfigFile)
 		if err != nil {
 			return err
 		}
+		servicesConfig := loader.Configuration.OPA.Config.Services
 
-		req := &account.GetAccountRequest{}
+		serviceMap, ok := servicesConfig["aserto-discovery"].(map[string]interface{})
+		if ok {
+			headersMap, ok := serviceMap["headers"].(map[string]interface{})
+			if ok {
+				c.Config.TenantID, ok = headersMap["aserto-tenant-id"].(string)
+				if !ok {
+					c.Config.TenantID = ""
+				}
+			}
+		}
 
-		resp, err := client.Account.GetAccount(c.Context, req)
+	} else {
+		tenantName := strings.TrimSuffix(c.Config.ConfigName, cc.TenantSuffix)
+
+		resp, err := getAccountDetails(c)
 		if err != nil {
-			return errors.Wrapf(err, "get account")
+			return err
 		}
 
 		tenant := lo.Filter(resp.Result.Tenants, func(item *api.Tenant, index int) bool {
