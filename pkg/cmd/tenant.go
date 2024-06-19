@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/alecthomas/kong"
 	"github.com/aserto-dev/aserto/pkg/cc"
+	"github.com/aserto-dev/aserto/pkg/cc/errors"
 	"github.com/aserto-dev/aserto/pkg/handlers/tenant"
 )
 
@@ -25,7 +26,7 @@ func (cmd *TenantCmd) BeforeApply(context *kong.Context) error {
 		return err
 	}
 	if !cc.IsAsertoAccount(cfg.ConfigName) && cfg.TenantID == "" {
-		return ErrTenantCmd
+		return errors.ErrTenantCmd
 	}
 	return nil
 }

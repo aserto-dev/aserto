@@ -34,29 +34,31 @@ func (cmd *ListConfigCmd) Run(c *cc.CommonCtx) error {
 	table := c.UI.Normal().WithTable("", "Name", "Config")
 
 	resp, err := getAccountDetails(c)
-	if err != nil {
+	if err != nil && !errors.Is(err, errs.NeedLoginErr) {
 		return err
 	}
-	tenants := make([]*tenant, len(resp.Result.Tenants))
+	if resp != nil {
+		tenants := make([]*tenant, len(resp.Result.Tenants))
 
-	for i, t := range resp.Result.Tenants {
-		isCurrent := (t.Id == c.TenantID())
-		isDefault := (t.Id == resp.Result.DefaultTenant)
-		tt := tenant{
-			ID:      t.Id,
-			Name:    t.Name,
-			Current: isCurrent,
-			Default: isDefault,
+		for i, t := range resp.Result.Tenants {
+			isCurrent := (t.Id == c.TenantID())
+			isDefault := (t.Id == resp.Result.DefaultTenant)
+			tt := tenant{
+				ID:      t.Id,
+				Name:    t.Name,
+				Current: isCurrent,
+				Default: isDefault,
+			}
+			tenants[i] = &tt
+			name := fmt.Sprintf("%s%s", t.Name, cc.TenantSuffix)
+
+			active := ""
+			if c.Config.ConfigName == name {
+				active = "*"
+			}
+
+			table.WithTableRow(active, name, t.Id)
 		}
-		tenants[i] = &tt
-		name := fmt.Sprintf("%s%s", t.Name, cc.TenantSuffix)
-
-		active := ""
-		if c.Config.ConfigName == name {
-			active = "*"
-		}
-
-		table.WithTableRow(active, name, t.Id)
 	}
 
 	files, err := os.ReadDir(cmd.ConfigDir)

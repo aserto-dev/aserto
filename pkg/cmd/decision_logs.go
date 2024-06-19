@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/alecthomas/kong"
 	"github.com/aserto-dev/aserto/pkg/cc"
+	"github.com/aserto-dev/aserto/pkg/cc/errors"
 	"github.com/aserto-dev/aserto/pkg/handlers/decision_logs"
 	"github.com/aserto-dev/aserto/pkg/x"
 )
@@ -21,7 +22,7 @@ func (cmd *DecisionLogsCmd) BeforeApply(context *kong.Context) error {
 		return err
 	}
 	if !cc.IsAsertoAccount(cfg.ConfigName) && cfg.TenantID == "" {
-		return ErrDecisionLogsCmd
+		return errors.ErrDecisionLogsCmd
 	}
 	return nil
 }

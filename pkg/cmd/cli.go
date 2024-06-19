@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/alecthomas/kong"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/cc/clients"
 	"github.com/aserto-dev/aserto/pkg/cc/config"
+	"github.com/aserto-dev/aserto/pkg/cc/errors"
 	"github.com/aserto-dev/aserto/pkg/cc/token"
 	"github.com/aserto-dev/aserto/pkg/handlers/user"
 	"github.com/aserto-dev/aserto/pkg/version"
@@ -15,13 +15,6 @@ import (
 
 	topazConfig "github.com/aserto-dev/topaz/pkg/cc/config"
 	topaz "github.com/aserto-dev/topaz/pkg/cli/cmd/topaz"
-)
-
-var (
-	ErrControlPlaneCmd = errors.New("control plane commands are only available with remote configurations")
-	ErrDecisionLogsCmd = errors.New("decision log commands are only available with remote configurations")
-	ErrTenantCmd       = errors.New("tenant service commands are only available with remote configurations")
-	ErrConfigNotFound  = errors.New("aserto config not found")
 )
 
 type CLI struct {
@@ -132,5 +125,5 @@ func getConfig(context *kong.Context) (*config.Config, error) {
 		}
 		return cfg, nil
 	}
-	return nil, ErrConfigNotFound
+	return nil, errors.ErrConfigNotFound
 }

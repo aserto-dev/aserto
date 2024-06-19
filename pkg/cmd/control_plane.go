@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/alecthomas/kong"
 	"github.com/aserto-dev/aserto/pkg/cc"
+	"github.com/aserto-dev/aserto/pkg/cc/errors"
 	controlplane "github.com/aserto-dev/aserto/pkg/handlers/control_plane"
 )
 
@@ -21,7 +22,7 @@ func (cmd *ControlPlaneCmd) BeforeApply(context *kong.Context) error {
 	}
 
 	if !cc.IsAsertoAccount(cfg.ConfigName) && cfg.TenantID == "" {
-		return ErrControlPlaneCmd
+		return errors.ErrControlPlaneCmd
 	}
 	return nil
 }
