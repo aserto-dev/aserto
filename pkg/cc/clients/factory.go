@@ -9,7 +9,6 @@ import (
 	tenant_ "github.com/aserto-dev/aserto/pkg/client/tenant"
 	"github.com/aserto-dev/aserto/pkg/x"
 	aserto "github.com/aserto-dev/go-aserto/client"
-	"github.com/aserto-dev/go-aserto/client/authorizer"
 	dl "github.com/aserto-dev/go-decision-logs/aserto/decision-logs/v2"
 	"github.com/aserto-dev/go-grpc/aserto/management/v2"
 	"github.com/pkg/errors"
@@ -21,7 +20,6 @@ type Factory interface {
 	TenantID() string
 
 	TenantClient() (*tenant_.Client, error)
-	AuthorizerClient() (*authorizer.Client, error)
 	DecisionLogsClient() (dl.DecisionLogsClient, error)
 	ControlPlaneClient() (management.ControlPlaneClient, error)
 }
@@ -76,14 +74,6 @@ func (c *AsertoFactory) TenantClient() (*tenant_.Client, error) {
 		return nil, err
 	}
 	return tenant_.New(c.ctx, options...)
-}
-
-func (c *AsertoFactory) AuthorizerClient() (*authorizer.Client, error) {
-	options, err := c.options(x.AuthorizerService)
-	if err != nil {
-		return nil, err
-	}
-	return authorizer.New(c.ctx, options...)
 }
 
 func (c *AsertoFactory) DecisionLogsClient() (dl.DecisionLogsClient, error) {

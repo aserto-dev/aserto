@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"github.com/alecthomas/kong"
 	"github.com/aserto-dev/aserto/pkg/cc"
+	"github.com/aserto-dev/aserto/pkg/cc/errors"
 	"github.com/aserto-dev/aserto/pkg/handlers/tenant"
 )
 
@@ -16,6 +18,17 @@ type TenantCmd struct {
 	ListProviderKinds    tenant.ListProviderKindsCmd    `cmd:"" group:"tenant" help:"list provider kinds"`
 	ListProviders        tenant.ListProvidersCmd        `cmd:"" group:"tenant" help:"list providers"`
 	GetProvider          tenant.GetProviderCmd          `cmd:"" group:"tenant" help:"get provider info"`
+}
+
+func (cmd *TenantCmd) BeforeApply(context *kong.Context) error {
+	cfg, err := getConfig(context)
+	if err != nil {
+		return err
+	}
+	if !cc.IsAsertoAccount(cfg.ConfigName) && cfg.TenantID == "" {
+		return errors.ErrTenantCmd
+	}
+	return nil
 }
 
 func (cmd *TenantCmd) Run(c *cc.CommonCtx) error {

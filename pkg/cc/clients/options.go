@@ -1,13 +1,11 @@
 package clients
 
 import (
-	"log"
 	"strings"
 
 	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/cc/errors"
 	"github.com/aserto-dev/aserto/pkg/cc/token"
-	"github.com/aserto-dev/aserto/pkg/paths"
 	"github.com/aserto-dev/aserto/pkg/x"
 	aserto "github.com/aserto-dev/go-aserto/client"
 )
@@ -74,15 +72,6 @@ func (c *optionsBuilder) ConnectionOptions() ([]aserto.ConnectionOption, error) 
 	}
 
 	caCertPathOption := nilOption
-	if c.service == x.AuthorizerService && !c.isHosted() {
-		// Look for a CA cert
-		p, err := paths.New()
-		if err == nil {
-			caCertPathOption = aserto.WithCACertPath(p.Certs.GRPC.CA)
-		} else {
-			log.Println("Unable to locate sidecar certificates.", err.Error())
-		}
-	}
 
 	return []aserto.ConnectionOption{
 		aserto.WithAddr(c.address()),

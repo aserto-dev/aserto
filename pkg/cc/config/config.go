@@ -2,10 +2,13 @@ package config
 
 import (
 	"io"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/aserto-dev/aserto/pkg/auth0"
 	decisionlogger "github.com/aserto-dev/aserto/pkg/decision_logger"
+	"github.com/aserto-dev/aserto/pkg/filex"
 	"github.com/aserto-dev/aserto/pkg/x"
 	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
@@ -15,6 +18,8 @@ import (
 var (
 	EnvironmentErr = errors.New("unknown environment")
 )
+
+var DefaultConfigFilePath = filepath.Join(os.Getenv("HOME"), ".config", "aserto", "config.json")
 
 // Overrider is a func that mutates configuration.
 type Overrider func(*Config)
@@ -34,6 +39,7 @@ type Config struct {
 	Services       x.Services            `json:"services"`
 	Auth           *Auth                 `json:"auth"`
 	DecisionLogger decisionlogger.Config `json:"decision_logger"`
+	ConfigName     string                `json:"config_name"`
 }
 
 type Path string
@@ -43,7 +49,7 @@ func NewConfig(path Path, overrides ...Overrider) (*Config, error) {
 
 	return newConfig(
 		func(v *viper.Viper) error {
-			if configFile != "" {
+			if filex.FileExists(configFile) {
 				v.SetConfigFile(configFile)
 				if err := v.ReadInConfig(); err != nil {
 					return errors.Wrapf(err, "failed to read config file [%s]", configFile)
@@ -73,7 +79,7 @@ func newConfig(reader configReader, overrides ...Overrider) (*Config, error) {
 
 	v := viper.New()
 	v.SetEnvPrefix("ASERTO")
-	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	v.SetDefault("tenant_id", "")
 	v.SetDefault("services", x.DefaultEnvironment())
 	v.SetDefault("auth.issuer", auth0.Issuer)

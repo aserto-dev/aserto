@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"github.com/alecthomas/kong"
 	"github.com/aserto-dev/aserto/pkg/cc"
+	"github.com/aserto-dev/aserto/pkg/cc/errors"
 	controlplane "github.com/aserto-dev/aserto/pkg/handlers/control_plane"
 )
 
@@ -11,6 +13,18 @@ type ControlPlaneCmd struct {
 	ListInstanceRegistrations controlplane.ListInstanceRegistrationsCmd `cmd:"" help:"list instance registrations" group:"control-plane"`
 	Discovery                 controlplane.DiscoveryCmd                 `cmd:"" help:"run discovery on a registered instance" group:"control-plane"`
 	EdgeDirSync               controlplane.EdgeDirSyncCmd               `cmd:"" help:"sync the directory on an edge authorizer" group:"control-plane"`
+}
+
+func (cmd *ControlPlaneCmd) BeforeApply(context *kong.Context) error {
+	cfg, err := getConfig(context)
+	if err != nil {
+		return err
+	}
+
+	if !cc.IsAsertoAccount(cfg.ConfigName) && cfg.TenantID == "" {
+		return errors.ErrControlPlaneCmd
+	}
+	return nil
 }
 
 func (cmd *ControlPlaneCmd) Run(c *cc.CommonCtx) error {

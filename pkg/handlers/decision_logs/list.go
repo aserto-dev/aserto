@@ -33,6 +33,7 @@ func listDecisionLogs(ctx context.Context, cli dl.DecisionLogsClient, policies [
 		return cli.ListDecisionLogs(ctx, &dl.ListDecisionLogsRequest{
 			Page: &api.PaginationRequest{
 				Token: token,
+				Size:  100,
 			},
 			Policies: policies,
 		})
