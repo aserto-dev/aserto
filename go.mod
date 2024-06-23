@@ -14,7 +14,7 @@ require (
 	github.com/aserto-dev/go-aserto v0.31.4
 	github.com/aserto-dev/go-decision-logs v0.0.4
 	github.com/aserto-dev/go-grpc v0.8.65
-	github.com/aserto-dev/topaz v0.32.10
+	github.com/aserto-dev/topaz v0.32.11
 	github.com/cli/browser v1.3.0
 	github.com/go-http-utils/headers v0.0.0-20181008091004-fed159eddc2a
 	github.com/google/wire v0.6.0
