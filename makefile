@@ -146,6 +146,7 @@ clean:
 	@echo -e "$(ATTN_COLOR)==> $@ $(NO_COLOR)"
 	@rm -rf ${EXT_DIR}
 	@rm -rf ${BIN_DIR}
+	@rm -rf ./dist
 
 ${BIN_DIR}:
 	@echo -e "$(ATTN_COLOR)==> $@ $(NO_COLOR)"
