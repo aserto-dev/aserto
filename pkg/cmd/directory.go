@@ -62,6 +62,11 @@ func (cmd *DirectoryCmd) AfterApply(context *kong.Context, c *topazCC.CommonCtx)
 	cmd.DirectoryCmd.List.Relations.DirectoryConfig = dirConfig
 	cmd.DirectoryCmd.Check.DirectoryConfig = dirConfig
 	cmd.DirectoryCmd.Search.DirectoryConfig = dirConfig
+	cmd.DirectoryCmd.Import.DirectoryConfig = dirConfig
+	cmd.DirectoryCmd.Export.DirectoryConfig = dirConfig
+	cmd.DirectoryCmd.Backup.DirectoryConfig = dirConfig
+	cmd.DirectoryCmd.Restore.DirectoryConfig = dirConfig
+	cmd.DirectoryCmd.Test.Exec.DirectoryConfig = dirConfig
 
 	return nil
 }
