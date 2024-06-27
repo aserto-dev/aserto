@@ -14,19 +14,19 @@ require (
 	github.com/aserto-dev/go-aserto v0.31.4
 	github.com/aserto-dev/go-decision-logs v0.0.4
 	github.com/aserto-dev/go-grpc v0.8.65
-	github.com/aserto-dev/topaz v0.32.10
+	github.com/aserto-dev/topaz v0.32.11
 	github.com/cli/browser v1.3.0
 	github.com/go-http-utils/headers v0.0.0-20181008091004-fed159eddc2a
 	github.com/google/wire v0.6.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/pkg/errors v0.9.1
-	github.com/samber/lo v1.39.0
+	github.com/samber/lo v1.41.0
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
 	github.com/zalando/go-keyring v0.2.5
 	github.com/zenizh/go-capturer v0.0.0-20211219060012-52ea6c8fed04
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240610135401-a8a62080eff3
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240624140628-dc46fd24d27d
 	google.golang.org/grpc v1.64.0
 	google.golang.org/protobuf v1.34.2
 )
@@ -172,9 +172,9 @@ require (
 	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.21.0 // indirect
 	golang.org/x/term v0.20.0 // indirect
-	golang.org/x/text v0.15.0 // indirect
+	golang.org/x/text v0.16.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
-	golang.org/x/tools v0.21.0 // indirect
+	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240528184218-531527333157 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
