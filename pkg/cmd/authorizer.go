@@ -55,7 +55,7 @@ func (cmd *AuthorizerCmd) AfterApply(context *kong.Context, c *topazCC.CommonCtx
 
 	if !isTopazConfig {
 		// only send access token to hosted services.
-		c.Context = metadata.AppendToOutgoingContext(c.Context, string(headers.Authorization), "Bearer "+token.Access)
+		c.Context = metadata.AppendToOutgoingContext(c.Context, string(headers.Authorization), BearerToken+token.Access)
 	}
 
 	cmd.AuthorizerCmd.CheckDecision.AuthorizerConfig = authorizerConfig
