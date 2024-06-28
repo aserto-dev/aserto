@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/alecthomas/kong"
+	"github.com/aserto-dev/aserto/pkg/auth0/api"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/cc/clients"
 	"github.com/aserto-dev/aserto/pkg/cc/config"
@@ -99,14 +100,14 @@ func setServicesConfig(cfg *config.Config, topazConfigFile string) error {
 	return nil
 }
 
-func getTenantTokenDetails(cfg *config.Auth) (string, error) {
+func getTenantToken(cfg *config.Auth) (*api.Token, error) {
 	cachedToken := cc.GetCacheKey(cfg)
 	tkn := token.Load(cachedToken)
 	authToken, err := tkn.Get()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return authToken.Access, nil
+	return authToken, nil
 }
 
 func getConfig(context *kong.Context) (*config.Config, error) {

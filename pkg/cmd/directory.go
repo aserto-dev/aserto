@@ -8,6 +8,7 @@ import (
 	errs "github.com/aserto-dev/aserto/pkg/cc/errors"
 	"github.com/aserto-dev/topaz/pkg/cli/cmd/directory"
 	"github.com/go-http-utils/headers"
+	"github.com/samber/lo"
 	"google.golang.org/grpc/metadata"
 
 	topazCC "github.com/aserto-dev/topaz/pkg/cli/cc"
@@ -24,30 +25,32 @@ func (cmd *DirectoryCmd) AfterApply(context *kong.Context, c *topazCC.CommonCtx)
 		return err
 	}
 
-	if !cc.IsAsertoAccount(cfg.ConfigName) {
+	isTopazConfig := !cc.IsAsertoAccount(cfg.ConfigName)
+
+	if isTopazConfig {
 		err = setServicesConfig(cfg, c.Config.Active.ConfigFile)
 		if err != nil {
 			return err
 		}
 	}
-	tenantToken, err := getTenantTokenDetails(cfg.Auth)
+
+	token, err := getTenantToken(cfg.Auth)
 	if err != nil && !errors.Is(err, errs.NeedLoginErr) {
 		return err
-	}
-	useTenantID := ""
-	if tenantToken == "" {
-		useTenantID = cfg.TenantID
 	}
 
 	dirConfig := topazClients.DirectoryConfig{
 		Host:     cfg.Services.DirectoryReaderService.Address,
 		APIKey:   cfg.Services.DirectoryReaderService.APIKey,
-		Token:    "",
+		Token:    lo.Ternary(isTopazConfig, "", token.Access), // only send access token to hosted services.
 		Insecure: cfg.Services.DirectoryReaderService.Insecure,
-		TenantID: useTenantID,
+		TenantID: lo.Ternary(isTopazConfig, "", cfg.TenantID),
 	}
 
-	c.Context = metadata.AppendToOutgoingContext(c.Context, string(headers.Authorization), "Bearer "+tenantToken)
+	if !isTopazConfig {
+		// only send access token to hosted services.
+		c.Context = metadata.AppendToOutgoingContext(c.Context, string(headers.Authorization), "Bearer "+token.Access)
+	}
 
 	cmd.DirectoryCmd.Get.Manifest.DirectoryConfig = dirConfig
 	cmd.DirectoryCmd.Set.Manifest.DirectoryConfig = dirConfig
