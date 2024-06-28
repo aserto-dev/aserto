@@ -8,16 +8,9 @@ import (
 )
 
 type TenantCmd struct {
-	GetAccount           tenant.GetAccountCmd           `cmd:"" group:"tenant" help:"get account info"`
-	ListConnections      tenant.ListConnectionsCmd      `cmd:"" group:"tenant" help:"list connections"`
-	GetConnection        tenant.GetConnectionCmd        `cmd:"" group:"tenant" help:"get connection instance info"`
-	UpdateConnection     tenant.UpdateConnectionCmd     `cmd:"" group:"tenant" help:"update connection configuration fields"`
-	VerifyConnection     tenant.VerifyConnectionCmd     `cmd:"" group:"tenant" help:"verify connection settings"`
-	SyncConnection       tenant.SyncConnectionCmd       `cmd:"" group:"tenant" help:"trigger sync of IDP connection"`
-	ListPolicyReferences tenant.ListPolicyReferencesCmd `cmd:"" group:"tenant" help:"list policy references"`
-	ListProviderKinds    tenant.ListProviderKindsCmd    `cmd:"" group:"tenant" help:"list provider kinds"`
-	ListProviders        tenant.ListProvidersCmd        `cmd:"" group:"tenant" help:"list providers"`
-	GetProvider          tenant.GetProviderCmd          `cmd:"" group:"tenant" help:"get provider info"`
+	Get  TenantGetCmd  `cmd:"" help:""`
+	List TenantListCmd `cmd:"" help:""`
+	Exec TenantExecCmd `cmd:"" help:""`
 }
 
 func (cmd *TenantCmd) BeforeApply(context *kong.Context) error {
@@ -33,4 +26,23 @@ func (cmd *TenantCmd) BeforeApply(context *kong.Context) error {
 
 func (cmd *TenantCmd) Run(c *cc.CommonCtx) error {
 	return nil
+}
+
+type TenantGetCmd struct {
+	Account    tenant.GetAccountCmd    `cmd:"" help:"get account info"`
+	Connection tenant.GetConnectionCmd `cmd:"" help:"get connection instance info"`
+	Provider   tenant.GetProviderCmd   `cmd:"" help:"get provider info"`
+}
+
+type TenantListCmd struct {
+	Connections      tenant.ListConnectionsCmd      `cmd:"" help:"list connections"`
+	PolicyReferences tenant.ListPolicyReferencesCmd `cmd:"" help:"list policy references"`
+	ProviderKinds    tenant.ListProviderKindsCmd    `cmd:"" help:"list provider kinds"`
+	Providers        tenant.ListProvidersCmd        `cmd:"" help:"list providers"`
+}
+
+type TenantExecCmd struct {
+	Update tenant.UpdateConnectionCmd `cmd:"" help:"update connection configuration fields"`
+	Verify tenant.VerifyConnectionCmd `cmd:"" help:"verify connection settings"`
+	Sync   tenant.SyncConnectionCmd   `cmd:"" help:"trigger sync of IDP connection"`
 }

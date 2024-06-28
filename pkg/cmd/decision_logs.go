@@ -4,15 +4,14 @@ import (
 	"github.com/alecthomas/kong"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/cc/errors"
-	"github.com/aserto-dev/aserto/pkg/handlers/decision_logs"
+	dl "github.com/aserto-dev/aserto/pkg/handlers/decision_logs"
 	"github.com/aserto-dev/aserto/pkg/x"
 )
 
 type DecisionLogsCmd struct {
-	List   decision_logs.ListCmd   `cmd:"" help:"list available decision log files" group:"decision-logs"`
-	Get    decision_logs.GetCmd    `cmd:"" help:"download one or more decision log files" group:"decision-logs"`
-	Stream decision_logs.StreamCmd `cmd:"" help:"stream decision log events to stdout" group:"decision-logs"`
-
+	List    dl.ListCmd        `cmd:"list" help:"list available decision log files"`
+	Get     dl.GetCmd         `cmd:"get" help:"download one or more decision log files"`
+	Stream  dl.StreamCmd      `cmd:"stream" help:"stream decision log events to stdout"`
 	SvcOpts ConnectionOptions `embed:"" envprefix:"ASERTO_DECISION_LOGS_"`
 }
 

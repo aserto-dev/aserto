@@ -1,8 +1,10 @@
 package config
 
 import (
+	"cmp"
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
@@ -39,6 +41,10 @@ func (cmd *ListConfigCmd) Run(c *cc.CommonCtx) error {
 	}
 	if resp != nil {
 		tenants := make([]*tenant, len(resp.Result.Tenants))
+
+		slices.SortFunc(resp.Result.Tenants, func(a, b *api.Tenant) int {
+			return cmp.Compare(a.Name, b.Name)
+		})
 
 		for i, t := range resp.Result.Tenants {
 			isCurrent := (t.Id == c.TenantID())

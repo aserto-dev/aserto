@@ -6,6 +6,7 @@ import (
 	"github.com/alecthomas/kong"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/go-http-utils/headers"
+	"github.com/samber/lo"
 	"google.golang.org/grpc/metadata"
 
 	topazCC "github.com/aserto-dev/topaz/pkg/cli/cc"
@@ -30,37 +31,39 @@ func (cmd *AuthorizerCmd) AfterApply(context *kong.Context, c *topazCC.CommonCtx
 		return err
 	}
 
-	if !cc.IsAsertoAccount(cfg.ConfigName) {
+	isTopazConfig := !cc.IsAsertoAccount(cfg.ConfigName)
+
+	if isTopazConfig {
 		err = setServicesConfig(cfg, c.Config.Active.ConfigFile)
 		if err != nil {
 			return err
 		}
 	}
 
-	tenantToken, err := getTenantTokenDetails(cfg.Auth)
+	token, err := getTenantToken((cfg.Auth))
 	if err != nil && !errors.Is(err, errs.NeedLoginErr) {
 		return err
-	}
-	useTenantID := ""
-	if tenantToken == "" {
-		useTenantID = cfg.TenantID
 	}
 
 	authorizerConfig := topazClients.AuthorizerConfig{
 		Host:     cfg.Services.AuthorizerService.Address,
 		APIKey:   cfg.Services.AuthorizerService.APIKey,
-		Token:    tenantToken,
+		Token:    lo.Ternary(isTopazConfig, "", token.Access), // only send access token to hosted services.
 		Insecure: cfg.Services.AuthorizerService.Insecure,
-		TenantID: useTenantID,
+		TenantID: lo.Ternary(isTopazConfig, "", cfg.TenantID),
 	}
 
-	c.Context = metadata.AppendToOutgoingContext(c.Context, string(headers.Authorization), BearerToken+tenantToken)
+	if !isTopazConfig {
+		// only send access token to hosted services.
+		c.Context = metadata.AppendToOutgoingContext(c.Context, string(headers.Authorization), BearerToken+token.Access)
+	}
 
 	cmd.AuthorizerCmd.CheckDecision.AuthorizerConfig = authorizerConfig
 	cmd.AuthorizerCmd.ExecQuery.AuthorizerConfig = authorizerConfig
-	cmd.AuthorizerCmd.GetPolicy.AuthorizerConfig = authorizerConfig
 	cmd.AuthorizerCmd.DecisionTree.AuthorizerConfig = authorizerConfig
-	cmd.AuthorizerCmd.ListPolicies.AuthorizerConfig = authorizerConfig
+	cmd.AuthorizerCmd.Get.Policy.AuthorizerConfig = authorizerConfig
+	cmd.AuthorizerCmd.List.Policies.AuthorizerConfig = authorizerConfig
+	cmd.AuthorizerCmd.Test.Exec.AuthorizerConfig = authorizerConfig
 
 	return nil
 }
