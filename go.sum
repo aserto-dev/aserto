@@ -105,10 +105,8 @@ github.com/aserto-dev/self-decision-logger v0.0.5 h1:SXEo984ZasskvrRZ4LrLwqDOvQM
 github.com/aserto-dev/self-decision-logger v0.0.5/go.mod h1:CJUe5pfaaHzemWr7LqMOA8b9fuf/n0V2ekKsH7X28R4=
 github.com/aserto-dev/service-host v0.0.13 h1:TGJc3a5Jyxf1qjAt8nffE4OR0ToLz895w/kP8bePM9s=
 github.com/aserto-dev/service-host v0.0.13/go.mod h1:GL9XEplaqaSaPDfXnuMzks9KNt+w1VpwkjO6mV4pXl0=
-github.com/aserto-dev/topaz v0.32.11 h1:LOZwdaiuY/7IQWFfXyIBcADlko9j4oOUw0ZP6ZgpcaE=
-github.com/aserto-dev/topaz v0.32.11/go.mod h1:vRt/S4h0PrBhjwv7/MKPwbDP5IuvLdTHJPWV+mkqa2g=
-github.com/aserto-dev/topaz v0.32.12-0.20240628011953-5912316954f3 h1:52CxpxGyHqZb2ZMNMTlSz6ghWVwsARsvaLKjMTDx02Q=
-github.com/aserto-dev/topaz v0.32.12-0.20240628011953-5912316954f3/go.mod h1:TE0y0t2CNLK1URtJdCfsEIqYNWhQnlwxPecumyXVW/c=
+github.com/aserto-dev/topaz v0.32.12 h1:e+MvPIW0dkRJYlcl3pbl+7gnf0fnM76o2uNdceamlvI=
+github.com/aserto-dev/topaz v0.32.12/go.mod h1:HItghU/oCR0qZZnODT9+i86t8SOyFs+Wis8wEoh6GuQ=
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
@@ -502,8 +500,8 @@ github.com/sagikazarmark/locafero v0.4.0 h1:HApY1R9zGo4DBgr7dqsTH/JJxLTTsOt7u6ke
 github.com/sagikazarmark/locafero v0.4.0/go.mod h1:Pe1W6UlPYUk/+wc/6KFhbORCfqzgYEpgQ3O5fPuL3H4=
 github.com/sagikazarmark/slog-shim v0.1.0 h1:diDBnUNK9N/354PgrxMywXnAwEr1QZcOr6gto+ugjYE=
 github.com/sagikazarmark/slog-shim v0.1.0/go.mod h1:SrcSrq8aKtyuqEI1uvTDTK1arOWRIczQRv+GVI1AkeQ=
-github.com/samber/lo v1.41.0 h1:vZEqVQNmX/ykONfla8tiW6cdoLZxb3+LCZ63B8z/2eE=
-github.com/samber/lo v1.41.0/go.mod h1:w7R6fO7h2lrnx/s0bWcZ55vXJI89p5UPM6+kyDL373E=
+github.com/samber/lo v1.42.0 h1:cuVp/4oZcTxK0w8vyj/MSEws9yTUjuTgZi7noEXMlZs=
+github.com/samber/lo v1.42.0/go.mod h1:w7R6fO7h2lrnx/s0bWcZ55vXJI89p5UPM6+kyDL373E=
 github.com/sirupsen/logrus v1.2.0/go.mod h1:LxeOpSwHxABJmUn/MG1IvRgCAasNZTLOkJPxbbu5VWo=
 github.com/sirupsen/logrus v1.4.2/go.mod h1:tLMulIdttU9McNUspp0xgXVQah82FyeX6MwdIuYE2rE=
 github.com/sirupsen/logrus v1.6.0/go.mod h1:7uNnSEd1DgxDLC74fIahvMZmmYsHGZGEOFrfsX/uA88=
