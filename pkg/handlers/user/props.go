@@ -3,44 +3,56 @@ package user
 import (
 	"fmt"
 
+	"github.com/alecthomas/kong"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/jsonx"
 	"github.com/pkg/errors"
 )
 
 type GetCmd struct {
-	AccessToken      bool `xor:"group" help:"access token" group:"properties"`
-	TenantID         bool `xor:"group" help:"tenant ID" group:"properties"`
-	AuthorizerAPIKey bool `xor:"group" help:"authorizer API key" group:"properties"`
-	DecisionLogsKey  bool `xor:"group" help:"decision logs key" group:"properties"`
-	Token            bool `xor:"group" help:"token" hidden:"" group:"properties"`
+	Property string `kong:"-"`
+}
+
+func (cmd *GetCmd) BeforeApply(k *kong.Kong, c *kong.Context) error {
+	p := c.Path[len(c.Path)-1]
+	cmd.Property = p.Command.Name
+	return nil
 }
 
 func (cmd *GetCmd) Run(c *cc.CommonCtx) error {
-	if !cmd.AccessToken && !cmd.TenantID && !cmd.AuthorizerAPIKey && !cmd.Token && !cmd.DecisionLogsKey {
-		return errors.Errorf("no property flag provided")
-	}
-
 	var (
 		propValue string
 		err       error
 	)
 
-	switch {
-	case cmd.AccessToken:
+	switch cmd.Property {
+	case "access-token":
 		propValue, err = c.AccessToken()
-	case cmd.TenantID:
+	case "tenant-id":
 		propValue = c.TenantID()
-	case cmd.AuthorizerAPIKey:
+	case "authorizer-key":
 		propValue, err = c.AuthorizerAPIKey()
-	case cmd.DecisionLogsKey:
+	case "directory-read-key":
+		propValue, err = c.DirectoryReadKey()
+	case "directory-write-key":
+		propValue, err = c.DirectoryWriteKey()
+	case "discovery-key":
+		propValue, err = c.DiscoveryKey()
+	case "decision-logs-key":
 		propValue, err = c.DecisionLogsKey()
-	case cmd.Token:
+	case "registry-read-key":
+		propValue, err = c.RegistryReadKey()
+	case "registry-write-key":
+		propValue, err = c.RegistryWriteKey()
+	case "token":
 		token, tokenErr := c.Token()
 		if tokenErr != nil {
 			return tokenErr
 		}
 		return jsonx.OutputJSON(c.UI.Output(), token)
+
+	default:
+		return errors.Errorf("unknown property name %s", cmd.Property)
 	}
 
 	if err != nil {

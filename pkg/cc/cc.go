@@ -58,12 +58,52 @@ func (ctx *CommonCtx) AuthorizerAPIKey() (string, error) {
 	return tkn.AuthorizerAPIKey, nil
 }
 
+func (ctx *CommonCtx) DirectoryReadKey() (string, error) {
+	tkn, err := ctx.Token()
+	if err != nil {
+		return "", err
+	}
+	return tkn.DirectoryReadKey, nil
+}
+
+func (ctx *CommonCtx) DirectoryWriteKey() (string, error) {
+	tkn, err := ctx.Token()
+	if err != nil {
+		return "", err
+	}
+	return tkn.DirectoryWriteKey, nil
+}
+
+func (ctx *CommonCtx) DiscoveryKey() (string, error) {
+	tkn, err := ctx.Token()
+	if err != nil {
+		return "", err
+	}
+	return tkn.DiscoveryKey, nil
+}
+
 func (ctx *CommonCtx) DecisionLogsKey() (string, error) {
 	tkn, err := ctx.Token()
 	if err != nil {
 		return "", err
 	}
 	return tkn.DecisionLogsKey, nil
+}
+
+func (ctx *CommonCtx) RegistryReadKey() (string, error) {
+	tkn, err := ctx.Token()
+	if err != nil {
+		return "", err
+	}
+	return tkn.RegistryDownloadKey, nil
+}
+
+func (ctx *CommonCtx) RegistryWriteKey() (string, error) {
+	tkn, err := ctx.Token()
+	if err != nil {
+		return "", err
+	}
+	return tkn.RegistryUploadKey, nil
 }
 
 func (ctx *CommonCtx) Logf(format string, v ...interface{}) {
@@ -73,7 +113,7 @@ func (ctx *CommonCtx) Logf(format string, v ...interface{}) {
 func (ctx *CommonCtx) SaveContextConfig(configurationFile string) error {
 	configDir := filepath.Dir(configurationFile)
 	if !filex.DirExists(configDir) {
-		err := os.MkdirAll(configDir, 0700)
+		err := os.MkdirAll(configDir, 0o700)
 		if err != nil {
 			return err
 		}
@@ -82,7 +122,7 @@ func (ctx *CommonCtx) SaveContextConfig(configurationFile string) error {
 	if err != nil {
 		return err
 	}
-	err = os.WriteFile(configurationFile, kongConfigBytes, 0600)
+	err = os.WriteFile(configurationFile, kongConfigBytes, 0o600)
 	if err != nil {
 		return err
 	}
