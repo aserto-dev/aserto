@@ -2,7 +2,7 @@ module github.com/aserto-dev/aserto
 
 go 1.22.0
 
-toolchain go1.22.4
+toolchain go1.22.5
 
 // replace github.com/aserto-dev/go-grpc => ../go-grpc
 // replace github.com/aserto-dev/go-grpc-authz => ../go-grpc-authz
@@ -15,20 +15,20 @@ require (
 	github.com/aserto-dev/go-aserto v0.31.4
 	github.com/aserto-dev/go-decision-logs v0.0.4
 	github.com/aserto-dev/go-grpc v0.8.65
-	github.com/aserto-dev/topaz v0.32.12
+	github.com/aserto-dev/topaz v0.32.15
 	github.com/cli/browser v1.3.0
 	github.com/go-http-utils/headers v0.0.0-20181008091004-fed159eddc2a
 	github.com/google/wire v0.6.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/pkg/errors v0.9.1
-	github.com/samber/lo v1.42.0
+	github.com/samber/lo v1.44.0
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
 	github.com/zalando/go-keyring v0.2.5
 	github.com/zenizh/go-capturer v0.0.0-20211219060012-52ea6c8fed04
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240624140628-dc46fd24d27d
-	google.golang.org/grpc v1.64.0
+	google.golang.org/grpc v1.65.0
 	google.golang.org/protobuf v1.34.2
 )
 
@@ -55,16 +55,17 @@ require (
 	github.com/aserto-dev/go-edge-ds v0.32.0 // indirect
 	github.com/aserto-dev/header v0.0.7 // indirect
 	github.com/aserto-dev/logger v0.0.4 // indirect
-	github.com/aserto-dev/runtime v0.65.0 // indirect
+	github.com/aserto-dev/runtime v0.66.0 // indirect
 	github.com/aserto-dev/self-decision-logger v0.0.5 // indirect
-	github.com/aserto-dev/service-host v0.0.13 // indirect
+	github.com/aserto-dev/service-host v0.0.14 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bufbuild/protocompile v0.13.0 // indirect
 	github.com/bufbuild/protovalidate-go v0.6.2 // indirect
 	github.com/bytecodealliance/wasmtime-go/v3 v3.0.2 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cncf/xds/go v0.0.0-20240423153145-555b57ec207b // indirect
-	github.com/containerd/containerd v1.7.17 // indirect
+	github.com/containerd/containerd v1.7.18 // indirect
+	github.com/containerd/errdefs v0.1.0 // indirect
 	github.com/containerd/log v0.1.0 // indirect
 	github.com/danieljoos/wincred v1.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
@@ -128,7 +129,7 @@ require (
 	github.com/nats-io/nkeys v0.4.7 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
-	github.com/open-policy-agent/opa v0.65.0 // indirect
+	github.com/open-policy-agent/opa v0.66.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0 // indirect
 	github.com/panmari/cuckoofilter v1.0.6 // indirect
@@ -169,7 +170,7 @@ require (
 	golang.org/x/crypto v0.24.0 // indirect
 	golang.org/x/exp v0.0.0-20240525044651-4c93da0ed11d // indirect
 	golang.org/x/mod v0.17.0 // indirect
-	golang.org/x/net v0.25.0 // indirect
+	golang.org/x/net v0.26.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.21.0 // indirect
 	golang.org/x/term v0.21.0 // indirect

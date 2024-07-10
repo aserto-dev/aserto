@@ -83,7 +83,6 @@ jobs:
           secrets: |
             kv/data/github    "READ_WRITE_TOKEN"                        | READ_WRITE_TOKEN;
             kv/data/github    "ASERTO_TAP"                              | ASERTO_TAP;
-            kv/data/gcp       "SERVICE_ACCOUNT_GITHUB_ACTIONS_RELEASE"  | SERVICE_ACCOUNT_GITHUB_ACTIONS_RELEASE;
       -
         name: Checkout
         uses: actions/checkout@v4
@@ -95,20 +94,11 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
       -
-        name: GCS Application Credentials
-        run: |
-          echo "${SERVICE_ACCOUNT_GITHUB_ACTIONS_RELEASE}" > /tmp/gs.json
-      -
-        name: Write Version Info
-        run: |
-          git describe --tags > VERSION.txt
-      -
         name: Release
         uses: goreleaser/goreleaser-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HOMEBREW_TAP: ${{ secrets.GITHUB_TOKEN }}
-          GOOGLE_APPLICATION_CREDENTIALS: /tmp/gs.json
         with:
           distribution: goreleaser
           version: ${{ env.GO_RELEASER_VERSION }}
