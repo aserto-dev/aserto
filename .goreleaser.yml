@@ -75,16 +75,6 @@ release:
 
 blobs:
   # https://goreleaser.com/customization/blob/
-  - provider: gs
-    bucket: aserto-cli
-    folder: "aserto/{{ .Version }}"
-    extra_files:
-      - glob: VERSION.txt
-  - provider: gs
-    bucket: aserto-cli
-    folder: "aserto/latest"
-    extra_files:
-      - glob: VERSION.txt
 
 brews:
   # https://goreleaser.com/customization/homebrew/
@@ -95,7 +85,7 @@ brews:
       name: homebrew-tap
       token: "{{ .Env.ASERTO_TAP }}"
 
-    url_template: "https://storage.googleapis.com/aserto-cli/aserto/{{ .Version }}/{{ .ArtifactName }}"
+    url_template: "https://github.com/aserto-dev/aserto/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
 
     download_strategy: CurlDownloadStrategy
 
