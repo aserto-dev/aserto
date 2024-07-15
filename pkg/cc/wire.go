@@ -3,82 +3,81 @@
 
 package cc
 
-import (
-	"context"
-	"io"
+// import (
+// 	"context"
+// 	"io"
 
-	"github.com/aserto-dev/aserto/pkg/auth0"
-	"github.com/aserto-dev/aserto/pkg/cc/clients"
-	"github.com/aserto-dev/aserto/pkg/cc/config"
-	"github.com/aserto-dev/aserto/pkg/cc/iostream"
-	"github.com/aserto-dev/aserto/pkg/cc/token"
-	decisionlogger "github.com/aserto-dev/aserto/pkg/decision_logger"
-	"github.com/google/wire"
-)
+// 	"github.com/aserto-dev/aserto/pkg/auth0"
+// 	"github.com/aserto-dev/aserto/pkg/cc/clients"
+// 	"github.com/aserto-dev/aserto/pkg/cc/config"
+// 	"github.com/aserto-dev/aserto/pkg/cc/iostream"
+// 	"github.com/aserto-dev/aserto/pkg/cc/token"
+// 	decisionlogger "github.com/aserto-dev/aserto/pkg/decision_logger"
+// 	"github.com/google/wire"
+// )
 
-var (
-	commonSet = wire.NewSet(
-		iostream.NewUI,
-		GetCacheKey,
-		token.Load,
-		NewTenantID,
-		NewAuthSettings,
-		decisionlogger.NewSettings,
-		clients.NewClientFactory,
+// var (
+// 	commonSet = wire.NewSet(
+// 		iostream.DefaultIO,
+// 		GetCacheKey,
+// 		token.Load,
+// 		NewTenantID,
+// 		NewAuthSettings,
+// 		decisionlogger.NewSettings,
+// 		clients.NewClientFactory,
 
-		wire.Bind(new(clients.Factory), new(*clients.AsertoFactory)),
-		wire.FieldsOf(new(*config.Config), "Services", "Auth", "DecisionLogger"),
-		wire.Struct(new(CommonCtx), "*"),
-	)
+// 		wire.Bind(new(clients.Factory), new(*clients.AsertoFactory)),
+// 		wire.FieldsOf(new(*config.Config), "Services", "Auth", "DecisionLogger"),
+// 		wire.Struct(new(CommonCtx), "*"),
+// 	)
 
-	ccSet = wire.NewSet(
-		commonSet,
+// 	ccSet = wire.NewSet(
+// 		commonSet,
 
-		iostream.DefaultIO,
-		context.Background,
-		config.NewConfig,
+// 		context.Background,
+// 		config.NewConfig,
 
-		wire.Bind(new(iostream.IO), new(*iostream.StdIO)),
-	)
+// 		// wire.Bind(new(iostream.IO), new(*iostream.StdIO)),
+// 	)
 
-	ccTestSet = wire.NewSet(
-		commonSet,
+// 	ccTestSet = wire.NewSet(
+// 		commonSet,
 
-		context.TODO,
-		config.NewTestConfig,
-	)
-)
+// 		context.TODO,
+// 		config.NewTestConfig,
+// 	)
+// )
 
-func BuildCommonCtx(
-	configPath config.Path,
-	overrides ...config.Overrider,
-) (*CommonCtx, error) {
-	wire.Build(ccSet)
-	return &CommonCtx{}, nil
-}
+// func BuildCommonCtx(
+// 	configPath config.Path,
+// 	overrides ...config.Overrider,
+// ) (*CommonCtx, error) {
+// 	wire.Build(ccSet)
+// 	return &CommonCtx{}, nil
+// }
 
-func BuildTestCtx(
-	ioStreams iostream.IO,
-	configReader io.Reader,
-	overrides ...config.Overrider,
-) (*CommonCtx, error) {
-	wire.Build(ccTestSet)
-	return &CommonCtx{}, nil
-}
+// func BuildTestCtx(
+// 	// ioStreams iostream.IO,
+// 	configReader io.Reader,
+// 	overrides ...config.Overrider,
+// ) (*CommonCtx, error) {
+// 	wire.Build(ccTestSet)
+// 	return &CommonCtx{}, nil
+// }
 
-func NewTenantID(cfg *config.Config, cachedToken *token.CachedToken) clients.TenantID {
-	id := cfg.TenantID
-	if id == "" {
-		id = cachedToken.TenantID()
-	}
+// func NewTenantID(cfg *config.Config, cachedToken *token.CachedToken) clients.TenantID {
+// 	id := cfg.TenantID
+// 	if id == "" {
+// 		id = cachedToken.TenantID()
+// 	}
 
-	return clients.TenantID(id)
-}
+// 	return clients.TenantID(id)
+// }
 
-func GetCacheKey(auth *config.Auth) token.CacheKey {
-	return token.CacheKey(auth.Issuer)
-}
+// func GetCacheKey(auth *config.Auth) token.CacheKey {
+// 	return token.CacheKey(auth.Issuer)
+// }
 
-func NewAuthSettings(auth *config.Auth) *auth0.Settings {
-	return auth.GetSettings()
-}
+// func NewAuthSettings(auth *config.Auth) *auth0.Settings {
+// 	return auth.GetSettings()
+// }

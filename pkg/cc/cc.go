@@ -16,7 +16,6 @@ import (
 	decisionlogger "github.com/aserto-dev/aserto/pkg/decision_logger"
 	"github.com/aserto-dev/aserto/pkg/filex"
 	"github.com/aserto-dev/aserto/pkg/x"
-	"github.com/aserto-dev/clui"
 	topazCC "github.com/aserto-dev/topaz/pkg/cli/cc"
 )
 
@@ -34,8 +33,6 @@ type CommonCtx struct {
 	CachedToken    *token.CachedToken
 	TopazContext   *topazCC.CommonCtx
 	DecisionLogger *decisionlogger.Settings
-
-	UI *clui.UI
 }
 
 func (ctx *CommonCtx) AccessToken() (string, error) {

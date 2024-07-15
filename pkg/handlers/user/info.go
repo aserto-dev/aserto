@@ -16,7 +16,7 @@ func (cmd *InfoCmd) Run(c *cc.CommonCtx) error {
 	if err != nil {
 		return err
 	}
-	return jsonx.OutputJSON(c.UI.Output(), info)
+	return jsonx.OutputJSON(c.TopazContext.StdOut(), info)
 }
 
 type Info struct {

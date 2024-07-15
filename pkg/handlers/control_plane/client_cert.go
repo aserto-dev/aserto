@@ -39,7 +39,7 @@ func (cmd ClientCertCmd) Run(c *cc.CommonCtx) error {
 		return errors.New("invalid connection configuration")
 	}
 
-	err = jsonx.OutputJSONPB(c.UI.Output(), certs[len(certs)-1])
+	err = jsonx.OutputJSONPB(c.TopazContext.StdOut(), certs[len(certs)-1])
 	if err != nil {
 		return err
 	}

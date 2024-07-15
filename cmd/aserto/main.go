@@ -99,7 +99,7 @@ func main() {
 		configPath = cli.Cfg
 	}
 
-	ctx, err := cc.BuildCommonCtx(
+	ctx, err := cc.NewCommonCtx(
 		config.Path(configPath),
 		cli.ConfigOverrider,
 		serviceOptions.ConfigOverrider,

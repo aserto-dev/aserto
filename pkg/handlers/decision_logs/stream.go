@@ -38,7 +38,6 @@ func (cmd StreamCmd) Run(c *cc.CommonCtx) error {
 		InstanceLabel: cmd.InstanceLabel,
 		Since:         sincePB,
 	})
-
 	if err != nil {
 		return err
 	}
@@ -55,7 +54,7 @@ func (cmd StreamCmd) Run(c *cc.CommonCtx) error {
 				return
 			}
 
-			errRcv = jsonx.OutputJSON(c.UI.Output(), resp.Decision)
+			errRcv = jsonx.OutputJSON(c.TopazContext.StdOut(), resp.Decision)
 			if err != nil {
 				errCh <- errRcv
 				return

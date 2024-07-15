@@ -11,7 +11,6 @@ toolchain go1.22.5
 
 require (
 	github.com/alecthomas/kong v0.9.0
-	github.com/aserto-dev/clui v0.8.3
 	github.com/aserto-dev/go-aserto v0.31.4
 	github.com/aserto-dev/go-decision-logs v0.0.4
 	github.com/aserto-dev/go-grpc v0.8.67
@@ -108,7 +107,6 @@ require (
 	github.com/itchyny/timefmt-go v0.1.6 // indirect
 	github.com/jhump/protoreflect v1.16.0 // indirect
 	github.com/klauspost/compress v1.17.8 // indirect
-	github.com/kyokomi/emoji v2.2.4+incompatible // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/magefile/mage v1.15.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect

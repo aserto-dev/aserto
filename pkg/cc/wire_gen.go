@@ -6,113 +6,112 @@
 
 package cc
 
-import (
-	"context"
-	"github.com/aserto-dev/aserto/pkg/auth0"
-	"github.com/aserto-dev/aserto/pkg/cc/clients"
-	"github.com/aserto-dev/aserto/pkg/cc/config"
-	"github.com/aserto-dev/aserto/pkg/cc/iostream"
-	"github.com/aserto-dev/aserto/pkg/cc/token"
-	"github.com/aserto-dev/aserto/pkg/decision_logger"
-	"github.com/google/wire"
-	"io"
-)
+// import (
+// 	"context"
+// 	"github.com/aserto-dev/aserto/pkg/auth0"
+// 	"github.com/aserto-dev/aserto/pkg/cc/clients"
+// 	"github.com/aserto-dev/aserto/pkg/cc/config"
+// 	"github.com/aserto-dev/aserto/pkg/cc/iostream"
+// 	"github.com/aserto-dev/aserto/pkg/cc/token"
+// 	"github.com/aserto-dev/aserto/pkg/decision_logger"
+// 	"github.com/google/wire"
+// 	"io"
+// )
 
-// Injectors from wire.go:
+// // Injectors from wire.go:
 
-func BuildCommonCtx(configPath config.Path, overrides ...config.Overrider) (*CommonCtx, error) {
-	contextContext := context.Background()
-	configConfig, err := config.NewConfig(configPath, overrides...)
-	if err != nil {
-		return nil, err
-	}
-	services := &configConfig.Services
-	auth := configConfig.Auth
-	cacheKey := GetCacheKey(auth)
-	cachedToken := token.Load(cacheKey)
-	tenantID := NewTenantID(configConfig, cachedToken)
-	asertoFactory, err := clients.NewClientFactory(contextContext, services, tenantID, cachedToken)
-	if err != nil {
-		return nil, err
-	}
-	settings := NewAuthSettings(auth)
-	decisionloggerConfig := &configConfig.DecisionLogger
-	decisionloggerSettings := decisionlogger.NewSettings(decisionloggerConfig)
-	stdIO := iostream.DefaultIO()
-	ui := iostream.NewUI(stdIO)
-	commonCtx := &CommonCtx{
-		Factory:        asertoFactory,
-		Context:        contextContext,
-		Config:         configConfig,
-		Environment:    services,
-		Auth:           settings,
-		CachedToken:    cachedToken,
-		DecisionLogger: decisionloggerSettings,
-		UI:             ui,
-	}
-	return commonCtx, nil
-}
+// func BuildCommonCtx(configPath config.Path, overrides ...config.Overrider) (*CommonCtx, error) {
+// 	contextContext := context.Background()
+// 	configConfig, err := config.NewConfig(configPath, overrides...)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	services := &configConfig.Services
+// 	auth := configConfig.Auth
+// 	cacheKey := GetCacheKey(auth)
+// 	cachedToken := token.Load(cacheKey)
+// 	tenantID := NewTenantID(configConfig, cachedToken)
+// 	asertoFactory, err := clients.NewClientFactory(contextContext, services, tenantID, cachedToken)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	settings := NewAuthSettings(auth)
+// 	decisionloggerConfig := &configConfig.DecisionLogger
+// 	decisionloggerSettings := decisionlogger.NewSettings(decisionloggerConfig)
+// 	stdIO := iostream.DefaultIO()
+// 	commonCtx := &CommonCtx{
+// 		Factory:        asertoFactory,
+// 		Context:        contextContext,
+// 		Config:         configConfig,
+// 		Environment:    services,
+// 		Auth:           settings,
+// 		CachedToken:    cachedToken,
+// 		DecisionLogger: decisionloggerSettings,
+// 		std: 						stdIO,
+// 	}
+// 	return commonCtx, nil
+// }
 
-func BuildTestCtx(ioStreams iostream.IO, configReader io.Reader, overrides ...config.Overrider) (*CommonCtx, error) {
-	contextContext := context.TODO()
-	configConfig, err := config.NewTestConfig(configReader, overrides...)
-	if err != nil {
-		return nil, err
-	}
-	services := &configConfig.Services
-	auth := configConfig.Auth
-	cacheKey := GetCacheKey(auth)
-	cachedToken := token.Load(cacheKey)
-	tenantID := NewTenantID(configConfig, cachedToken)
-	asertoFactory, err := clients.NewClientFactory(contextContext, services, tenantID, cachedToken)
-	if err != nil {
-		return nil, err
-	}
-	settings := NewAuthSettings(auth)
-	decisionloggerConfig := &configConfig.DecisionLogger
-	decisionloggerSettings := decisionlogger.NewSettings(decisionloggerConfig)
-	ui := iostream.NewUI(ioStreams)
-	commonCtx := &CommonCtx{
-		Factory:        asertoFactory,
-		Context:        contextContext,
-		Environment:    services,
-		Auth:           settings,
-		CachedToken:    cachedToken,
-		DecisionLogger: decisionloggerSettings,
-		UI:             ui,
-	}
-	return commonCtx, nil
-}
+// func BuildTestCtx(ioStreams iostream.StdIO, configReader io.Reader, overrides ...config.Overrider) (*CommonCtx, error) {
+// 	contextContext := context.TODO()
+// 	configConfig, err := config.NewTestConfig(configReader, overrides...)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	services := &configConfig.Services
+// 	auth := configConfig.Auth
+// 	cacheKey := GetCacheKey(auth)
+// 	cachedToken := token.Load(cacheKey)
+// 	tenantID := NewTenantID(configConfig, cachedToken)
+// 	asertoFactory, err := clients.NewClientFactory(contextContext, services, tenantID, cachedToken)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	settings := NewAuthSettings(auth)
+// 	decisionloggerConfig := &configConfig.DecisionLogger
+// 	decisionloggerSettings := decisionlogger.NewSettings(decisionloggerConfig)
+// 	stdIO := iostream.DefaultIO()
+// 	commonCtx := &CommonCtx{
+// 		Factory:        asertoFactory,
+// 		Context:        contextContext,
+// 		Environment:    services,
+// 		Auth:           settings,
+// 		CachedToken:    cachedToken,
+// 		DecisionLogger: decisionloggerSettings,
+// 		std:            stdIO,
+// 	}
+// 	return commonCtx, nil
+// }
 
-// wire.go:
+// // wire.go:
 
-var (
-	commonSet = wire.NewSet(iostream.NewUI, GetCacheKey, token.Load, NewTenantID,
-		NewAuthSettings, decisionlogger.NewSettings, clients.NewClientFactory, wire.Bind(new(clients.Factory), new(*clients.AsertoFactory)), wire.FieldsOf(new(*config.Config), "Services", "Auth", "DecisionLogger"), wire.Struct(new(CommonCtx), "*"),
-	)
+// var (
+// 	commonSet = wire.NewSet(iostream.DefaultIO, GetCacheKey, token.Load, NewTenantID,
+// 		NewAuthSettings, decisionlogger.NewSettings, clients.NewClientFactory, wire.Bind(new(clients.Factory), new(*clients.AsertoFactory)), wire.FieldsOf(new(*config.Config), "Services", "Auth", "DecisionLogger"), wire.Struct(new(CommonCtx), "*"),
+// 	)
 
-	ccSet = wire.NewSet(
-		commonSet, iostream.DefaultIO, context.Background, config.NewConfig, wire.Bind(new(iostream.IO), new(*iostream.StdIO)),
-	)
+// 	ccSet = wire.NewSet(
+// 		commonSet, iostream.DefaultIO, context.Background, config.NewConfig,
+// 	)
 
-	ccTestSet = wire.NewSet(
-		commonSet, context.TODO, config.NewTestConfig,
-	)
-)
+// 	ccTestSet = wire.NewSet(
+// 		commonSet, context.TODO, config.NewTestConfig,
+// 	)
+// )
 
-func NewTenantID(cfg *config.Config, cachedToken *token.CachedToken) clients.TenantID {
-	id := cfg.TenantID
-	if id == "" {
-		id = cachedToken.TenantID()
-	}
+// // func NewTenantID(cfg *config.Config, cachedToken *token.CachedToken) clients.TenantID {
+// // 	id := cfg.TenantID
+// // 	if id == "" {
+// // 		id = cachedToken.TenantID()
+// // 	}
 
-	return clients.TenantID(id)
-}
+// // 	return clients.TenantID(id)
+// // }
 
-func GetCacheKey(auth *config.Auth) token.CacheKey {
-	return token.CacheKey(auth.Issuer)
-}
+// // func GetCacheKey(auth *config.Auth) token.CacheKey {
+// // 	return token.CacheKey(auth.Issuer)
+// // }
 
-func NewAuthSettings(auth *config.Auth) *auth0.Settings {
-	return auth.GetSettings()
-}
+// // func NewAuthSettings(auth *config.Auth) *auth0.Settings {
+// // 	return auth.GetSettings()
+// // }

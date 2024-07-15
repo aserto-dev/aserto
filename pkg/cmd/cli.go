@@ -59,7 +59,7 @@ func (cli *CLI) ConfigOverrider(conf *config.Config) {
 type VersionCmd struct{}
 
 func (cmd *VersionCmd) Run(c *cc.CommonCtx) error {
-	fmt.Fprintf(c.UI.Output(), "%s - %s (%s)\n",
+	fmt.Fprintf(c.TopazContext.StdOut(), "%s - %s (%s)\n",
 		x.AppName,
 		version.GetInfo().String(),
 		x.AppVersionTag,

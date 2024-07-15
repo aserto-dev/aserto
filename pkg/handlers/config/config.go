@@ -12,13 +12,13 @@ import (
 	errs "github.com/aserto-dev/aserto/pkg/cc/errors"
 	"github.com/aserto-dev/go-grpc/aserto/api/v1"
 	account "github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"
-	"github.com/samber/lo"
-
-	"github.com/pkg/errors"
-
 	topazConfig "github.com/aserto-dev/topaz/pkg/cc/config"
 	topazCC "github.com/aserto-dev/topaz/pkg/cli/cc"
 	topazConfigure "github.com/aserto-dev/topaz/pkg/cli/cmd/configure"
+	"github.com/aserto-dev/topaz/pkg/cli/table"
+
+	"github.com/pkg/errors"
+	"github.com/samber/lo"
 )
 
 type ListConfigCmd struct {
@@ -33,7 +33,7 @@ type tenant struct {
 }
 
 func (cmd *ListConfigCmd) Run(c *cc.CommonCtx) error {
-	table := c.UI.Normal().WithTable("", "Name", "Config")
+	tab := table.New(c.TopazContext.StdErr()).WithColumns("", "Name", "Config")
 
 	resp, err := getAccountDetails(c)
 	if err != nil && !errors.Is(err, errs.NeedLoginErr) {
@@ -63,7 +63,7 @@ func (cmd *ListConfigCmd) Run(c *cc.CommonCtx) error {
 				active = "*"
 			}
 
-			table.WithTableRow(active, name, t.Id)
+			tab.WithRow(active, name, t.Id)
 		}
 	}
 
@@ -82,10 +82,10 @@ func (cmd *ListConfigCmd) Run(c *cc.CommonCtx) error {
 			active = "*"
 		}
 
-		table.WithTableRow(active, name, files[i].Name())
+		tab.WithRow(active, name, files[i].Name())
 	}
 
-	table.Do()
+	tab.Do()
 
 	return nil
 }

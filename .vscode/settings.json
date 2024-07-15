@@ -38,6 +38,7 @@
         "nolint",
         "onebox",
         "openid",
+        "overrider",
         "pb",
         "pkce",
         "protobuf",

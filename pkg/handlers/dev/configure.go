@@ -40,8 +40,8 @@ func (cmd *ConfigureCmd) Validate() error {
 }
 
 func (cmd *ConfigureCmd) Run(c *cc.CommonCtx) error {
-	fmt.Fprintf(c.UI.Err(), ">>> configure policy...\n")
-	fmt.Fprintf(c.UI.Err(), "tenant id: %s\n", c.TenantID())
+	c.TopazContext.Con().Info().Msg(">>> configure policy...")
+	c.TopazContext.Con().Msg("tenant id: %s", c.TenantID())
 
 	if cmd.Name == "" && cmd.Resource == "" {
 		if cmd.LocalPolicyImage == "" {
@@ -113,16 +113,16 @@ func (cmd *ConfigureCmd) Run(c *cc.CommonCtx) error {
 			)
 	}
 
-	fmt.Fprintf(c.UI.Err(), "policy name: %s\n", cmd.Name)
+	c.TopazContext.Con().Msg("policy name: %s", cmd.Name)
 
 	var w io.Writer
 
 	if cmd.Stdout {
-		w = c.UI.Output()
+		w = c.TopazContext.StdOut()
 	} else {
 		if !cmd.Force {
 			if _, err := os.Stat(c.TopazContext.Config.Active.ConfigFile); err == nil {
-				c.UI.Exclamation().Msg("A configuration file already exists.")
+				c.TopazContext.Con().Warn().Msg("Configuration file %q already exists.", c.TopazContext.Config.Active.ConfigFile)
 				if !topazCommon.PromptYesNo("Do you want to continue?", false) {
 					return nil
 				}

@@ -1,7 +1,6 @@
 package tenant
 
 import (
-	"fmt"
 	"regexp"
 	"strconv"
 
@@ -35,7 +34,7 @@ func (cmd ListConnectionsCmd) Run(c *cc.CommonCtx) error {
 		return errors.Wrapf(err, "list connections")
 	}
 
-	return jsonx.OutputJSONPB(c.UI.Output(), resp)
+	return jsonx.OutputJSONPB(c.TopazContext.StdOut(), resp)
 }
 
 type GetConnectionCmd struct {
@@ -57,7 +56,7 @@ func (cmd GetConnectionCmd) Run(c *cc.CommonCtx) error {
 		return errors.Wrapf(err, "get connection [%s]", cmd.ID)
 	}
 
-	return jsonx.OutputJSONPB(c.UI.Output(), resp)
+	return jsonx.OutputJSONPB(c.TopazContext.StdOut(), resp)
 }
 
 type VerifyConnectionCmd struct {
@@ -77,26 +76,23 @@ func (cmd VerifyConnectionCmd) Run(c *cc.CommonCtx) error {
 	if _, err = client.Connections.VerifyConnection(c.Context, req); err != nil {
 		st := status.Convert(err)
 		re := regexp.MustCompile(`\r?\n`)
-
-		fmt.Fprintf(c.UI.Err(), "verification    : failed\n")
-		fmt.Fprintf(c.UI.Err(), "code            : %d\n", st.Code())
-		fmt.Fprintf(c.UI.Err(), "message         : %s\n",
-			re.ReplaceAllString(st.Message(), " | "))
-		fmt.Fprintf(c.UI.Err(), "error           : %s\n",
-			re.ReplaceAllString(st.Err().Error(), " | "))
+		c.TopazContext.Con().Error().Msg("verification    : failed")
+		c.TopazContext.Con().Msg("code            : %d", st.Code())
+		c.TopazContext.Con().Msg("message         : %s", re.ReplaceAllString(st.Message(), " | "))
+		c.TopazContext.Con().Msg("error           : %s", re.ReplaceAllString(st.Err().Error(), " | "))
 
 		for _, detail := range st.Details() {
 			if t, ok := detail.(*errdetails.ErrorInfo); ok {
-				fmt.Fprintf(c.UI.Err(), "domain          : %s\n", t.Domain)
-				fmt.Fprintf(c.UI.Err(), "reason          : %s\n", t.Reason)
+				c.TopazContext.Con().Msg("domain          : %s", t.Domain)
+				c.TopazContext.Con().Msg("reason          : %s", t.Reason)
 
 				for k, v := range t.Metadata {
-					fmt.Fprintf(c.UI.Err(), "detail          : %s (%s)\n", v, k)
+					c.TopazContext.Con().Msg("detail          : %s (%s)", v, k)
 				}
 			}
 		}
 	} else {
-		fmt.Fprintf(c.UI.Err(), "verification: succeeded\n")
+		c.TopazContext.Con().Info().Msg("verification: succeeded")
 	}
 
 	return nil
@@ -160,7 +156,7 @@ func (cmd *UpdateConnectionCmd) Run(c *cc.CommonCtx) error {
 		return errors.Wrap(err, "update connection")
 	}
 
-	return jsonx.OutputJSONPB(c.UI.Output(), conn)
+	return jsonx.OutputJSONPB(c.TopazContext.StdOut(), conn)
 }
 
 func applyConfigOverrides(config map[string]*structpb.Value, overrides map[string]string) error {

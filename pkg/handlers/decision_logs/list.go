@@ -25,7 +25,7 @@ func (cmd ListCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	return jsonx.OutputJSONPBArray(c.UI.Output(), results)
+	return jsonx.OutputJSONPBArray(c.TopazContext.StdOut(), results)
 }
 
 func listDecisionLogs(ctx context.Context, cli dl.DecisionLogsClient, policies []string) ([]proto.Message, error) {

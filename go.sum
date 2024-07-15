@@ -77,8 +77,6 @@ github.com/aserto-dev/azm v0.1.11 h1:cYpIsmeI7DpwnjqKTKUlz4CqhODpx+zncM97G0kSYu8
 github.com/aserto-dev/azm v0.1.11/go.mod h1:p0O2nWcmIsGphsST7QrGzOIalafw6SOtNQeyhN2TnUo=
 github.com/aserto-dev/certs v0.0.6 h1:V79JptXMvgePJ2rgktu8QdgbEQsIXxF1kXqQhPM76NI=
 github.com/aserto-dev/certs v0.0.6/go.mod h1:ppJ/GVSerB8EsikJeQP71LJBuHiUW2avS2f84oC/75c=
-github.com/aserto-dev/clui v0.8.3 h1:foEJuVpMFVP4La3SxUcinxRLOZx/TyS2BRuahbywYFg=
-github.com/aserto-dev/clui v0.8.3/go.mod h1:KsL/g2x5LAbkEE4ofW/ZoA4FDOIdAyLes/5ullvzUt8=
 github.com/aserto-dev/errors v0.0.8 h1:lqfCc3n8f2VIrsj0hOEmktnqYUS6tffl+w1yJftBhp8=
 github.com/aserto-dev/errors v0.0.8/go.mod h1:wiQ68oKTyAQVAv+SvB5GyuAD6PewalA/D6Fq30gNUbQ=
 github.com/aserto-dev/go-aserto v0.31.4 h1:i4EYTNwyARhEZrN00CU7OnXJCE5xwo6w67ncwJcxmBM=
@@ -365,8 +363,6 @@ github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
 github.com/kr/text v0.2.0 h1:5Nx0Ya0ZqY2ygV366QzturHI13Jq95ApcVaJBhpS+AY=
 github.com/kr/text v0.2.0/go.mod h1:eLer722TekiGuMkidMxC/pM04lWEeraHUUmBw8l2grE=
-github.com/kyokomi/emoji v2.2.4+incompatible h1:np0woGKwx9LiHAQmwZx79Oc0rHpNw3o+3evou4BEPv4=
-github.com/kyokomi/emoji v2.2.4+incompatible/go.mod h1:mZ6aGCD7yk8j6QY6KICwnZ2pxoszVseX1DNoGtU2tBA=
 github.com/lucasb-eyer/go-colorful v1.2.0 h1:1nnpGOrhyZZuNyfu1QjKiUICQ74+3FNCN69Aj6K7nkY=
 github.com/lucasb-eyer/go-colorful v1.2.0/go.mod h1:R4dSotOR9KMtayYi1e77YzuveK+i7ruzyGqttikkLy0=
 github.com/magefile/mage v1.15.0 h1:BvGheCMAsG3bWUDbZ8AyXXpCNwU9u5CB6sM+HNb9HYg=

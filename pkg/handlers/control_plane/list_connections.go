@@ -9,8 +9,7 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
-type ListConnectionsCmd struct {
-}
+type ListConnectionsCmd struct{}
 
 func (cmd ListConnectionsCmd) Run(c *cc.CommonCtx) error {
 	cli, err := c.TenantClient()
@@ -21,7 +20,6 @@ func (cmd ListConnectionsCmd) Run(c *cc.CommonCtx) error {
 	resp, err := cli.Connections.ListConnections(c.Context, &connection.ListConnectionsRequest{
 		Kind: api.ProviderKind_PROVIDER_KIND_EDGE_AUTHORIZER,
 	})
-
 	if err != nil {
 		return err
 	}
@@ -36,7 +34,7 @@ func (cmd ListConnectionsCmd) Run(c *cc.CommonCtx) error {
 		connsOut = append(connsOut, conn)
 	}
 
-	err = jsonx.OutputJSONPBArray(c.UI.Output(), connsOut)
+	err = jsonx.OutputJSONPBArray(c.TopazContext.StdOut(), connsOut)
 	if err != nil {
 		return err
 	}

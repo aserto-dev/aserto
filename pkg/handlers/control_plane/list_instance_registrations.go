@@ -7,8 +7,7 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
-type ListInstanceRegistrationsCmd struct {
-}
+type ListInstanceRegistrationsCmd struct{}
 
 func (cmd ListInstanceRegistrationsCmd) Run(c *cc.CommonCtx) error {
 	cli, err := c.ControlPlaneClient()
@@ -26,7 +25,7 @@ func (cmd ListInstanceRegistrationsCmd) Run(c *cc.CommonCtx) error {
 		instsOut = append(instsOut, inst)
 	}
 
-	err = jsonx.OutputJSONPBArray(c.UI.Output(), instsOut)
+	err = jsonx.OutputJSONPBArray(c.TopazContext.StdOut(), instsOut)
 	if err != nil {
 		return err
 	}

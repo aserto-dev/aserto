@@ -26,7 +26,7 @@ func (cmd ListProviderKindsCmd) Run(c *cc.CommonCtx) error {
 		return errors.Wrapf(err, "list provider kinds")
 	}
 
-	return jsonx.OutputJSONPB(c.UI.Output(), resp)
+	return jsonx.OutputJSONPB(c.TopazContext.StdOut(), resp)
 }
 
 type ListProvidersCmd struct {
@@ -57,7 +57,7 @@ func (cmd ListProvidersCmd) Run(c *cc.CommonCtx) error {
 		return errors.Wrapf(err, "list providers")
 	}
 
-	return jsonx.OutputJSONPB(c.UI.Output(), resp)
+	return jsonx.OutputJSONPB(c.TopazContext.StdOut(), resp)
 }
 
 type GetProviderCmd struct {
@@ -79,5 +79,5 @@ func (cmd GetProviderCmd) Run(c *cc.CommonCtx) error {
 		return errors.Wrapf(err, "get provider [%s]", cmd.ID)
 	}
 
-	return jsonx.OutputJSONPB(c.UI.Output(), resp)
+	return jsonx.OutputJSONPB(c.TopazContext.StdOut(), resp)
 }
