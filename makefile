@@ -11,6 +11,7 @@ GOARCH             := $(shell go env GOARCH)
 GOPRIVATE          := "github.com/aserto-dev"
 DOCKER_BUILDKIT    := 1
 
+BIN_DIR            := ./bin
 EXT_DIR            := ./.ext
 EXT_BIN_DIR        := ${EXT_DIR}/bin
 EXT_TMP_DIR        := ${EXT_DIR}/tmp
@@ -19,15 +20,22 @@ VAULT_VER	         := 1.8.12
 SVU_VER 	         := 1.12.0
 GOTESTSUM_VER      := 1.11.0
 GOLANGCI-LINT_VER  := 1.56.2
-GORELEASER_VERSION := 1.24.0
+GORELEASER_VER     := 1.24.0
 WIRE_VER	         := 0.6.0
+BUF_VER            := 1.30.0
+
+BUF_USER           := $(shell ${EXT_BIN_DIR}/vault kv get -field ASERTO_BUF_USER kv/buf.build)
+BUF_TOKEN          := $(shell ${EXT_BIN_DIR}/vault kv get -field ASERTO_BUF_TOKEN kv/buf.build)
+BUF_REPO           := "buf.build/aserto-dev/directory"
+BUF_LATEST         := $(shell BUF_BETA_SUPPRESS_WARNINGS=1 ${EXT_BIN_DIR}/buf beta registry tag list buf.build/aserto-dev/directory --format json --reverse | jq -r '.results[0].name')
+BUF_DEV_IMAGE      := "../pb-directory/bin/directory.bin"
 
 RELEASE_TAG        := $$(svu)
 
 .DEFAULT_GOAL      := build
 
 .PHONY: deps
-deps: info install-vault install-svu install-goreleaser install-golangci-lint install-gotestsum install-wire 
+deps: info install-vault install-buf install-svu install-goreleaser install-golangci-lint install-gotestsum install-wire 
 	@echo -e "$(ATTN_COLOR)==> $@ $(NO_COLOR)"
 
 .PHONY: build
@@ -75,15 +83,60 @@ vault-login:
 	@echo -e "$(ATTN_COLOR)==> $@ $(NO_COLOR)"
 	@vault login -method=github token=$$(gh auth token)
 
+.PHONY: buf-login
+buf-login:
+	@echo -e "$(ATTN_COLOR)==> $@ $(NO_COLOR)"
+	@echo ${BUF_TOKEN} | ${EXT_BIN_DIR}/buf registry login --username ${BUF_USER} --token-stdin
+
+.PHONY: buf-lint
+buf-lint:
+	@echo -e "$(ATTN_COLOR)==> $@ $(NO_COLOR)"
+	@${EXT_BIN_DIR}/buf lint proto
+
+.PHONY: buf-breaking
+buf-breaking:
+	@echo -e "$(ATTN_COLOR)==> $@ $(NO_COLOR)"
+	@${EXT_BIN_DIR}/buf breaking proto --against "https://github.com/d5s-io/directory.git#branch=main"
+
+.PHONY: buf-build
+buf-build: ${BIN_DIR}
+	@echo -e "$(ATTN_COLOR)==> $@ $(NO_COLOR)"
+	@${EXT_BIN_DIR}/buf build proto --output ${BIN_DIR}/directory.bin
+
+.PHONY: buf-push
+buf-push:
+	@echo -e "$(ATTN_COLOR)==> $@ $(NO_COLOR)"
+	@${EXT_BIN_DIR}/buf push proto --tag ${RELEASE_TAG}
+
+.PHONY: buf-mod-update
+buf-mod-update:
+	@echo -e "$(ATTN_COLOR)==> $@ $(NO_COLOR)"
+	@${EXT_BIN_DIR}/buf mod update proto
+
+.PHONY: buf-generate
+buf-generate:
+	@echo -e "$(ATTN_COLOR)==> $@ $(NO_COLOR)"
+	@${EXT_BIN_DIR}/buf mod update .
+	@${EXT_BIN_DIR}/buf generate ${BUF_REPO}:${BUF_LATEST}
+
+.PHONY: buf-generate-dev
+buf-generate-dev:
+	@echo -e "$(ATTN_COLOR)==> $@ $(NO_COLOR)"
+	@${EXT_BIN_DIR}/buf mod update .
+	@${EXT_BIN_DIR}/buf generate "../pb-directory/bin/directory.bin"
+
 .PHONY: info
 info:
 	@echo -e "$(ATTN_COLOR)==> $@ $(NO_COLOR)"
 	@echo "GOOS:        ${GOOS}"
 	@echo "GOARCH:      ${GOARCH}"
+	@echo "BIN_DIR:     ${BIN_DIR}"
 	@echo "EXT_DIR:     ${EXT_DIR}"
 	@echo "EXT_BIN_DIR: ${EXT_BIN_DIR}"
 	@echo "EXT_TMP_DIR: ${EXT_TMP_DIR}"
 	@echo "RELEASE_TAG: ${RELEASE_TAG}"
+	@echo "BUF_REPO:    ${BUF_REPO}"
+	@echo "BUF_LATEST:  ${BUF_LATEST}"
 
 .PHONY: install-vault
 install-vault: ${EXT_BIN_DIR} ${EXT_TMP_DIR}
@@ -92,6 +145,13 @@ install-vault: ${EXT_BIN_DIR} ${EXT_TMP_DIR}
 	@unzip -o ${EXT_TMP_DIR}/vault.zip vault -d ${EXT_BIN_DIR}/  &> /dev/null
 	@chmod +x ${EXT_BIN_DIR}/vault
 	@${EXT_BIN_DIR}/vault --version 
+
+.PHONY: install-buf
+install-buf: ${EXT_BIN_DIR}
+	@echo -e "$(ATTN_COLOR)==> $@ $(NO_COLOR)"
+	@gh release download v${BUF_VER} --repo https://github.com/bufbuild/buf --pattern "buf-$$(uname -s)-$$(uname -m)" --output "${EXT_BIN_DIR}/buf" --clobber
+	@chmod +x ${EXT_BIN_DIR}/buf
+	@${EXT_BIN_DIR}/buf --version
 
 .PHONY: install-svu
 install-svu: install-svu-${GOOS}
@@ -131,7 +191,7 @@ install-golangci-lint: ${EXT_TMP_DIR} ${EXT_BIN_DIR}
 .PHONY: install-goreleaser
 install-goreleaser: ${EXT_TMP_DIR} ${EXT_BIN_DIR}
 	@echo -e "$(ATTN_COLOR)==> $@ $(NO_COLOR)"
-	@gh release download v${GORELEASER_VERSION} --repo https://github.com/goreleaser/goreleaser --pattern "goreleaser_$$(uname -s)_$$(uname -m).tar.gz" --output "${EXT_TMP_DIR}/goreleaser.tar.gz" --clobber
+	@gh release download v${GORELEASER_VER} --repo https://github.com/goreleaser/goreleaser --pattern "goreleaser_$$(uname -s)_$$(uname -m).tar.gz" --output "${EXT_TMP_DIR}/goreleaser.tar.gz" --clobber
 	@tar -xvf ${EXT_TMP_DIR}/goreleaser.tar.gz --directory ${EXT_BIN_DIR} goreleaser &> /dev/null
 	@chmod +x ${EXT_BIN_DIR}/goreleaser
 	@${EXT_BIN_DIR}/goreleaser --version
