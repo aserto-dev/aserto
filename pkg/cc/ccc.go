@@ -7,30 +7,34 @@ import (
 	"github.com/aserto-dev/aserto/pkg/cc/clients"
 	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/cc/token"
-	decisionlogger "github.com/aserto-dev/aserto/pkg/decision_logger"
+	dl "github.com/aserto-dev/aserto/pkg/decision_logger"
 )
 
-// CommonContext Constructor extraction from wire
-
+// NewCommonCtx, CommonContext constructor (extracted from wire).
 func NewCommonCtx(configPath config.Path, overrides ...config.Overrider) (*CommonCtx, error) {
 	contextContext := context.Background()
 	configConfig, err := config.NewConfig(configPath, overrides...)
 	if err != nil {
 		return nil, err
 	}
+
 	services := &configConfig.Services
 	auth := configConfig.Auth
+
 	cacheKey := GetCacheKey(auth)
 	cachedToken := token.Load(cacheKey)
+
 	tenantID := NewTenantID(configConfig, cachedToken)
 	asertoFactory, err := clients.NewClientFactory(contextContext, services, tenantID, cachedToken)
 	if err != nil {
 		return nil, err
 	}
+
 	settings := NewAuthSettings(auth)
-	decisionloggerConfig := &configConfig.DecisionLogger
-	decisionloggerSettings := decisionlogger.NewSettings(decisionloggerConfig)
-	// stdIO := iostream.DefaultIO()
+
+	dlConfig := &configConfig.DecisionLogger
+	dlSettings := dl.NewSettings(dlConfig)
+
 	commonCtx := &CommonCtx{
 		Factory:        asertoFactory,
 		Context:        contextContext,
@@ -38,8 +42,9 @@ func NewCommonCtx(configPath config.Path, overrides ...config.Overrider) (*Commo
 		Environment:    services,
 		Auth:           settings,
 		CachedToken:    cachedToken,
-		DecisionLogger: decisionloggerSettings,
+		DecisionLogger: dlSettings,
 	}
+
 	return commonCtx, nil
 }
 
