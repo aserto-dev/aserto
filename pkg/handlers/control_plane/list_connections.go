@@ -34,7 +34,7 @@ func (cmd ListConnectionsCmd) Run(c *cc.CommonCtx) error {
 		connsOut = append(connsOut, conn)
 	}
 
-	err = jsonx.OutputJSONPBArray(c.TopazContext.StdOut(), connsOut)
+	err = jsonx.OutputJSONPBArray(c.StdOut(), connsOut)
 	if err != nil {
 		return err
 	}

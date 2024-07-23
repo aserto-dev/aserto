@@ -54,7 +54,7 @@ func (cmd StreamCmd) Run(c *cc.CommonCtx) error {
 				return
 			}
 
-			errRcv = jsonx.OutputJSON(c.TopazContext.StdOut(), resp.Decision)
+			errRcv = jsonx.OutputJSON(c.StdOut(), resp.Decision)
 			if err != nil {
 				errCh <- errRcv
 				return

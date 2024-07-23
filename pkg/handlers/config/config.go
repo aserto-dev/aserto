@@ -33,7 +33,7 @@ type tenant struct {
 }
 
 func (cmd *ListConfigCmd) Run(c *cc.CommonCtx) error {
-	tab := table.New(c.TopazContext.StdErr()).WithColumns("", "Name", "Config")
+	tab := table.New(c.StdErr()).WithColumns("", "Name", "Config")
 
 	resp, err := getAccountDetails(c)
 	if err != nil && !errors.Is(err, errs.NeedLoginErr) {
@@ -105,12 +105,12 @@ func (cmd *UseConfigCmd) Run(c *cc.CommonCtx) error {
 			ConfigDir: topazCC.GetTopazCfgDir(),
 		}
 
-		err := topazUse.Run(c.TopazContext)
+		err := topazUse.Run(c.CommonCtx)
 		if err != nil {
 			return err
 		}
 
-		loader, err := topazConfig.LoadConfiguration(c.TopazContext.Config.Active.ConfigFile)
+		loader, err := topazConfig.LoadConfiguration(c.CommonCtx.Config.Active.ConfigFile)
 		if err != nil {
 			return err
 		}

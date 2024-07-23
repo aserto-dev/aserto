@@ -23,5 +23,5 @@ func (cmd GetAccountCmd) Run(c *cc.CommonCtx) error {
 		return errors.Wrapf(err, "get account")
 	}
 
-	return jsonx.OutputJSONPB(c.TopazContext.StdOut(), resp)
+	return jsonx.OutputJSONPB(c.StdOut(), resp)
 }

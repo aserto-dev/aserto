@@ -23,5 +23,5 @@ func (cmd ListPolicyReferencesCmd) Run(c *cc.CommonCtx) error {
 		return errors.Wrapf(err, "list policy packages")
 	}
 
-	return jsonx.OutputJSONPB(c.TopazContext.StdOut(), resp)
+	return jsonx.OutputJSONPB(c.StdOut(), resp)
 }

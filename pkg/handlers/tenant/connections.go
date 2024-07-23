@@ -34,7 +34,7 @@ func (cmd ListConnectionsCmd) Run(c *cc.CommonCtx) error {
 		return errors.Wrapf(err, "list connections")
 	}
 
-	return jsonx.OutputJSONPB(c.TopazContext.StdOut(), resp)
+	return jsonx.OutputJSONPB(c.StdOut(), resp)
 }
 
 type GetConnectionCmd struct {
@@ -56,7 +56,7 @@ func (cmd GetConnectionCmd) Run(c *cc.CommonCtx) error {
 		return errors.Wrapf(err, "get connection [%s]", cmd.ID)
 	}
 
-	return jsonx.OutputJSONPB(c.TopazContext.StdOut(), resp)
+	return jsonx.OutputJSONPB(c.StdOut(), resp)
 }
 
 type VerifyConnectionCmd struct {
@@ -76,23 +76,23 @@ func (cmd VerifyConnectionCmd) Run(c *cc.CommonCtx) error {
 	if _, err = client.Connections.VerifyConnection(c.Context, req); err != nil {
 		st := status.Convert(err)
 		re := regexp.MustCompile(`\r?\n`)
-		c.TopazContext.Con().Error().Msg("verification    : failed")
-		c.TopazContext.Con().Msg("code            : %d", st.Code())
-		c.TopazContext.Con().Msg("message         : %s", re.ReplaceAllString(st.Message(), " | "))
-		c.TopazContext.Con().Msg("error           : %s", re.ReplaceAllString(st.Err().Error(), " | "))
+		c.Con().Error().Msg("verification    : failed")
+		c.Con().Msg("code            : %d", st.Code())
+		c.Con().Msg("message         : %s", re.ReplaceAllString(st.Message(), " | "))
+		c.Con().Msg("error           : %s", re.ReplaceAllString(st.Err().Error(), " | "))
 
 		for _, detail := range st.Details() {
 			if t, ok := detail.(*errdetails.ErrorInfo); ok {
-				c.TopazContext.Con().Msg("domain          : %s", t.Domain)
-				c.TopazContext.Con().Msg("reason          : %s", t.Reason)
+				c.Con().Msg("domain          : %s", t.Domain)
+				c.Con().Msg("reason          : %s", t.Reason)
 
 				for k, v := range t.Metadata {
-					c.TopazContext.Con().Msg("detail          : %s (%s)", v, k)
+					c.Con().Msg("detail          : %s (%s)", v, k)
 				}
 			}
 		}
 	} else {
-		c.TopazContext.Con().Info().Msg("verification: succeeded")
+		c.Con().Info().Msg("verification: succeeded")
 	}
 
 	return nil
@@ -156,7 +156,7 @@ func (cmd *UpdateConnectionCmd) Run(c *cc.CommonCtx) error {
 		return errors.Wrap(err, "update connection")
 	}
 
-	return jsonx.OutputJSONPB(c.TopazContext.StdOut(), conn)
+	return jsonx.OutputJSONPB(c.StdOut(), conn)
 }
 
 func applyConfigOverrides(config map[string]*structpb.Value, overrides map[string]string) error {

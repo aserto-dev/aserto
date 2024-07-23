@@ -25,7 +25,7 @@ func (cmd ListInstanceRegistrationsCmd) Run(c *cc.CommonCtx) error {
 		instsOut = append(instsOut, inst)
 	}
 
-	err = jsonx.OutputJSONPBArray(c.TopazContext.StdOut(), instsOut)
+	err = jsonx.OutputJSONPBArray(c.StdOut(), instsOut)
 	if err != nil {
 		return err
 	}

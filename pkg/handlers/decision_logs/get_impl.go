@@ -64,7 +64,7 @@ func (impl *getImpl) run() error {
 	}
 
 	if impl.info {
-		return jsonx.OutputJSONPBMap(impl.c.TopazContext.StdOut(), items)
+		return jsonx.OutputJSONPBMap(impl.c.StdOut(), items)
 	}
 
 	itemCh := make(chan item)

@@ -58,7 +58,7 @@ func (d *LoginCmd) Run(c *cc.CommonCtx) error {
 
 	for {
 		if ok, err := flow.RequestAccessToken(ctx); ok {
-			fmt.Fprintln(c.TopazContext.StdOut(), ".")
+			fmt.Fprintln(c.StdOut(), ".")
 			break
 		} else if err != nil {
 			return err
@@ -66,7 +66,7 @@ func (d *LoginCmd) Run(c *cc.CommonCtx) error {
 
 		select {
 		case <-time.After(flow.Interval()):
-			fmt.Fprint(c.TopazContext.StdOut(), ".")
+			fmt.Fprint(c.StdOut(), ".")
 		case <-ctx.Done():
 			return errors.New("canceled")
 		}
@@ -99,7 +99,7 @@ func (d *LoginCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	fmt.Fprintln(c.TopazContext.StdOut(), "Login successful")
+	fmt.Fprintln(c.StdOut(), "Login successful")
 
 	return nil
 }

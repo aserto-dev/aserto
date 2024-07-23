@@ -4,35 +4,29 @@ go 1.22.0
 
 toolchain go1.22.5
 
-// replace github.com/aserto-dev/go-grpc => ../go-grpc
-// replace github.com/aserto-dev/go-grpc-authz => ../go-grpc-authz
-// replace github.com/aserto-dev/aserto-go => ../aserto-go
-// replace github.com/aserto-dev/topaz => ../topaz
-
 require (
 	github.com/alecthomas/kong v0.9.0
 	github.com/aserto-dev/go-aserto v0.31.4
 	github.com/aserto-dev/go-decision-logs v0.0.4
 	github.com/aserto-dev/go-grpc v0.8.67
-	github.com/aserto-dev/topaz v0.32.17-0.20240715161255-be4bf84d741b
+	github.com/aserto-dev/topaz v0.32.17
 	github.com/cli/browser v1.3.0
 	github.com/go-http-utils/headers v0.0.0-20181008091004-fed159eddc2a
-	github.com/google/wire v0.6.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/pkg/errors v0.9.1
-	github.com/samber/lo v1.45.0
+	github.com/samber/lo v1.46.0
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
 	github.com/zalando/go-keyring v0.2.5
 	github.com/zenizh/go-capturer v0.0.0-20211219060012-52ea6c8fed04
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240711142825-46eb208f015d
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240722135656-d784300faade
 	google.golang.org/grpc v1.65.0
 	google.golang.org/protobuf v1.34.2
 )
 
 require (
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.34.2-20240508200655-46a4cf4ba109.2 // indirect
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.34.2-20240717164558-a6c49f84cc0f.2 // indirect
 	contrib.go.opencensus.io/exporter/prometheus v0.4.2 // indirect
 	github.com/AdaLogics/go-fuzz-headers v0.0.0-20230811130428-ced1acdcaa24 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 // indirect
@@ -47,11 +41,11 @@ require (
 	github.com/aserto-dev/aserto-management v0.9.4 // indirect
 	github.com/aserto-dev/azm v0.1.11 // indirect
 	github.com/aserto-dev/certs v0.0.6 // indirect
-	github.com/aserto-dev/errors v0.0.8 // indirect
-	github.com/aserto-dev/go-authorizer v0.20.6 // indirect
-	github.com/aserto-dev/go-directory v0.31.5 // indirect
+	github.com/aserto-dev/errors v0.0.9 // indirect
+	github.com/aserto-dev/go-authorizer v0.20.7 // indirect
+	github.com/aserto-dev/go-directory v0.31.6 // indirect
 	github.com/aserto-dev/go-directory-cli v0.31.3-0.20240711215128-477b23ffcb75 // indirect
-	github.com/aserto-dev/go-edge-ds v0.32.1 // indirect
+	github.com/aserto-dev/go-edge-ds v0.32.3 // indirect
 	github.com/aserto-dev/header v0.0.7 // indirect
 	github.com/aserto-dev/logger v0.0.4 // indirect
 	github.com/aserto-dev/runtime v0.66.0 // indirect
@@ -59,7 +53,7 @@ require (
 	github.com/aserto-dev/service-host v0.0.14 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bufbuild/protocompile v0.13.0 // indirect
-	github.com/bufbuild/protovalidate-go v0.6.2 // indirect
+	github.com/bufbuild/protovalidate-go v0.6.3 // indirect
 	github.com/bytecodealliance/wasmtime-go/v3 v3.0.2 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cncf/xds/go v0.0.0-20240423153145-555b57ec207b // indirect
@@ -71,7 +65,7 @@ require (
 	github.com/deckarep/golang-set/v2 v2.6.0 // indirect
 	github.com/dgryski/go-metro v0.0.0-20211217172704-adc40b04c140 // indirect
 	github.com/distribution/reference v0.6.0 // indirect
-	github.com/docker/docker v27.0.3+incompatible // indirect
+	github.com/docker/docker v27.1.0+incompatible // indirect
 	github.com/docker/go-connections v0.5.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/envoyproxy/go-control-plane v0.12.0 // indirect
@@ -95,6 +89,7 @@ require (
 	github.com/google/cel-go v0.20.1 // indirect
 	github.com/google/subcommands v1.2.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
+	github.com/google/wire v0.6.0 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus v1.0.1 // indirect
@@ -165,17 +160,17 @@ require (
 	go.opentelemetry.io/otel/sdk v1.27.0 // indirect
 	go.opentelemetry.io/otel/trace v1.27.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.24.0 // indirect
-	golang.org/x/exp v0.0.0-20240613232115-7f521ea00fb8 // indirect
-	golang.org/x/mod v0.18.0 // indirect
-	golang.org/x/net v0.26.0 // indirect
+	golang.org/x/crypto v0.25.0 // indirect
+	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56 // indirect
+	golang.org/x/mod v0.19.0 // indirect
+	golang.org/x/net v0.27.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.22.0 // indirect
-	golang.org/x/term v0.21.0 // indirect
+	golang.org/x/term v0.22.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
-	golang.org/x/tools v0.22.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20240624140628-dc46fd24d27d // indirect
+	golang.org/x/tools v0.23.0 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20240722135656-d784300faade // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

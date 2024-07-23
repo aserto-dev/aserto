@@ -5,7 +5,7 @@ import "fmt"
 const (
 	Issuer    string = "aserto.us.auth0.com"
 	ClientID  string = "wxB6q804bWWiPqWRtauOeBGtZobfBWD9"
-	Audience  string = "https://console.aserto.com"
+	Audience  string = "https://cli.aserto.com"
 	GrantType string = "urn:ietf:params:oauth:grant-type:device_code"
 )
 

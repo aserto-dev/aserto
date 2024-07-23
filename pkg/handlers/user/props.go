@@ -49,7 +49,7 @@ func (cmd *GetCmd) Run(c *cc.CommonCtx) error {
 		if tokenErr != nil {
 			return tokenErr
 		}
-		return jsonx.OutputJSON(c.TopazContext.StdOut(), token)
+		return jsonx.OutputJSON(c.StdOut(), token)
 
 	default:
 		return errors.Errorf("unknown property name %s", cmd.Property)
@@ -59,7 +59,7 @@ func (cmd *GetCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	fmt.Fprintf(c.TopazContext.StdOut(), "%s\n", propValue)
+	fmt.Fprintf(c.StdOut(), "%s\n", propValue)
 
 	return nil
 }

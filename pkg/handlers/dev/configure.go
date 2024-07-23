@@ -40,8 +40,8 @@ func (cmd *ConfigureCmd) Validate() error {
 }
 
 func (cmd *ConfigureCmd) Run(c *cc.CommonCtx) error {
-	c.TopazContext.Con().Info().Msg(">>> configure policy...")
-	c.TopazContext.Con().Msg("tenant id: %s", c.TenantID())
+	c.Con().Info().Msg(">>> configure policy...")
+	c.Con().Msg("tenant id: %s", c.TenantID())
 
 	if cmd.Name == "" && cmd.Resource == "" {
 		if cmd.LocalPolicyImage == "" {
@@ -49,9 +49,9 @@ func (cmd *ConfigureCmd) Run(c *cc.CommonCtx) error {
 		}
 	}
 	configFile := cmd.Name.String() + ".yaml"
-	if configFile != c.TopazContext.Config.Active.ConfigFile {
-		c.TopazContext.Config.Active.Config = cmd.Name.String()
-		c.TopazContext.Config.Active.ConfigFile = filepath.Join(topazCC.GetTopazCfgDir(), configFile)
+	if configFile != c.CommonCtx.Config.Active.ConfigFile {
+		c.CommonCtx.Config.Active.Config = cmd.Name.String()
+		c.CommonCtx.Config.Active.ConfigFile = filepath.Join(topazCC.GetTopazCfgDir(), configFile)
 	}
 
 	configGenerator := topazConfig.NewGenerator(cmd.Name.String()).
@@ -71,7 +71,7 @@ func (cmd *ConfigureCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 	certGenerator := topazCerts.GenerateCertsCmd{CertsDir: topazCC.GetTopazCertsDir()}
-	err = certGenerator.Run(c.TopazContext)
+	err = certGenerator.Run(c.CommonCtx)
 	if err != nil {
 		return err
 	}
@@ -113,22 +113,22 @@ func (cmd *ConfigureCmd) Run(c *cc.CommonCtx) error {
 			)
 	}
 
-	c.TopazContext.Con().Msg("policy name: %s", cmd.Name)
+	c.Con().Msg("policy name: %s", cmd.Name)
 
 	var w io.Writer
 
 	if cmd.Stdout {
-		w = c.TopazContext.StdOut()
+		w = c.StdOut()
 	} else {
 		if !cmd.Force {
-			if _, err := os.Stat(c.TopazContext.Config.Active.ConfigFile); err == nil {
-				c.TopazContext.Con().Warn().Msg("Configuration file %q already exists.", c.TopazContext.Config.Active.ConfigFile)
+			if _, err := os.Stat(c.CommonCtx.Config.Active.ConfigFile); err == nil {
+				c.Con().Warn().Msg("Configuration file %q already exists.", c.CommonCtx.Config.Active.ConfigFile)
 				if !topazCommon.PromptYesNo("Do you want to continue?", false) {
 					return nil
 				}
 			}
 		}
-		w, err = os.Create(c.TopazContext.Config.Active.ConfigFile)
+		w, err = os.Create(c.CommonCtx.Config.Active.ConfigFile)
 		if err != nil {
 			return err
 		}

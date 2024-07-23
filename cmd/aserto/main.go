@@ -92,6 +92,7 @@ func main() {
 			"tenant_id":          topazCC.TenantID(),
 			"insecure":           strconv.FormatBool(topazCC.Insecure()),
 			"no_check":           strconv.FormatBool(topazCC.NoCheck()),
+			"no_color":           strconv.FormatBool(topazCC.NoColor()),
 		},
 	)
 	configPath := config.DefaultConfigFilePath
@@ -100,6 +101,7 @@ func main() {
 	}
 
 	ctx, err := cc.NewCommonCtx(
+		topazCtx,
 		config.Path(configPath),
 		cli.ConfigOverrider,
 		serviceOptions.ConfigOverrider,
@@ -110,7 +112,7 @@ func main() {
 	}
 
 	topazCtx.Context = client.SetTenantContext(topazCtx.Context, ctx.TenantID())
-	ctx.TopazContext = topazCtx
+	ctx.CommonCtx = topazCtx
 
 	if err := kongCtx.Run(ctx); err != nil {
 		kongCtx.FatalIfErrorf(err)
