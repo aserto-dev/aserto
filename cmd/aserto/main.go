@@ -1,65 +1,71 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"os/signal"
 	"path/filepath"
-	"runtime/debug"
 	"strconv"
-	"strings"
 	"sync"
+	"syscall"
 
-	"github.com/alecthomas/kong"
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/cc/clients"
 	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/cmd"
 	"github.com/aserto-dev/aserto/pkg/cmd/conf"
 	"github.com/aserto-dev/aserto/pkg/x"
-	"github.com/aserto-dev/topaz/pkg/cli/fflag"
-	"github.com/pkg/errors"
-
-	"github.com/aserto-dev/go-aserto/client"
-
 	topazCC "github.com/aserto-dev/topaz/pkg/cli/cc"
 	topaz "github.com/aserto-dev/topaz/pkg/cli/cmd/common"
+	"github.com/aserto-dev/topaz/pkg/cli/fflag"
+
+	"github.com/alecthomas/kong"
+	"github.com/pkg/errors"
+)
+
+const (
+	rcOK  int = 0
+	rcErr int = 1
+)
+
+var (
+	tmpConfig  *config.Config
+	configOnce sync.Once
 )
 
 func main() {
+	os.Exit(run())
+}
+
+func run() (exitCode int) {
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
 	fflag.Init()
 
 	home, err := os.UserHomeDir()
 	if err != nil {
-		panic(errors.Wrap(err, "failed to determine user home directory"))
+		return exitErr(errors.Wrap(err, "failed to determine user home directory"))
 	}
 
 	configDir := filepath.Join(home, ".config", x.AppName)
 
 	serviceOptions := clients.NewServiceOptions()
 
-	cli := cmd.CLI{}
-
 	cliConfigFile := filepath.Join(topazCC.GetTopazDir(), topaz.CLIConfigurationFile)
-	topazCtx, err := topazCC.NewCommonContext(true, cliConfigFile)
+
+	topazCtx, err := topazCC.NewCommonContext(ctx, true, cliConfigFile)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-		os.Exit(1)
+		return exitErr(err)
 	}
 
-	containerVersion := topazCC.ContainerTag()
-	bi, ok := debug.ReadBuildInfo()
-	if ok {
-		for _, dep := range bi.Deps {
-			if strings.Contains(dep.Path, "github.com/aserto-dev/topaz") {
-				containerVersion = strings.TrimPrefix(dep.Version, "v")
-			}
-		}
-	}
-
+	cli := cmd.CLI{}
 	kongCtx := kong.Parse(&cli,
 		kong.Name(x.AppName),
 		kong.Description(x.AppDescription),
 		kong.UsageOnError(),
+		kong.Exit(exit),
 		kong.ConfigureHelp(kong.HelpOptions{
 			NoAppSummary:        false,
 			Summary:             false,
@@ -71,7 +77,7 @@ func main() {
 		}),
 		kong.Resolvers(ConfigResolver()),
 		kong.Bind(topazCtx),
-		kong.NamedMapper("conf", conf.ConfigFileMapper(configDir)), // attach to tag `type:"conf"`
+		kong.NamedMapper("conf", conf.ConfigFileMapper(configDir)),
 		kong.BindTo(serviceOptions, (*cmd.ServiceOptions)(nil)),
 		kong.Vars{
 			"topaz_dir":          topazCC.GetTopazDir(),
@@ -80,7 +86,7 @@ func main() {
 			"topaz_db_dir":       topazCC.GetTopazDataDir(),
 			"container_registry": topazCC.ContainerRegistry(),
 			"container_image":    topazCC.ContainerImage(),
-			"container_tag":      containerVersion,
+			"container_tag":      topazCC.ContainerTag(),
 			"container_platform": topazCC.ContainerPlatform(),
 			"container_name":     topazCC.ContainerName(topazCtx.Config.Active.ConfigFile),
 			"directory_svc":      topazCC.DirectorySvc(),
@@ -95,34 +101,43 @@ func main() {
 			"no_color":           strconv.FormatBool(topazCC.NoColor()),
 		},
 	)
+
 	configPath := config.DefaultConfigFilePath
 	if cli.Cfg != "" {
 		configPath = cli.Cfg
 	}
 
-	ctx, err := cc.NewCommonCtx(
+	c, err := cc.NewCommonCtx(
 		topazCtx,
 		config.Path(configPath),
 		cli.ConfigOverrider,
 		serviceOptions.ConfigOverrider,
 	)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-		os.Exit(1)
+		return exitErr(err)
 	}
 
-	topazCtx.Context = client.SetTenantContext(topazCtx.Context, ctx.TenantID())
-	ctx.CommonCtx = topazCtx
+	c.CommonCtx = topazCtx
 
-	if err := kongCtx.Run(ctx); err != nil {
-		kongCtx.FatalIfErrorf(err)
+	if err := kongCtx.Run(c); err != nil {
+		return exitErr(err)
 	}
+
+	return rcOK
 }
 
-var (
-	tmpConfig  *config.Config
-	configOnce sync.Once
-)
+func exitErr(err error) int {
+	fmt.Fprintln(os.Stderr, err.Error())
+	return rcErr
+}
+
+// hack to suppress Kong raising an error when invoking the CLI without params, resulting in exit code 0 instead of 1
+// exit is usd by kong.Exit().
+func exit(rc int) {
+	if len(os.Args) == 1 {
+		os.Exit(0)
+	}
+}
 
 // ConfigResolver loads the config file, if present, and populates default values for service connection options like
 // address, api-key, insecure, etc.
@@ -168,11 +183,11 @@ func ConfigResolver() kong.Resolver {
 	return f
 }
 
-func loadConfig(context *kong.Context) (*config.Config, error) {
-	allFlags := context.Flags()
+func loadConfig(kongCtx *kong.Context) (*config.Config, error) {
+	allFlags := kongCtx.Flags()
 	for _, f := range allFlags {
 		if f.Name == "config" {
-			configPath := context.FlagValue(f).(string)
+			configPath := kongCtx.FlagValue(f).(string)
 			return config.NewConfig(config.Path(configPath))
 		}
 	}

@@ -9,8 +9,8 @@ import (
 	"sync"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/jsonx"
 	dl "github.com/aserto-dev/go-decision-logs/aserto/decision-logs/v2"
+	"github.com/aserto-dev/topaz/pkg/cli/jsonx"
 	"github.com/hashicorp/go-multierror"
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
@@ -42,7 +42,7 @@ type item struct {
 
 func (impl *getImpl) run() error {
 	ctx := impl.c.Context
-	cli, err := impl.c.DecisionLogsClient()
+	cli, err := impl.c.DecisionLogsClient(ctx)
 	if err != nil {
 		return err
 	}

@@ -2,15 +2,16 @@ package controlplane
 
 import (
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/jsonx"
 	"github.com/aserto-dev/go-grpc/aserto/management/v2"
+	"github.com/aserto-dev/topaz/pkg/cli/jsonx"
+
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 type ListInstanceRegistrationsCmd struct{}
 
 func (cmd ListInstanceRegistrationsCmd) Run(c *cc.CommonCtx) error {
-	cli, err := c.ControlPlaneClient()
+	cli, err := c.ControlPlaneClient(c.Context)
 	if err != nil {
 		return err
 	}
@@ -20,12 +21,12 @@ func (cmd ListInstanceRegistrationsCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	var instsOut []protoreflect.ProtoMessage
+	var results []protoreflect.ProtoMessage
 	for _, inst := range resp.Result {
-		instsOut = append(instsOut, inst)
+		results = append(results, inst)
 	}
 
-	err = jsonx.OutputJSONPBArray(c.StdOut(), instsOut)
+	err = jsonx.OutputJSONPBArray(c.StdOut(), results)
 	if err != nil {
 		return err
 	}

@@ -5,10 +5,10 @@ import (
 	"os/signal"
 	"time"
 
-	dl "github.com/aserto-dev/go-decision-logs/aserto/decision-logs/v2"
-
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/jsonx"
+	dl "github.com/aserto-dev/go-decision-logs/aserto/decision-logs/v2"
+	"github.com/aserto-dev/topaz/pkg/cli/jsonx"
+
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -19,7 +19,7 @@ type StreamCmd struct {
 }
 
 func (cmd StreamCmd) Run(c *cc.CommonCtx) error {
-	cli, err := c.DecisionLogsClient()
+	cli, err := c.DecisionLogsClient(c.Context)
 	if err != nil {
 		return err
 	}

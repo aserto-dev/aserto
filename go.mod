@@ -4,12 +4,16 @@ go 1.22.0
 
 toolchain go1.22.5
 
+// replace github.com/aserto-dev/topaz => ../topaz
+
+replace github.com/aserto-dev/go-aserto => ../go-aserto
+
 require (
 	github.com/alecthomas/kong v0.9.0
 	github.com/aserto-dev/go-aserto v0.31.4
 	github.com/aserto-dev/go-decision-logs v0.0.4
 	github.com/aserto-dev/go-grpc v0.8.67
-	github.com/aserto-dev/topaz v0.32.17
+	github.com/aserto-dev/topaz v0.32.18-0.20240725174149-fd200dd0a5b7
 	github.com/cli/browser v1.3.0
 	github.com/go-http-utils/headers v0.0.0-20181008091004-fed159eddc2a
 	github.com/hashicorp/go-multierror v1.1.1

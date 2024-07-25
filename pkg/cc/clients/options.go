@@ -7,7 +7,7 @@ import (
 	"github.com/aserto-dev/aserto/pkg/cc/errors"
 	"github.com/aserto-dev/aserto/pkg/cc/token"
 	"github.com/aserto-dev/aserto/pkg/x"
-	aserto "github.com/aserto-dev/go-aserto/client"
+	"github.com/aserto-dev/go-aserto/client"
 )
 
 // Overrides are options that modify the default behavior of connections to aserto services.
@@ -60,7 +60,7 @@ type optionsBuilder struct {
 	token       *token.CachedToken
 }
 
-func (c *optionsBuilder) ConnectionOptions() ([]aserto.ConnectionOption, error) {
+func (c *optionsBuilder) ConnectionOptions() ([]client.ConnectionOption, error) {
 	authOption, err := c.authOption()
 	if err != nil {
 		return nil, err
@@ -73,9 +73,9 @@ func (c *optionsBuilder) ConnectionOptions() ([]aserto.ConnectionOption, error) 
 
 	caCertPathOption := nilOption
 
-	return []aserto.ConnectionOption{
-		aserto.WithAddr(c.address()),
-		aserto.WithInsecure(c.options.Insecure),
+	return []client.ConnectionOption{
+		client.WithAddr(c.address()),
+		client.WithInsecure(c.options.Insecure),
 		authOption,
 		tenantOption,
 		caCertPathOption,
@@ -91,13 +91,13 @@ func (c *optionsBuilder) address() string {
 	return c.defaultAddr
 }
 
-func (c *optionsBuilder) authOption() (aserto.ConnectionOption, error) {
+func (c *optionsBuilder) authOption() (client.ConnectionOption, error) {
 	if c.options.Anonymous {
 		return nilOption, nil
 	}
 
 	if c.options.APIKey != "" {
-		return aserto.WithAPIKeyAuth(c.options.APIKey), nil
+		return client.WithAPIKeyAuth(c.options.APIKey), nil
 	}
 
 	if err := c.token.Verify(); err != nil {
@@ -108,12 +108,12 @@ func (c *optionsBuilder) authOption() (aserto.ConnectionOption, error) {
 	if err != nil {
 		return nil, err
 	}
-	return aserto.WithTokenAuth(tkn.Access), nil
+	return client.WithTokenAuth(tkn.Access), nil
 }
 
-func (c *optionsBuilder) tenantOption() (aserto.ConnectionOption, error) {
+func (c *optionsBuilder) tenantOption() (client.ConnectionOption, error) {
 	if c.tenantID != "" {
-		return aserto.WithTenantID(c.tenantID), nil
+		return client.WithTenantID(c.tenantID), nil
 	}
 
 	if !c.isHosted() {
@@ -127,6 +127,6 @@ func (c *optionsBuilder) isHosted() bool {
 	return strings.Contains(c.address(), "aserto.com")
 }
 
-func nilOption(*aserto.ConnectionOptions) error {
+func nilOption(*client.ConnectionOptions) error {
 	return nil
 }

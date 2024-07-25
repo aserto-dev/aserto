@@ -4,9 +4,9 @@ import (
 	"strings"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/jsonx"
 	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
 	provider "github.com/aserto-dev/go-grpc/aserto/tenant/provider/v1"
+	"github.com/aserto-dev/topaz/pkg/cli/jsonx"
 
 	"github.com/pkg/errors"
 )
@@ -14,7 +14,7 @@ import (
 type ListProviderKindsCmd struct{}
 
 func (cmd ListProviderKindsCmd) Run(c *cc.CommonCtx) error {
-	client, err := c.TenantClient()
+	client, err := c.TenantClient(c.Context)
 	if err != nil {
 		return err
 	}
@@ -43,7 +43,7 @@ func ProviderKind(kind string) api.ProviderKind {
 }
 
 func (cmd ListProvidersCmd) Run(c *cc.CommonCtx) error {
-	client, err := c.TenantClient()
+	client, err := c.TenantClient(c.Context)
 	if err != nil {
 		return err
 	}
@@ -65,7 +65,7 @@ type GetProviderCmd struct {
 }
 
 func (cmd GetProviderCmd) Run(c *cc.CommonCtx) error {
-	conn, err := c.TenantClient()
+	conn, err := c.TenantClient(c.Context)
 	if err != nil {
 		return err
 	}

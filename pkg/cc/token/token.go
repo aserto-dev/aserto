@@ -16,10 +16,6 @@ type CachedToken struct {
 	errVerify  error
 }
 
-func New(token *api.Token) *CachedToken {
-	return &CachedToken{token: token}
-}
-
 type CacheKey string
 
 func Load(key CacheKey) *CachedToken {

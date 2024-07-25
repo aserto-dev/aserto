@@ -1,13 +1,15 @@
 package tenant
 
 import (
+	"context"
 	"regexp"
 	"strconv"
+	"time"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/jsonx"
 	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
 	connection "github.com/aserto-dev/go-grpc/aserto/tenant/connection/v1"
+	"github.com/aserto-dev/topaz/pkg/cli/jsonx"
 
 	"github.com/pkg/errors"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
@@ -20,13 +22,16 @@ type ListConnectionsCmd struct {
 }
 
 func (cmd ListConnectionsCmd) Run(c *cc.CommonCtx) error {
-	client, err := c.TenantClient()
+	tenantContext, cancel := context.WithTimeout(c.Context, time.Second*5)
+	defer cancel()
+
+	client, err := c.TenantClient(tenantContext)
 	if err != nil {
 		return err
 	}
 
 	resp, err := client.Connections.ListConnections(
-		c.Context,
+		tenantContext,
 		&connection.ListConnectionsRequest{
 			Kind: ProviderKind(cmd.Kind),
 		})
@@ -42,7 +47,7 @@ type GetConnectionCmd struct {
 }
 
 func (cmd GetConnectionCmd) Run(c *cc.CommonCtx) error {
-	client, err := c.TenantClient()
+	client, err := c.TenantClient(c.Context)
 	if err != nil {
 		return err
 	}
@@ -64,7 +69,7 @@ type VerifyConnectionCmd struct {
 }
 
 func (cmd VerifyConnectionCmd) Run(c *cc.CommonCtx) error {
-	client, err := c.TenantClient()
+	client, err := c.TenantClient(c.Context)
 	if err != nil {
 		return err
 	}
@@ -115,7 +120,7 @@ var (
 )
 
 func (cmd *UpdateConnectionCmd) Run(c *cc.CommonCtx) error {
-	client, err := c.TenantClient()
+	client, err := c.TenantClient(c.Context)
 	if err != nil {
 		return err
 	}
@@ -209,7 +214,7 @@ type SyncConnectionCmd struct {
 }
 
 func (cmd SyncConnectionCmd) Run(c *cc.CommonCtx) error {
-	client, err := c.TenantClient()
+	client, err := c.TenantClient(c.Context)
 	if err != nil {
 		return err
 	}

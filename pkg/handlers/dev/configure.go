@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/client/tenant"
+	"github.com/aserto-dev/aserto/pkg/clients/tenant"
 	decisionlogger "github.com/aserto-dev/aserto/pkg/decision_logger"
 	"github.com/aserto-dev/aserto/pkg/x"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -79,7 +79,7 @@ func (cmd *ConfigureCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	client, err := c.TenantClient()
+	client, err := c.TenantClient(c.Context)
 	if err != nil {
 		return err
 	}

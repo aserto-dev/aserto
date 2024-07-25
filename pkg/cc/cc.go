@@ -13,6 +13,7 @@ import (
 	"github.com/aserto-dev/aserto/pkg/cc/clients"
 	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/cc/token"
+
 	dl "github.com/aserto-dev/aserto/pkg/decision_logger"
 	"github.com/aserto-dev/aserto/pkg/filex"
 	"github.com/aserto-dev/aserto/pkg/x"
@@ -26,13 +27,10 @@ const (
 type CommonCtx struct {
 	*topazCC.CommonCtx
 	clients.Factory
-
-	Config      *config.Config
-	Context     context.Context
-	Environment *x.Services
-	Auth        *auth0.Settings
-	CachedToken *token.CachedToken
-	// TopazContext   *topazCC.CommonCtx
+	Config         *config.Config
+	Environment    *x.Services
+	Auth           *auth0.Settings
+	CachedToken    *token.CachedToken
 	DecisionLogger *dl.Settings
 }
 
@@ -51,7 +49,8 @@ func NewCommonCtx(tc *topazCC.CommonCtx, configPath config.Path, overrides ...co
 	cachedToken := token.Load(cacheKey)
 
 	tenantID := newTenantID(configConfig, cachedToken)
-	asertoFactory, err := clients.NewClientFactory(contextContext, services, tenantID, cachedToken)
+
+	asertoFactory, err := clients.NewClientFactory(services, tenantID, cachedToken)
 	if err != nil {
 		return nil, err
 	}
@@ -64,9 +63,8 @@ func NewCommonCtx(tc *topazCC.CommonCtx, configPath config.Path, overrides ...co
 	tc.Context = contextContext
 
 	commonCtx := &CommonCtx{
-		CommonCtx: tc,
-		Factory:   asertoFactory,
-		// Context:        contextContext,
+		CommonCtx:      tc,
+		Factory:        asertoFactory,
 		Config:         configConfig,
 		Environment:    services,
 		Auth:           settings,

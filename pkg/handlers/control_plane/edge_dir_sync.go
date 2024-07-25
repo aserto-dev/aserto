@@ -11,7 +11,7 @@ type EdgeDirSyncCmd struct {
 }
 
 func (cmd EdgeDirSyncCmd) Run(c *cc.CommonCtx) error {
-	cli, err := c.ControlPlaneClient()
+	cli, err := c.ControlPlaneClient(c.Context)
 	if err != nil {
 		return err
 	}

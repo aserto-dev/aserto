@@ -150,7 +150,7 @@ func (cmd *UseConfigCmd) Run(c *cc.CommonCtx) error {
 }
 
 func getAccountDetails(c *cc.CommonCtx) (*account.GetAccountResponse, error) {
-	client, err := c.TenantClient()
+	client, err := c.TenantClient(c.Context)
 	if err != nil {
 		return nil, err
 	}

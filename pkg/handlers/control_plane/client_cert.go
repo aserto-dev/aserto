@@ -2,9 +2,10 @@ package controlplane
 
 import (
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/jsonx"
 	"github.com/aserto-dev/go-grpc/aserto/api/v1"
 	"github.com/aserto-dev/go-grpc/aserto/tenant/connection/v1"
+	"github.com/aserto-dev/topaz/pkg/cli/jsonx"
+
 	"github.com/pkg/errors"
 )
 
@@ -13,7 +14,7 @@ type ClientCertCmd struct {
 }
 
 func (cmd ClientCertCmd) Run(c *cc.CommonCtx) error {
-	cli, err := c.TenantClient()
+	cli, err := c.TenantClient(c.Context)
 	if err != nil {
 		return err
 	}

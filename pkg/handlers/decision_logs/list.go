@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/jsonx"
 	dl "github.com/aserto-dev/go-decision-logs/aserto/decision-logs/v2"
 	"github.com/aserto-dev/go-decision-logs/aserto/decision-logs/v2/api"
+	"github.com/aserto-dev/topaz/pkg/cli/jsonx"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -15,12 +15,11 @@ type ListCmd struct {
 }
 
 func (cmd ListCmd) Run(c *cc.CommonCtx) error {
-	ctx := c.Context
-	cli, err := c.DecisionLogsClient()
+	cli, err := c.DecisionLogsClient(c.Context)
 	if err != nil {
 		return err
 	}
-	results, err := listDecisionLogs(ctx, cli, cmd.Policies)
+	results, err := listDecisionLogs(c.Context, cli, cmd.Policies)
 	if err != nil {
 		return err
 	}

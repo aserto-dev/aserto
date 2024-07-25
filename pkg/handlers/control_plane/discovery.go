@@ -11,7 +11,7 @@ type DiscoveryCmd struct {
 }
 
 func (cmd DiscoveryCmd) Run(c *cc.CommonCtx) error {
-	cli, err := c.ControlPlaneClient()
+	cli, err := c.ControlPlaneClient(c.Context)
 	if err != nil {
 		return err
 	}

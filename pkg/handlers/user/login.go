@@ -3,15 +3,13 @@ package user
 import (
 	"context"
 	"fmt"
-	"os"
-	"os/signal"
 	"time"
 
 	"github.com/aserto-dev/aserto/pkg/auth0/device"
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/client/tenant"
+	"github.com/aserto-dev/aserto/pkg/clients/tenant"
 	"github.com/aserto-dev/aserto/pkg/keyring"
-	aserto "github.com/aserto-dev/go-aserto/client"
+	"github.com/aserto-dev/go-aserto/client"
 
 	"github.com/cli/browser"
 	"github.com/pkg/errors"
@@ -33,11 +31,7 @@ func (d *LoginCmd) Run(c *cc.CommonCtx) error {
 		device.WithScope("openid", "profile", "email"),
 	)
 
-	// handle Ctrl+C
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
-	defer stop()
-
-	if err := flow.GetDeviceCode(ctx); err != nil {
+	if err := flow.GetDeviceCode(c.Context); err != nil {
 		return err
 	}
 
@@ -53,53 +47,60 @@ func (d *LoginCmd) Run(c *cc.CommonCtx) error {
 		fmt.Printf("Open browser %s\n", flow.GetVerificationURI())
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, flow.ExpiresIn())
-	defer cancel()
+	{ // intentionally scoped.
+		ctx, cancel := context.WithTimeout(c.Context, flow.ExpiresIn())
+		defer cancel()
 
-	for {
-		if ok, err := flow.RequestAccessToken(ctx); ok {
-			fmt.Fprintln(c.StdOut(), ".")
-			break
-		} else if err != nil {
-			return err
-		}
+		for {
+			if ok, err := flow.RequestAccessToken(ctx); ok {
+				fmt.Fprintln(c.StdOut(), ".")
+				break
+			} else if err != nil {
+				return err
+			}
 
-		select {
-		case <-time.After(flow.Interval()):
-			fmt.Fprint(c.StdOut(), ".")
-		case <-ctx.Done():
-			return errors.New("canceled")
+			select {
+			case <-time.After(flow.Interval()):
+				fmt.Fprint(c.StdOut(), ".")
+			case <-ctx.Done():
+				return errors.New("canceled")
+			}
 		}
 	}
 
 	token := flow.AccessToken()
 
-	conn, err := tenant.New(
-		c.Context,
-		aserto.WithAddr(c.Environment.TenantService.Address),
-		aserto.WithTokenAuth(token.Access),
-	)
-	if err != nil {
-		return err
-	}
+	{ // intentionally scoped.
+		ctx, cancel := context.WithTimeout(c.Context, time.Second*5)
+		defer cancel()
 
-	if err = getTenantID(c.Context, conn, token); err != nil {
-		return errors.Wrapf(err, "get tenant id")
-	}
+		conn, err := tenant.NewClient(
+			ctx,
+			client.WithAddr(c.Environment.TenantService.Address),
+			client.WithTokenAuth(token.Access),
+		)
+		if err != nil {
+			return err
+		}
 
-	if err = GetConnectionKeys(c.Context, conn, token); err != nil {
-		return errors.Wrapf(err, "get connection keys")
-	}
+		if err = getTenantID(ctx, conn, token); err != nil {
+			return errors.Wrapf(err, "get tenant id")
+		}
 
-	kr, err := keyring.NewKeyRing(c.Auth.Issuer)
-	if err != nil {
-		return err
-	}
-	if err := kr.SetToken(token); err != nil {
-		return err
-	}
+		if err = GetConnectionKeys(ctx, conn, token); err != nil {
+			return errors.Wrapf(err, "get connection keys")
+		}
 
-	fmt.Fprintln(c.StdOut(), "Login successful")
+		kr, err := keyring.NewKeyRing(c.Auth.Issuer)
+		if err != nil {
+			return err
+		}
+		if err := kr.SetToken(token); err != nil {
+			return err
+		}
+
+		fmt.Fprintln(c.StdOut(), "Login successful")
+	}
 
 	return nil
 }

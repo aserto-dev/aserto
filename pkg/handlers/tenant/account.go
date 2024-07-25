@@ -2,8 +2,8 @@ package tenant
 
 import (
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/jsonx"
 	account "github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"
+	"github.com/aserto-dev/topaz/pkg/cli/jsonx"
 
 	"github.com/pkg/errors"
 )
@@ -11,7 +11,7 @@ import (
 type GetAccountCmd struct{}
 
 func (cmd GetAccountCmd) Run(c *cc.CommonCtx) error {
-	conn, err := c.TenantClient()
+	conn, err := c.TenantClient(c.Context)
 	if err != nil {
 		return err
 	}
