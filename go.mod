@@ -4,10 +4,6 @@ go 1.22.0
 
 toolchain go1.22.5
 
-// replace github.com/aserto-dev/topaz => ../topaz
-
-replace github.com/aserto-dev/go-aserto => ../go-aserto
-
 require (
 	github.com/alecthomas/kong v0.9.0
 	github.com/aserto-dev/go-aserto v0.31.5-0.20240725175353-73fd8d16fe72
