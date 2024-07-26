@@ -12,13 +12,13 @@ import (
 	errs "github.com/aserto-dev/aserto/pkg/cc/errors"
 	"github.com/aserto-dev/go-grpc/aserto/api/v1"
 	account "github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"
-	"github.com/samber/lo"
-
-	"github.com/pkg/errors"
-
 	topazConfig "github.com/aserto-dev/topaz/pkg/cc/config"
 	topazCC "github.com/aserto-dev/topaz/pkg/cli/cc"
 	topazConfigure "github.com/aserto-dev/topaz/pkg/cli/cmd/configure"
+	"github.com/aserto-dev/topaz/pkg/cli/table"
+
+	"github.com/pkg/errors"
+	"github.com/samber/lo"
 )
 
 type ListConfigCmd struct {
@@ -33,7 +33,7 @@ type tenant struct {
 }
 
 func (cmd *ListConfigCmd) Run(c *cc.CommonCtx) error {
-	table := c.UI.Normal().WithTable("", "Name", "Config")
+	tab := table.New(c.StdErr()).WithColumns("", "Name", "Config")
 
 	resp, err := getAccountDetails(c)
 	if err != nil && !errors.Is(err, errs.NeedLoginErr) {
@@ -63,7 +63,7 @@ func (cmd *ListConfigCmd) Run(c *cc.CommonCtx) error {
 				active = "*"
 			}
 
-			table.WithTableRow(active, name, t.Id)
+			tab.WithRow(active, name, t.Id)
 		}
 	}
 
@@ -82,10 +82,10 @@ func (cmd *ListConfigCmd) Run(c *cc.CommonCtx) error {
 			active = "*"
 		}
 
-		table.WithTableRow(active, name, files[i].Name())
+		tab.WithRow(active, name, files[i].Name())
 	}
 
-	table.Do()
+	tab.Do()
 
 	return nil
 }
@@ -105,12 +105,12 @@ func (cmd *UseConfigCmd) Run(c *cc.CommonCtx) error {
 			ConfigDir: topazCC.GetTopazCfgDir(),
 		}
 
-		err := topazUse.Run(c.TopazContext)
+		err := topazUse.Run(c.CommonCtx)
 		if err != nil {
 			return err
 		}
 
-		loader, err := topazConfig.LoadConfiguration(c.TopazContext.Config.Active.ConfigFile)
+		loader, err := topazConfig.LoadConfiguration(c.CommonCtx.Config.Active.ConfigFile)
 		if err != nil {
 			return err
 		}
@@ -150,7 +150,7 @@ func (cmd *UseConfigCmd) Run(c *cc.CommonCtx) error {
 }
 
 func getAccountDetails(c *cc.CommonCtx) (*account.GetAccountResponse, error) {
-	client, err := c.TenantClient()
+	client, err := c.TenantClient(c.Context)
 	if err != nil {
 		return nil, err
 	}

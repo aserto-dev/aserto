@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/aserto-dev/aserto/pkg/auth0"
-	decisionlogger "github.com/aserto-dev/aserto/pkg/decision_logger"
+	dl "github.com/aserto-dev/aserto/pkg/decision_logger"
 	"github.com/aserto-dev/aserto/pkg/filex"
 	"github.com/aserto-dev/aserto/pkg/x"
 	"github.com/mitchellh/mapstructure"
@@ -15,9 +15,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-var (
-	EnvironmentErr = errors.New("unknown environment")
-)
+var EnvironmentErr = errors.New("unknown environment")
 
 var DefaultConfigFilePath = filepath.Join(os.Getenv("HOME"), ".config", "aserto", "config.json")
 
@@ -35,11 +33,11 @@ func (auth *Auth) GetSettings() *auth0.Settings {
 }
 
 type Config struct {
-	TenantID       string                `json:"tenant_id"`
-	Services       x.Services            `json:"services"`
-	Auth           *Auth                 `json:"auth"`
-	DecisionLogger decisionlogger.Config `json:"decision_logger"`
-	ConfigName     string                `json:"config_name"`
+	TenantID       string     `json:"tenant_id"`
+	Services       x.Services `json:"services"`
+	Auth           *Auth      `json:"auth"`
+	DecisionLogger dl.Config  `json:"decision_logger"`
+	ConfigName     string     `json:"config_name"`
 }
 
 type Path string

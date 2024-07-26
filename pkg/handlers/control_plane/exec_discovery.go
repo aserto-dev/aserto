@@ -6,12 +6,12 @@ import (
 	"github.com/aserto-dev/go-grpc/aserto/management/v2"
 )
 
-type EdgeDirSyncCmd struct {
+type DiscoveryCmd struct {
 	Instance string `arg:"" help:"target instance"`
 }
 
-func (cmd EdgeDirSyncCmd) Run(c *cc.CommonCtx) error {
-	cli, err := c.ControlPlaneClient()
+func (cmd DiscoveryCmd) Run(c *cc.CommonCtx) error {
+	cli, err := c.ControlPlaneClient(c.Context)
 	if err != nil {
 		return err
 	}
@@ -19,7 +19,7 @@ func (cmd EdgeDirSyncCmd) Run(c *cc.CommonCtx) error {
 	_, err = cli.ExecCommand(c.Context, &management.ExecCommandRequest{
 		Id: cmd.Instance,
 		Command: &api.Command{
-			Data: &api.Command_SyncEdgeDirectory{},
+			Data: &api.Command_Discovery{},
 		},
 	})
 	if err != nil {

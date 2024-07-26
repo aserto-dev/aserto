@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/jsonx"
+	"github.com/aserto-dev/topaz/pkg/cli/jsonx"
 )
 
 type InfoCmd struct{}
@@ -16,7 +16,7 @@ func (cmd *InfoCmd) Run(c *cc.CommonCtx) error {
 	if err != nil {
 		return err
 	}
-	return jsonx.OutputJSON(c.UI.Output(), info)
+	return jsonx.OutputJSON(c.StdOut(), info)
 }
 
 type Info struct {

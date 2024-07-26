@@ -2,8 +2,8 @@ package tenant
 
 import (
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/jsonx"
 	policy "github.com/aserto-dev/go-grpc/aserto/tenant/policy/v1"
+	"github.com/aserto-dev/topaz/pkg/cli/jsonx"
 
 	"github.com/pkg/errors"
 )
@@ -11,7 +11,7 @@ import (
 type ListPolicyReferencesCmd struct{}
 
 func (cmd ListPolicyReferencesCmd) Run(c *cc.CommonCtx) error {
-	client, err := c.TenantClient()
+	client, err := c.TenantClient(c.Context)
 	if err != nil {
 		return err
 	}
@@ -23,5 +23,5 @@ func (cmd ListPolicyReferencesCmd) Run(c *cc.CommonCtx) error {
 		return errors.Wrapf(err, "list policy packages")
 	}
 
-	return jsonx.OutputJSONPB(c.UI.Output(), resp)
+	return jsonx.OutputJSONPB(c.StdOut(), resp)
 }

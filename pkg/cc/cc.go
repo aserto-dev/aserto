@@ -1,7 +1,6 @@
 package cc
 
 import (
-	"context"
 	"encoding/json"
 	"log"
 	"os"
@@ -13,10 +12,10 @@ import (
 	"github.com/aserto-dev/aserto/pkg/cc/clients"
 	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/cc/token"
-	decisionlogger "github.com/aserto-dev/aserto/pkg/decision_logger"
+
+	dl "github.com/aserto-dev/aserto/pkg/decision_logger"
 	"github.com/aserto-dev/aserto/pkg/filex"
 	"github.com/aserto-dev/aserto/pkg/x"
-	"github.com/aserto-dev/clui"
 	topazCC "github.com/aserto-dev/topaz/pkg/cli/cc"
 )
 
@@ -25,17 +24,68 @@ const (
 )
 
 type CommonCtx struct {
+	*topazCC.CommonCtx
 	clients.Factory
-
 	Config         *config.Config
-	Context        context.Context
 	Environment    *x.Services
 	Auth           *auth0.Settings
 	CachedToken    *token.CachedToken
-	TopazContext   *topazCC.CommonCtx
-	DecisionLogger *decisionlogger.Settings
+	DecisionLogger *dl.Settings
+}
 
-	UI *clui.UI
+// NewCommonCtx, CommonContext constructor (extracted from wire).
+func NewCommonCtx(tc *topazCC.CommonCtx, configPath config.Path, overrides ...config.Overrider) (*CommonCtx, error) {
+	configConfig, err := config.NewConfig(configPath, overrides...)
+	if err != nil {
+		return nil, err
+	}
+
+	services := &configConfig.Services
+	auth := configConfig.Auth
+
+	cacheKey := GetCacheKey(auth)
+	cachedToken := token.Load(cacheKey)
+
+	tenantID := newTenantID(configConfig, cachedToken)
+
+	asertoFactory, err := clients.NewClientFactory(services, tenantID, cachedToken)
+	if err != nil {
+		return nil, err
+	}
+
+	settings := newAuthSettings(auth)
+
+	dlConfig := &configConfig.DecisionLogger
+	dlSettings := dl.NewSettings(dlConfig)
+
+	commonCtx := &CommonCtx{
+		CommonCtx:      tc,
+		Factory:        asertoFactory,
+		Config:         configConfig,
+		Environment:    services,
+		Auth:           settings,
+		CachedToken:    cachedToken,
+		DecisionLogger: dlSettings,
+	}
+
+	return commonCtx, nil
+}
+
+func newTenantID(cfg *config.Config, cachedToken *token.CachedToken) clients.TenantID {
+	id := cfg.TenantID
+	if id == "" {
+		id = cachedToken.TenantID()
+	}
+
+	return clients.TenantID(id)
+}
+
+func GetCacheKey(auth *config.Auth) token.CacheKey {
+	return token.CacheKey(auth.Issuer)
+}
+
+func newAuthSettings(auth *config.Auth) *auth0.Settings {
+	return auth.GetSettings()
 }
 
 func (ctx *CommonCtx) AccessToken() (string, error) {

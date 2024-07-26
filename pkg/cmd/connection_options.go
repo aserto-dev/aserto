@@ -27,7 +27,3 @@ type AuthorizerOptions struct {
 
 	ConnectionOptions
 }
-
-func (ao *AuthorizerOptions) Address() string {
-	return ao.AddressOverride
-}

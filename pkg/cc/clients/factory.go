@@ -5,12 +5,12 @@ import (
 	"log"
 	"time"
 
-	token_ "github.com/aserto-dev/aserto/pkg/cc/token"
-	tenant_ "github.com/aserto-dev/aserto/pkg/client/tenant"
+	tok "github.com/aserto-dev/aserto/pkg/cc/token"
+	cp "github.com/aserto-dev/aserto/pkg/clients/controlplane"
+	dl "github.com/aserto-dev/aserto/pkg/clients/decisionlogs"
+	"github.com/aserto-dev/aserto/pkg/clients/tenant"
 	"github.com/aserto-dev/aserto/pkg/x"
-	aserto "github.com/aserto-dev/go-aserto/client"
-	dl "github.com/aserto-dev/go-decision-logs/aserto/decision-logs/v2"
-	"github.com/aserto-dev/go-grpc/aserto/management/v2"
+	"github.com/aserto-dev/go-aserto/client"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
@@ -19,15 +19,14 @@ import (
 type Factory interface {
 	TenantID() string
 
-	TenantClient() (*tenant_.Client, error)
-	DecisionLogsClient() (dl.DecisionLogsClient, error)
-	ControlPlaneClient() (management.ControlPlaneClient, error)
+	TenantClient(ctx context.Context) (*tenant.Client, error)
+	DecisionLogsClient(ctx context.Context) (*dl.Client, error)
+	ControlPlaneClient(ctx context.Context) (*cp.Client, error)
 }
 
-type OptionsBuilder func() ([]aserto.ConnectionOption, error)
+type OptionsBuilder func() ([]client.ConnectionOption, error)
 
 type AsertoFactory struct {
-	ctx        context.Context
 	tenantID   string
 	svcOptions map[x.Service]OptionsBuilder
 }
@@ -35,12 +34,11 @@ type AsertoFactory struct {
 type TenantID string
 
 func NewClientFactory(
-	ctx context.Context,
 	services *x.Services,
 	tenantID TenantID,
-	token *token_.CachedToken,
+	token *tok.CachedToken,
 ) (*AsertoFactory, error) {
-	tenant := string(tenantID)
+	tID := string(tenantID)
 
 	defaultEnv := x.DefaultEnvironment()
 
@@ -50,7 +48,7 @@ func NewClientFactory(
 			service:     svc,
 			options:     services.Get(svc),
 			defaultAddr: defaultEnv.Get(svc).Address,
-			tenantID:    tenant,
+			tenantID:    tID,
 			token:       token,
 		}
 
@@ -58,8 +56,7 @@ func NewClientFactory(
 	}
 
 	return &AsertoFactory{
-		ctx:        ctx,
-		tenantID:   tenant,
+		tenantID:   tID,
 		svcOptions: options,
 	}, nil
 }
@@ -68,15 +65,16 @@ func (c *AsertoFactory) TenantID() string {
 	return c.tenantID
 }
 
-func (c *AsertoFactory) TenantClient() (*tenant_.Client, error) {
+func (c *AsertoFactory) TenantClient(ctx context.Context) (*tenant.Client, error) {
 	options, err := c.options(x.TenantService)
 	if err != nil {
 		return nil, err
 	}
-	return tenant_.New(c.ctx, options...)
+
+	return tenant.NewClient(ctx, options...)
 }
 
-func (c *AsertoFactory) DecisionLogsClient() (dl.DecisionLogsClient, error) {
+func (c *AsertoFactory) DecisionLogsClient(ctx context.Context) (*dl.Client, error) {
 	options, err := c.options(x.DecisionLogsService)
 	if err != nil {
 		return nil, err
@@ -86,31 +84,21 @@ func (c *AsertoFactory) DecisionLogsClient() (dl.DecisionLogsClient, error) {
 		Time:    30 * time.Second, // send pings every 30 seconds if there is no activity
 		Timeout: 5 * time.Second,  // wait 5 seconds for ping ack before considering the connection dead
 	}
-	options = append(options, aserto.WithDialOptions(grpc.WithKeepaliveParams(kacp)))
+	options = append(options, client.WithDialOptions(grpc.WithKeepaliveParams(kacp)))
 
-	conn, err := aserto.NewConnection(c.ctx, options...)
-	if err != nil {
-		return nil, err
-	}
-
-	return dl.NewDecisionLogsClient(conn), nil
+	return dl.NewClient(ctx, options...)
 }
 
-func (c *AsertoFactory) ControlPlaneClient() (management.ControlPlaneClient, error) {
+func (c *AsertoFactory) ControlPlaneClient(ctx context.Context) (*cp.Client, error) {
 	options, err := c.options(x.ControlPlaneService)
 	if err != nil {
 		return nil, err
 	}
 
-	conn, err := aserto.NewConnection(c.ctx, options...)
-	if err != nil {
-		return nil, err
-	}
-
-	return management.NewControlPlaneClient(conn), nil
+	return cp.NewClient(ctx, options...)
 }
 
-func (c *AsertoFactory) options(svc x.Service) ([]aserto.ConnectionOption, error) {
+func (c *AsertoFactory) options(svc x.Service) ([]client.ConnectionOption, error) {
 	opts, ok := c.svcOptions[svc]
 	if ok {
 		return opts()

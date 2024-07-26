@@ -5,7 +5,7 @@ import (
 
 	"github.com/alecthomas/kong"
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/jsonx"
+	"github.com/aserto-dev/topaz/pkg/cli/jsonx"
 	"github.com/pkg/errors"
 )
 
@@ -49,7 +49,7 @@ func (cmd *GetCmd) Run(c *cc.CommonCtx) error {
 		if tokenErr != nil {
 			return tokenErr
 		}
-		return jsonx.OutputJSON(c.UI.Output(), token)
+		return jsonx.OutputJSON(c.StdOut(), token)
 
 	default:
 		return errors.Errorf("unknown property name %s", cmd.Property)
@@ -59,7 +59,7 @@ func (cmd *GetCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	fmt.Fprintf(c.UI.Output(), "%s\n", propValue)
+	fmt.Fprintf(c.StdOut(), "%s\n", propValue)
 
 	return nil
 }

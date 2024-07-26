@@ -1,14 +1,15 @@
 package tenant
 
 import (
-	"fmt"
+	"context"
 	"regexp"
 	"strconv"
+	"time"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/jsonx"
 	api "github.com/aserto-dev/go-grpc/aserto/api/v1"
 	connection "github.com/aserto-dev/go-grpc/aserto/tenant/connection/v1"
+	"github.com/aserto-dev/topaz/pkg/cli/jsonx"
 
 	"github.com/pkg/errors"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
@@ -21,13 +22,16 @@ type ListConnectionsCmd struct {
 }
 
 func (cmd ListConnectionsCmd) Run(c *cc.CommonCtx) error {
-	client, err := c.TenantClient()
+	tenantContext, cancel := context.WithTimeout(c.Context, time.Second*5)
+	defer cancel()
+
+	client, err := c.TenantClient(tenantContext)
 	if err != nil {
 		return err
 	}
 
 	resp, err := client.Connections.ListConnections(
-		c.Context,
+		tenantContext,
 		&connection.ListConnectionsRequest{
 			Kind: ProviderKind(cmd.Kind),
 		})
@@ -35,7 +39,7 @@ func (cmd ListConnectionsCmd) Run(c *cc.CommonCtx) error {
 		return errors.Wrapf(err, "list connections")
 	}
 
-	return jsonx.OutputJSONPB(c.UI.Output(), resp)
+	return jsonx.OutputJSONPB(c.StdOut(), resp)
 }
 
 type GetConnectionCmd struct {
@@ -43,7 +47,7 @@ type GetConnectionCmd struct {
 }
 
 func (cmd GetConnectionCmd) Run(c *cc.CommonCtx) error {
-	client, err := c.TenantClient()
+	client, err := c.TenantClient(c.Context)
 	if err != nil {
 		return err
 	}
@@ -57,7 +61,7 @@ func (cmd GetConnectionCmd) Run(c *cc.CommonCtx) error {
 		return errors.Wrapf(err, "get connection [%s]", cmd.ID)
 	}
 
-	return jsonx.OutputJSONPB(c.UI.Output(), resp)
+	return jsonx.OutputJSONPB(c.StdOut(), resp)
 }
 
 type VerifyConnectionCmd struct {
@@ -65,7 +69,7 @@ type VerifyConnectionCmd struct {
 }
 
 func (cmd VerifyConnectionCmd) Run(c *cc.CommonCtx) error {
-	client, err := c.TenantClient()
+	client, err := c.TenantClient(c.Context)
 	if err != nil {
 		return err
 	}
@@ -77,26 +81,23 @@ func (cmd VerifyConnectionCmd) Run(c *cc.CommonCtx) error {
 	if _, err = client.Connections.VerifyConnection(c.Context, req); err != nil {
 		st := status.Convert(err)
 		re := regexp.MustCompile(`\r?\n`)
-
-		fmt.Fprintf(c.UI.Err(), "verification    : failed\n")
-		fmt.Fprintf(c.UI.Err(), "code            : %d\n", st.Code())
-		fmt.Fprintf(c.UI.Err(), "message         : %s\n",
-			re.ReplaceAllString(st.Message(), " | "))
-		fmt.Fprintf(c.UI.Err(), "error           : %s\n",
-			re.ReplaceAllString(st.Err().Error(), " | "))
+		c.Con().Error().Msg("verification    : failed")
+		c.Con().Msg("code            : %d", st.Code())
+		c.Con().Msg("message         : %s", re.ReplaceAllString(st.Message(), " | "))
+		c.Con().Msg("error           : %s", re.ReplaceAllString(st.Err().Error(), " | "))
 
 		for _, detail := range st.Details() {
 			if t, ok := detail.(*errdetails.ErrorInfo); ok {
-				fmt.Fprintf(c.UI.Err(), "domain          : %s\n", t.Domain)
-				fmt.Fprintf(c.UI.Err(), "reason          : %s\n", t.Reason)
+				c.Con().Msg("domain          : %s", t.Domain)
+				c.Con().Msg("reason          : %s", t.Reason)
 
 				for k, v := range t.Metadata {
-					fmt.Fprintf(c.UI.Err(), "detail          : %s (%s)\n", v, k)
+					c.Con().Msg("detail          : %s (%s)", v, k)
 				}
 			}
 		}
 	} else {
-		fmt.Fprintf(c.UI.Err(), "verification: succeeded\n")
+		c.Con().Info().Msg("verification: succeeded")
 	}
 
 	return nil
@@ -119,7 +120,7 @@ var (
 )
 
 func (cmd *UpdateConnectionCmd) Run(c *cc.CommonCtx) error {
-	client, err := c.TenantClient()
+	client, err := c.TenantClient(c.Context)
 	if err != nil {
 		return err
 	}
@@ -160,7 +161,7 @@ func (cmd *UpdateConnectionCmd) Run(c *cc.CommonCtx) error {
 		return errors.Wrap(err, "update connection")
 	}
 
-	return jsonx.OutputJSONPB(c.UI.Output(), conn)
+	return jsonx.OutputJSONPB(c.StdOut(), conn)
 }
 
 func applyConfigOverrides(config map[string]*structpb.Value, overrides map[string]string) error {
@@ -213,7 +214,7 @@ type SyncConnectionCmd struct {
 }
 
 func (cmd SyncConnectionCmd) Run(c *cc.CommonCtx) error {
-	client, err := c.TenantClient()
+	client, err := c.TenantClient(c.Context)
 	if err != nil {
 		return err
 	}

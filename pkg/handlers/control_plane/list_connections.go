@@ -2,18 +2,15 @@ package controlplane
 
 import (
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/aserto/pkg/jsonx"
+	"github.com/aserto-dev/aserto/pkg/pb"
 	"github.com/aserto-dev/go-grpc/aserto/api/v1"
 	"github.com/aserto-dev/go-grpc/aserto/tenant/connection/v1"
-	"github.com/pkg/errors"
-	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
-type ListConnectionsCmd struct {
-}
+type ListConnectionsCmd struct{}
 
 func (cmd ListConnectionsCmd) Run(c *cc.CommonCtx) error {
-	cli, err := c.TenantClient()
+	cli, err := c.TenantClient(c.Context)
 	if err != nil {
 		return err
 	}
@@ -21,25 +18,15 @@ func (cmd ListConnectionsCmd) Run(c *cc.CommonCtx) error {
 	resp, err := cli.Connections.ListConnections(c.Context, &connection.ListConnectionsRequest{
 		Kind: api.ProviderKind_PROVIDER_KIND_EDGE_AUTHORIZER,
 	})
-
 	if err != nil {
 		return err
 	}
 
 	conns := resp.Results
 	if len(conns) == 0 {
-		return errors.New("no edge authorizer connections")
+		c.Con().Info().Msg("no edge authorizer connections")
+		return nil
 	}
 
-	var connsOut []protoreflect.ProtoMessage
-	for _, conn := range conns {
-		connsOut = append(connsOut, conn)
-	}
-
-	err = jsonx.OutputJSONPBArray(c.UI.Output(), connsOut)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return pb.WriteMsgArray(c.StdOut(), conns)
 }
