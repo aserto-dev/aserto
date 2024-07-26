@@ -23,7 +23,7 @@ type Info struct {
 // GetInfo gets version stamp information.
 func GetInfo() Info {
 	if ver == "" {
-		ver = "0.0.0"
+		ver = "0.0.0-dev"
 	}
 
 	if date == "" {
@@ -43,7 +43,7 @@ func GetInfo() Info {
 
 // String() returns the version info string.
 func (vi Info) String() string {
-	return fmt.Sprintf("%s %s %s-%s [%s]",
+	return fmt.Sprintf("%s g%s %s-%s [%s]",
 		vi.Version,
 		vi.Commit,
 		runtime.GOOS,

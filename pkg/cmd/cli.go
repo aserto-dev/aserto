@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/alecthomas/kong"
 	"github.com/aserto-dev/aserto/pkg/auth0/api"
 	"github.com/aserto-dev/aserto/pkg/cc"
@@ -59,12 +57,7 @@ func (cli *CLI) ConfigOverrider(conf *config.Config) {
 type VersionCmd struct{}
 
 func (cmd *VersionCmd) Run(c *cc.CommonCtx) error {
-	fmt.Fprintf(c.StdOut(), "%s - %s (%s)\n",
-		x.AppName,
-		version.GetInfo().String(),
-		x.AppVersionTag,
-	)
-
+	c.Con().Info().Msg("%s %s", x.AppName, version.GetInfo().String())
 	return nil
 }
 
