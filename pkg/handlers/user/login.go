@@ -96,7 +96,6 @@ func (d *LoginCmd) Run(c *cc.CommonCtx) error {
 			return err
 		}
 
-		// token.Identity = ""
 		if err := kr.SetToken(token); err != nil {
 			return err
 		}
