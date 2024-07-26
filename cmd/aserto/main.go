@@ -39,13 +39,31 @@ func main() {
 		os.Args = append(os.Args, "--help")
 	}
 
-	os.Exit(run())
+	ctx, cancel := context.WithCancel(context.Background())
+
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, os.Interrupt, syscall.SIGTERM)
+
+	go func() {
+		sig := <-sigs
+		sc, ok := sig.(syscall.Signal)
+		if !ok {
+			sc = 0
+		}
+
+		fmt.Fprintln(os.Stderr)
+		fmt.Fprintf(os.Stderr, "%s request received, canceling...\n", sig.String())
+		fmt.Fprintln(os.Stderr)
+
+		cancel()
+
+		os.Exit(128 + int(sc))
+	}()
+
+	os.Exit(run(ctx))
 }
 
-func run() (exitCode int) {
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
-
+func run(ctx context.Context) (exitCode int) {
 	fflag.Init()
 
 	home, err := os.UserHomeDir()
@@ -119,8 +137,6 @@ func run() (exitCode int) {
 	if err != nil {
 		return exitErr(err)
 	}
-
-	c.CommonCtx = topazCtx
 
 	if err := kongCtx.Run(c); err != nil {
 		return exitErr(err)
