@@ -5,7 +5,7 @@ import "time"
 type Token struct {
 	Type                string    `json:"token_type"`
 	Scope               string    `json:"scope"`
-	Identity            string    `json:"id_token"`
+	Identity            string    `json:"-"`
 	Access              string    `json:"access_token"`
 	ExpiresIn           int       `json:"expires_in"`
 	ExpiresAt           time.Time `json:"expires_at"` // UTC timestamp when access_token expires
