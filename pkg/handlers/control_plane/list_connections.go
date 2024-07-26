@@ -2,12 +2,9 @@ package controlplane
 
 import (
 	"github.com/aserto-dev/aserto/pkg/cc"
+	"github.com/aserto-dev/aserto/pkg/pb"
 	"github.com/aserto-dev/go-grpc/aserto/api/v1"
 	"github.com/aserto-dev/go-grpc/aserto/tenant/connection/v1"
-	"github.com/aserto-dev/topaz/pkg/cli/jsonx"
-
-	"github.com/pkg/errors"
-	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 type ListConnectionsCmd struct{}
@@ -27,18 +24,9 @@ func (cmd ListConnectionsCmd) Run(c *cc.CommonCtx) error {
 
 	conns := resp.Results
 	if len(conns) == 0 {
-		return errors.New("no edge authorizer connections")
+		c.Con().Info().Msg("no edge authorizer connections")
+		return nil
 	}
 
-	var connsOut []protoreflect.ProtoMessage
-	for _, conn := range conns {
-		connsOut = append(connsOut, conn)
-	}
-
-	err = jsonx.OutputJSONPBArray(c.StdOut(), connsOut)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return pb.WriteMsgArray(c.StdOut(), conns)
 }

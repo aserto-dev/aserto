@@ -6,10 +6,10 @@ toolchain go1.22.5
 
 require (
 	github.com/alecthomas/kong v0.9.0
-	github.com/aserto-dev/go-aserto v0.31.5-0.20240725175353-73fd8d16fe72
+	github.com/aserto-dev/go-aserto v0.31.5
 	github.com/aserto-dev/go-decision-logs v0.0.4
 	github.com/aserto-dev/go-grpc v0.8.67
-	github.com/aserto-dev/topaz v0.32.18-0.20240725175811-60121620d962
+	github.com/aserto-dev/topaz v0.32.18
 	github.com/cli/browser v1.3.0
 	github.com/go-http-utils/headers v0.0.0-20181008091004-fed159eddc2a
 	github.com/hashicorp/go-multierror v1.1.1
@@ -20,7 +20,7 @@ require (
 	github.com/stretchr/testify v1.9.0
 	github.com/zalando/go-keyring v0.2.5
 	github.com/zenizh/go-capturer v0.0.0-20211219060012-52ea6c8fed04
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240722135656-d784300faade
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240723171418-e6d459c13d2a
 	google.golang.org/grpc v1.65.0
 	google.golang.org/protobuf v1.34.2
 )
@@ -44,7 +44,7 @@ require (
 	github.com/aserto-dev/errors v0.0.9 // indirect
 	github.com/aserto-dev/go-authorizer v0.20.7 // indirect
 	github.com/aserto-dev/go-directory v0.31.6 // indirect
-	github.com/aserto-dev/go-directory-cli v0.31.3-0.20240711215128-477b23ffcb75 // indirect
+	github.com/aserto-dev/go-directory-cli v0.31.3 // indirect
 	github.com/aserto-dev/go-edge-ds v0.32.3 // indirect
 	github.com/aserto-dev/header v0.0.7 // indirect
 	github.com/aserto-dev/logger v0.0.4 // indirect
@@ -65,7 +65,7 @@ require (
 	github.com/deckarep/golang-set/v2 v2.6.0 // indirect
 	github.com/dgryski/go-metro v0.0.0-20211217172704-adc40b04c140 // indirect
 	github.com/distribution/reference v0.6.0 // indirect
-	github.com/docker/docker v27.1.0+incompatible // indirect
+	github.com/docker/docker v27.1.1+incompatible // indirect
 	github.com/docker/go-connections v0.5.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/envoyproxy/go-control-plane v0.12.0 // indirect

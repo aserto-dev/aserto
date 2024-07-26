@@ -64,6 +64,7 @@ func (cmd *VersionCmd) Run(c *cc.CommonCtx) error {
 		version.GetInfo().String(),
 		x.AppVersionTag,
 	)
+
 	return nil
 }
 
