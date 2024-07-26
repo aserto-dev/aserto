@@ -25,10 +25,10 @@ func (cmd ListInstanceRegistrationsCmd) Run(c *cc.CommonCtx) error {
 	}
 
 	results := lo.FilterMap(resp.Result, func(x *api.InstanceRegistration, _ int) (*api.InstanceRegistration, bool) {
-		if cmd.ConnectionID == "" {
+		if cmd.Connection == "" {
 			return x, true
 		}
-		if x.Info.ConnectionId == cmd.ConnectionID {
+		if x.Info.ConnectionId == cmd.Connection {
 			return x, true
 		}
 		return nil, false
