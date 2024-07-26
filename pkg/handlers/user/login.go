@@ -71,7 +71,7 @@ func (d *LoginCmd) Run(c *cc.CommonCtx) error {
 	token := flow.AccessToken()
 
 	{ // intentionally scoped.
-		ctx, cancel := context.WithTimeout(c.Context, time.Second*5)
+		ctx, cancel := context.WithTimeout(c.Context, time.Second*10)
 		defer cancel()
 
 		conn, err := tenant.NewClient(
@@ -95,6 +95,8 @@ func (d *LoginCmd) Run(c *cc.CommonCtx) error {
 		if err != nil {
 			return err
 		}
+
+		token.Identity = ""
 		if err := kr.SetToken(token); err != nil {
 			return err
 		}

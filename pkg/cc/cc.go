@@ -1,7 +1,6 @@
 package cc
 
 import (
-	"context"
 	"encoding/json"
 	"log"
 	"os"
@@ -36,7 +35,6 @@ type CommonCtx struct {
 
 // NewCommonCtx, CommonContext constructor (extracted from wire).
 func NewCommonCtx(tc *topazCC.CommonCtx, configPath config.Path, overrides ...config.Overrider) (*CommonCtx, error) {
-	contextContext := context.Background()
 	configConfig, err := config.NewConfig(configPath, overrides...)
 	if err != nil {
 		return nil, err
@@ -59,8 +57,6 @@ func NewCommonCtx(tc *topazCC.CommonCtx, configPath config.Path, overrides ...co
 
 	dlConfig := &configConfig.DecisionLogger
 	dlSettings := dl.NewSettings(dlConfig)
-
-	tc.Context = contextContext
 
 	commonCtx := &CommonCtx{
 		CommonCtx:      tc,
