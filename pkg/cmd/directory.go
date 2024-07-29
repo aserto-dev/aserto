@@ -12,7 +12,7 @@ import (
 	"google.golang.org/grpc/metadata"
 
 	topazCC "github.com/aserto-dev/topaz/pkg/cli/cc"
-	topazClients "github.com/aserto-dev/topaz/pkg/cli/clients"
+	dsClient "github.com/aserto-dev/topaz/pkg/cli/clients/directory"
 )
 
 type DirectoryCmd struct {
@@ -39,7 +39,7 @@ func (cmd *DirectoryCmd) AfterApply(context *kong.Context, c *topazCC.CommonCtx)
 		return err
 	}
 
-	dirConfig := topazClients.DirectoryConfig{
+	dirConfig := dsClient.Config{
 		Host:     cfg.Services.DirectoryReaderService.Address,
 		APIKey:   cfg.Services.DirectoryReaderService.APIKey,
 		Token:    lo.Ternary(isTopazConfig, "", token.Access), // only send access token to hosted services.
@@ -52,24 +52,24 @@ func (cmd *DirectoryCmd) AfterApply(context *kong.Context, c *topazCC.CommonCtx)
 		c.Context = metadata.AppendToOutgoingContext(c.Context, string(headers.Authorization), BearerToken+token.Access)
 	}
 
-	cmd.DirectoryCmd.Get.Manifest.DirectoryConfig = dirConfig
-	cmd.DirectoryCmd.Set.Manifest.DirectoryConfig = dirConfig
-	cmd.DirectoryCmd.Delete.Manifest.DirectoryConfig = dirConfig
-	cmd.DirectoryCmd.Get.Object.DirectoryConfig = dirConfig
-	cmd.DirectoryCmd.Set.Object.DirectoryConfig = dirConfig
-	cmd.DirectoryCmd.Delete.Object.DirectoryConfig = dirConfig
-	cmd.DirectoryCmd.List.Objects.DirectoryConfig = dirConfig
-	cmd.DirectoryCmd.Get.Relation.DirectoryConfig = dirConfig
-	cmd.DirectoryCmd.Set.Relation.DirectoryConfig = dirConfig
-	cmd.DirectoryCmd.Delete.Relation.DirectoryConfig = dirConfig
-	cmd.DirectoryCmd.List.Relations.DirectoryConfig = dirConfig
-	cmd.DirectoryCmd.Check.DirectoryConfig = dirConfig
-	cmd.DirectoryCmd.Search.DirectoryConfig = dirConfig
-	cmd.DirectoryCmd.Import.DirectoryConfig = dirConfig
-	cmd.DirectoryCmd.Export.DirectoryConfig = dirConfig
-	cmd.DirectoryCmd.Backup.DirectoryConfig = dirConfig
-	cmd.DirectoryCmd.Restore.DirectoryConfig = dirConfig
-	cmd.DirectoryCmd.Test.Exec.DirectoryConfig = dirConfig
+	cmd.DirectoryCmd.Get.Manifest.Config = dirConfig
+	cmd.DirectoryCmd.Set.Manifest.Config = dirConfig
+	cmd.DirectoryCmd.Delete.Manifest.Config = dirConfig
+	cmd.DirectoryCmd.Get.Object.Config = dirConfig
+	cmd.DirectoryCmd.Set.Object.Config = dirConfig
+	cmd.DirectoryCmd.Delete.Object.Config = dirConfig
+	cmd.DirectoryCmd.List.Objects.Config = dirConfig
+	cmd.DirectoryCmd.Get.Relation.Config = dirConfig
+	cmd.DirectoryCmd.Set.Relation.Config = dirConfig
+	cmd.DirectoryCmd.Delete.Relation.Config = dirConfig
+	cmd.DirectoryCmd.List.Relations.Config = dirConfig
+	cmd.DirectoryCmd.Check.Config = dirConfig
+	cmd.DirectoryCmd.Search.Config = dirConfig
+	cmd.DirectoryCmd.Import.Config = dirConfig
+	cmd.DirectoryCmd.Export.Config = dirConfig
+	cmd.DirectoryCmd.Backup.Config = dirConfig
+	cmd.DirectoryCmd.Restore.Config = dirConfig
+	cmd.DirectoryCmd.Test.Exec.Config = dirConfig
 
 	return nil
 }
