@@ -9,7 +9,7 @@ require (
 	github.com/aserto-dev/go-aserto v0.31.5
 	github.com/aserto-dev/go-decision-logs v0.0.4
 	github.com/aserto-dev/go-grpc v0.8.67
-	github.com/aserto-dev/topaz v0.32.18
+	github.com/aserto-dev/topaz v0.32.19-0.20240729213322-f356707fe99f
 	github.com/cli/browser v1.3.0
 	github.com/go-http-utils/headers v0.0.0-20181008091004-fed159eddc2a
 	github.com/hashicorp/go-multierror v1.1.1
@@ -43,8 +43,7 @@ require (
 	github.com/aserto-dev/certs v0.0.6 // indirect
 	github.com/aserto-dev/errors v0.0.9 // indirect
 	github.com/aserto-dev/go-authorizer v0.20.7 // indirect
-	github.com/aserto-dev/go-directory v0.31.6 // indirect
-	github.com/aserto-dev/go-directory-cli v0.31.3 // indirect
+	github.com/aserto-dev/go-directory v0.31.7 // indirect
 	github.com/aserto-dev/go-edge-ds v0.32.3 // indirect
 	github.com/aserto-dev/header v0.0.7 // indirect
 	github.com/aserto-dev/logger v0.0.4 // indirect
@@ -134,7 +133,7 @@ require (
 	github.com/prometheus/procfs v0.15.1 // indirect
 	github.com/prometheus/statsd_exporter v0.26.1 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
-	github.com/rivo/tview v0.0.0-20240625185742-b0a7293b8130 // indirect
+	github.com/rivo/tview v0.0.0-20240728114935-65571ae51e71 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rs/cors v1.11.0 // indirect
 	github.com/rs/zerolog v1.33.0 // indirect

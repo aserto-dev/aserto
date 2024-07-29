@@ -10,7 +10,7 @@ import (
 	"google.golang.org/grpc/metadata"
 
 	topazCC "github.com/aserto-dev/topaz/pkg/cli/cc"
-	topazClients "github.com/aserto-dev/topaz/pkg/cli/clients"
+	azClient "github.com/aserto-dev/topaz/pkg/cli/clients/authorizer"
 	"github.com/aserto-dev/topaz/pkg/cli/cmd/authorizer"
 
 	errs "github.com/aserto-dev/aserto/pkg/cc/errors"
@@ -45,7 +45,7 @@ func (cmd *AuthorizerCmd) AfterApply(context *kong.Context, c *topazCC.CommonCtx
 		return err
 	}
 
-	authorizerConfig := topazClients.AuthorizerConfig{
+	authorizerConfig := azClient.Config{
 		Host:     cfg.Services.AuthorizerService.Address,
 		APIKey:   cfg.Services.AuthorizerService.APIKey,
 		Token:    lo.Ternary(isTopazConfig, "", token.Access), // only send access token to hosted services.
@@ -58,12 +58,12 @@ func (cmd *AuthorizerCmd) AfterApply(context *kong.Context, c *topazCC.CommonCtx
 		c.Context = metadata.AppendToOutgoingContext(c.Context, string(headers.Authorization), BearerToken+token.Access)
 	}
 
-	cmd.AuthorizerCmd.CheckDecision.AuthorizerConfig = authorizerConfig
-	cmd.AuthorizerCmd.ExecQuery.AuthorizerConfig = authorizerConfig
-	cmd.AuthorizerCmd.DecisionTree.AuthorizerConfig = authorizerConfig
-	cmd.AuthorizerCmd.Get.Policy.AuthorizerConfig = authorizerConfig
-	cmd.AuthorizerCmd.List.Policies.AuthorizerConfig = authorizerConfig
-	cmd.AuthorizerCmd.Test.Exec.AuthorizerConfig = authorizerConfig
+	cmd.AuthorizerCmd.CheckDecision.Config = authorizerConfig
+	cmd.AuthorizerCmd.ExecQuery.Config = authorizerConfig
+	cmd.AuthorizerCmd.DecisionTree.Config = authorizerConfig
+	cmd.AuthorizerCmd.Get.Policy.Config = authorizerConfig
+	cmd.AuthorizerCmd.List.Policies.Config = authorizerConfig
+	cmd.AuthorizerCmd.Test.Exec.Config = authorizerConfig
 
 	return nil
 }
