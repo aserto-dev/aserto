@@ -9,7 +9,7 @@ import (
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/clients/tenant"
 	"github.com/aserto-dev/aserto/pkg/keyring"
-	"github.com/aserto-dev/go-aserto/client"
+	client "github.com/aserto-dev/go-aserto"
 
 	"github.com/cli/browser"
 	"github.com/pkg/errors"

@@ -7,7 +7,7 @@ import (
 	"github.com/aserto-dev/aserto/pkg/cc/errors"
 	"github.com/aserto-dev/aserto/pkg/cc/token"
 	"github.com/aserto-dev/aserto/pkg/x"
-	"github.com/aserto-dev/go-aserto/client"
+	client "github.com/aserto-dev/go-aserto"
 )
 
 // Overrides are options that modify the default behavior of connections to aserto services.

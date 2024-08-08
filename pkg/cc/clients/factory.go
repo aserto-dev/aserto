@@ -10,7 +10,8 @@ import (
 	dl "github.com/aserto-dev/aserto/pkg/clients/decisionlogs"
 	"github.com/aserto-dev/aserto/pkg/clients/tenant"
 	"github.com/aserto-dev/aserto/pkg/x"
-	"github.com/aserto-dev/go-aserto/client"
+	client "github.com/aserto-dev/go-aserto"
+
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
