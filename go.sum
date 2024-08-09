@@ -101,8 +101,8 @@ github.com/aserto-dev/self-decision-logger v0.0.6 h1:hR1x5ki7UjWBktoEB1zOoedOrji
 github.com/aserto-dev/self-decision-logger v0.0.6/go.mod h1:Yzap6p4ADU6U+wi2XmRDzz6OH2h/2APJPOsWY4RI1N4=
 github.com/aserto-dev/service-host v0.0.15 h1:j8Ck8RF8zXzR4BbtOxqmQFAABzGOhg7X4ZLJtwYUD8Y=
 github.com/aserto-dev/service-host v0.0.15/go.mod h1:hU9yFq9xCd6QsM8+DRyfLgykdK1a9Ki9ZjBZidb6Mns=
-github.com/aserto-dev/topaz v0.32.22-0.20240808235425-6a570146549c h1:bsA8Ct2kXSqxKT3ChRa1vUYAIqgKsNqfGWvE/n64bm4=
-github.com/aserto-dev/topaz v0.32.22-0.20240808235425-6a570146549c/go.mod h1:2qNnZnXhUdQb2rSJ7TQG46KnzKhVBfxFFs4QBq/woJM=
+github.com/aserto-dev/topaz v0.32.22-0.20240809000955-7c8e0c0a13c5 h1:hGXnOR2yDFW+ztDWpszdfZlOP7aahV9AS/cnhEvDqCc=
+github.com/aserto-dev/topaz v0.32.22-0.20240809000955-7c8e0c0a13c5/go.mod h1:2qNnZnXhUdQb2rSJ7TQG46KnzKhVBfxFFs4QBq/woJM=
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
