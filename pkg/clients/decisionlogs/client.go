@@ -3,8 +3,9 @@ package decisionlogs
 import (
 	"context"
 
-	"github.com/aserto-dev/go-aserto/client"
+	client "github.com/aserto-dev/go-aserto"
 	decision_logs "github.com/aserto-dev/go-decision-logs/aserto/decision-logs/v2"
+
 	"google.golang.org/grpc"
 )
 
@@ -22,7 +23,7 @@ type Client struct {
 }
 
 func NewClient(ctx context.Context, options ...client.ConnectionOption) (*Client, error) {
-	conn, err := client.NewConnection(ctx, options...)
+	conn, err := client.NewConnection(options...)
 	if err != nil {
 		return nil, err
 	}

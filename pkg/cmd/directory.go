@@ -70,6 +70,7 @@ func (cmd *DirectoryCmd) AfterApply(context *kong.Context, c *topazCC.CommonCtx)
 	cmd.DirectoryCmd.Backup.Config = dirConfig
 	cmd.DirectoryCmd.Restore.Config = dirConfig
 	cmd.DirectoryCmd.Test.Exec.Config = dirConfig
+	cmd.DirectoryCmd.Stats.Config = dirConfig
 
 	return nil
 }

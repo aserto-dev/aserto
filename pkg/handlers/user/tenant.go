@@ -5,7 +5,7 @@ import (
 
 	auth0 "github.com/aserto-dev/aserto/pkg/auth0/api"
 	"github.com/aserto-dev/aserto/pkg/clients/tenant"
-	"github.com/aserto-dev/go-aserto/client"
+	client "github.com/aserto-dev/go-aserto"
 	"github.com/aserto-dev/go-grpc/aserto/api/v1"
 	"github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"
 	"github.com/aserto-dev/go-grpc/aserto/tenant/connection/v1"
