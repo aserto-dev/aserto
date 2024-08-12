@@ -6,10 +6,10 @@ toolchain go1.22.5
 
 require (
 	github.com/alecthomas/kong v0.9.0
-	github.com/aserto-dev/go-aserto v0.31.6-0.20240808230126-d4cf89f6c1b5
+	github.com/aserto-dev/go-aserto v0.32.0
 	github.com/aserto-dev/go-decision-logs v0.0.4
 	github.com/aserto-dev/go-grpc v0.8.68
-	github.com/aserto-dev/topaz v0.32.22-0.20240809000955-7c8e0c0a13c5
+	github.com/aserto-dev/topaz v0.32.22-0.20240812200402-0f97b3929179
 	github.com/cli/browser v1.3.0
 	github.com/go-http-utils/headers v0.0.0-20181008091004-fed159eddc2a
 	github.com/hashicorp/go-multierror v1.1.1
@@ -20,7 +20,7 @@ require (
 	github.com/stretchr/testify v1.9.0
 	github.com/zalando/go-keyring v0.2.5
 	github.com/zenizh/go-capturer v0.0.0-20211219060012-52ea6c8fed04
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240808171019-573a1156607a
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240812133136-8ffd90a71988
 	google.golang.org/grpc v1.65.0
 	google.golang.org/protobuf v1.34.2
 )
@@ -37,18 +37,18 @@ require (
 	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/alessio/shellescape v1.4.1 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
-	github.com/aserto-dev/aserto-management v0.9.5 // indirect
-	github.com/aserto-dev/azm v0.1.12 // indirect
-	github.com/aserto-dev/certs v0.0.6 // indirect
-	github.com/aserto-dev/errors v0.0.10 // indirect
-	github.com/aserto-dev/go-authorizer v0.20.8 // indirect
-	github.com/aserto-dev/go-directory v0.31.9 // indirect
-	github.com/aserto-dev/go-edge-ds v0.32.5-0.20240808234603-05327576aa72 // indirect
-	github.com/aserto-dev/header v0.0.7 // indirect
-	github.com/aserto-dev/logger v0.0.4 // indirect
+	github.com/aserto-dev/aserto-management v0.9.6 // indirect
+	github.com/aserto-dev/azm v0.1.13 // indirect
+	github.com/aserto-dev/certs v0.0.7 // indirect
+	github.com/aserto-dev/errors v0.0.11 // indirect
+	github.com/aserto-dev/go-authorizer v0.20.10 // indirect
+	github.com/aserto-dev/go-directory v0.31.11 // indirect
+	github.com/aserto-dev/go-edge-ds v0.32.5 // indirect
+	github.com/aserto-dev/header v0.0.8 // indirect
+	github.com/aserto-dev/logger v0.0.5 // indirect
 	github.com/aserto-dev/runtime v0.67.1 // indirect
-	github.com/aserto-dev/self-decision-logger v0.0.6 // indirect
-	github.com/aserto-dev/service-host v0.0.15 // indirect
+	github.com/aserto-dev/self-decision-logger v0.0.7 // indirect
+	github.com/aserto-dev/service-host v0.0.16 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bufbuild/protocompile v0.13.0 // indirect
 	github.com/bufbuild/protovalidate-go v0.6.3 // indirect
@@ -160,16 +160,16 @@ require (
 	go.opentelemetry.io/otel/trace v1.28.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.26.0 // indirect
-	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56 // indirect
-	golang.org/x/mod v0.19.0 // indirect
+	golang.org/x/exp v0.0.0-20240808152545-0cdaa3abc0fa // indirect
+	golang.org/x/mod v0.20.0 // indirect
 	golang.org/x/net v0.28.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/sys v0.24.0 // indirect
 	golang.org/x/term v0.23.0 // indirect
 	golang.org/x/text v0.17.0 // indirect
 	golang.org/x/time v0.6.0 // indirect
-	golang.org/x/tools v0.23.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20240808171019-573a1156607a // indirect
+	golang.org/x/tools v0.24.0 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20240812133136-8ffd90a71988 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
