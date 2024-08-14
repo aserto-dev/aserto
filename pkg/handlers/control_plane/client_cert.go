@@ -11,26 +11,24 @@ import (
 	"github.com/aserto-dev/go-grpc/aserto/api/v1"
 	"github.com/aserto-dev/go-grpc/aserto/tenant/connection/v1"
 	"github.com/aserto-dev/topaz/pkg/cli/jsonx"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 
 	"github.com/pkg/errors"
 )
 
 type ClientCertCmd struct {
 	ID        string `arg:"" help:"edge authorizer connection ID"`
-	Directory string `flag:"" short:"d" help:"directory to save certificates" default:"${cwd}"`
+	Directory string `flag:"" short:"d" help:"directory to save certificate file" default:"${cwd}"`
 	Raw       bool   `flag:"" help:"raw message output"`
 }
 
 func (cmd ClientCertCmd) Run(c *cc.CommonCtx) error {
+	if cmd.ID == "" {
+		return errors.New("connection ID argument not provided")
+	}
+
 	cli, err := c.TenantClient(c.Context)
 	if err != nil {
 		return err
-	}
-
-	if cmd.ID == "" {
-		return status.Errorf(codes.InvalidArgument, "connection ID argument not provided")
 	}
 
 	resp, err := cli.Connections.GetConnection(c.Context, &connection.GetConnectionRequest{
@@ -102,7 +100,12 @@ type APICert struct {
 
 func (cmd ClientCertCmd) writeFile(c *cc.CommonCtx, name, value string) error {
 	if fi, err := os.Stat(cmd.Directory); err != nil || !fi.IsDir() {
-		return status.Errorf(codes.NotFound, "directory %q", cmd.Directory)
+		if err != nil {
+			return err
+		}
+		if !fi.IsDir() {
+			return errors.Errorf("--directory argument %q is not a directory", cmd.Directory)
+		}
 	}
 
 	fn := filepath.Join(cmd.Directory, name)
