@@ -66,6 +66,11 @@ func main() {
 func run(ctx context.Context) (exitCode int) {
 	fflag.Init()
 
+	cwd, err := os.Getwd()
+	if err != nil {
+		return exitErr(errors.Wrap(err, "failed to determine current working directory"))
+	}
+
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return exitErr(errors.Wrap(err, "failed to determine user home directory"))
@@ -120,6 +125,7 @@ func run(ctx context.Context) (exitCode int) {
 			"insecure":           strconv.FormatBool(topazCC.Insecure()),
 			"no_check":           strconv.FormatBool(topazCC.NoCheck()),
 			"no_color":           strconv.FormatBool(topazCC.NoColor()),
+			"cwd":                cwd,
 		},
 	)
 
