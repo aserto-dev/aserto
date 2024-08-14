@@ -1,6 +1,7 @@
 package decision_logs //nolint // prefer standardizing name over removing _
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
 	"time"
@@ -14,11 +15,15 @@ import (
 
 type StreamCmd struct {
 	PolicyName    string `arg:"" help:"Name of policy to open stream for"`
-	InstanceLabel string `arg:"" help:"Label of policy to open stream for"`
-	Since         string `optional:"" help:"time to start streaming events from in RFC3339 format"`
+	InstanceLabel string `arg:"" help:"Label of policy to open stream for" optional:""`
+	Since         string `flag:"" help:"time to start streaming events from in RFC3339 format" optional:""`
 }
 
 func (cmd StreamCmd) Run(c *cc.CommonCtx) error {
+	if cmd.InstanceLabel == "" && cmd.PolicyName != "" {
+		cmd.InstanceLabel = cmd.PolicyName
+	}
+
 	cli, err := c.DecisionLogsClient(c.Context)
 	if err != nil {
 		return err
@@ -54,11 +59,7 @@ func (cmd StreamCmd) Run(c *cc.CommonCtx) error {
 				return
 			}
 
-			errRcv = jsonx.OutputJSON(c.StdOut(), resp.Decision)
-			if err != nil {
-				errCh <- errRcv
-				return
-			}
+			fmt.Fprintln(c.StdOut(), jsonx.MarshalOpts(true).Format(resp.Decision))
 		}
 	}()
 
