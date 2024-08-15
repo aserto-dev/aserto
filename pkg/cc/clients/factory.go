@@ -18,8 +18,6 @@ import (
 )
 
 type Factory interface {
-	TenantID() string
-
 	TenantClient(ctx context.Context) (*tenant.Client, error)
 	DecisionLogsClient(ctx context.Context) (*dl.Client, error)
 	ControlPlaneClient(ctx context.Context) (*cp.Client, error)
@@ -60,10 +58,6 @@ func NewClientFactory(
 		tenantID:   tID,
 		svcOptions: options,
 	}, nil
-}
-
-func (c *AsertoFactory) TenantID() string {
-	return c.tenantID
 }
 
 func (c *AsertoFactory) TenantClient(ctx context.Context) (*tenant.Client, error) {

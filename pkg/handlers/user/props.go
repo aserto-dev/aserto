@@ -29,7 +29,11 @@ func (cmd *GetCmd) Run(c *cc.CommonCtx) error {
 	case "access-token":
 		propValue, err = c.AccessToken()
 	case "tenant-id":
-		propValue = c.TenantID()
+		token, tokenErr := c.Token()
+		if tokenErr != nil {
+			return tokenErr
+		}
+		propValue = token.TenantID
 	case "authorizer-key":
 		propValue, err = c.AuthorizerAPIKey()
 	case "directory-read-key":

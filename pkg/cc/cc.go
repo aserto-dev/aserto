@@ -88,6 +88,14 @@ func newAuthSettings(auth *config.Auth) *auth0.Settings {
 	return auth.GetSettings()
 }
 
+func (ctx *CommonCtx) TenantID() string {
+	tkn, err := ctx.Token()
+	if err != nil {
+		return ""
+	}
+	return tkn.TenantID
+}
+
 func (ctx *CommonCtx) AccessToken() (string, error) {
 	tkn, err := ctx.Token()
 	if err != nil {
