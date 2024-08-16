@@ -46,9 +46,9 @@ func NewCommonCtx(tc *topazCC.CommonCtx, configPath config.Path, overrides ...co
 	cacheKey := GetCacheKey(auth)
 	cachedToken := token.Load(cacheKey)
 
-	tenantID := newTenantID(configConfig, cachedToken)
+	configConfig.TenantID = newTenantID(configConfig, cachedToken)
 
-	asertoFactory, err := clients.NewClientFactory(services, tenantID, cachedToken)
+	asertoFactory, err := clients.NewClientFactory(services, cachedToken)
 	if err != nil {
 		return nil, err
 	}
@@ -71,13 +71,12 @@ func NewCommonCtx(tc *topazCC.CommonCtx, configPath config.Path, overrides ...co
 	return commonCtx, nil
 }
 
-func newTenantID(cfg *config.Config, cachedToken *token.CachedToken) clients.TenantID {
+func newTenantID(cfg *config.Config, cachedToken *token.CachedToken) string {
 	id := cfg.TenantID
 	if id == "" {
 		id = cachedToken.TenantID()
 	}
-
-	return clients.TenantID(id)
+	return id
 }
 
 func GetCacheKey(auth *config.Auth) token.CacheKey {
@@ -86,6 +85,14 @@ func GetCacheKey(auth *config.Auth) token.CacheKey {
 
 func newAuthSettings(auth *config.Auth) *auth0.Settings {
 	return auth.GetSettings()
+}
+
+func (ctx *CommonCtx) TenantID() string {
+	tkn, err := ctx.Token()
+	if err != nil {
+		return ""
+	}
+	return tkn.TenantID
 }
 
 func (ctx *CommonCtx) AccessToken() (string, error) {

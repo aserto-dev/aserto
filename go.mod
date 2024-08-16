@@ -9,18 +9,18 @@ require (
 	github.com/aserto-dev/go-aserto v0.32.0
 	github.com/aserto-dev/go-decision-logs v0.0.4
 	github.com/aserto-dev/go-grpc v0.8.68
-	github.com/aserto-dev/topaz v0.32.22
+	github.com/aserto-dev/topaz v0.32.23
 	github.com/cli/browser v1.3.0
 	github.com/go-http-utils/headers v0.0.0-20181008091004-fed159eddc2a
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/pkg/errors v0.9.1
-	github.com/samber/lo v1.46.0
+	github.com/samber/lo v1.47.0
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
 	github.com/zalando/go-keyring v0.2.5
 	github.com/zenizh/go-capturer v0.0.0-20211219060012-52ea6c8fed04
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240812133136-8ffd90a71988
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240814211410-ddb44dafa142
 	google.golang.org/grpc v1.65.0
 	google.golang.org/protobuf v1.34.2
 )
@@ -38,7 +38,7 @@ require (
 	github.com/alessio/shellescape v1.4.1 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/aserto-dev/aserto-management v0.9.6 // indirect
-	github.com/aserto-dev/azm v0.1.13 // indirect
+	github.com/aserto-dev/azm v0.1.14 // indirect
 	github.com/aserto-dev/certs v0.0.7 // indirect
 	github.com/aserto-dev/errors v0.0.11 // indirect
 	github.com/aserto-dev/go-authorizer v0.20.10 // indirect

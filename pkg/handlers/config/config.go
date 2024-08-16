@@ -10,6 +10,7 @@ import (
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/cc/config"
 	errs "github.com/aserto-dev/aserto/pkg/cc/errors"
+	"github.com/aserto-dev/aserto/pkg/handlers/user"
 	"github.com/aserto-dev/go-grpc/aserto/api/v1"
 	account "github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"
 	topazConfig "github.com/aserto-dev/topaz/pkg/cc/config"
@@ -120,7 +121,8 @@ func (cmd *UseConfigCmd) Run(c *cc.CommonCtx) error {
 		if ok {
 			headersMap, ok := serviceMap["headers"].(map[string]interface{})
 			if ok {
-				c.Config.TenantID, ok = headersMap["aserto-tenant-id"].(string)
+				strTenantID, ok := headersMap["aserto-tenant-id"].(string)
+				c.Config.TenantID = strTenantID
 				if !ok {
 					c.Config.TenantID = ""
 				}
@@ -143,7 +145,17 @@ func (cmd *UseConfigCmd) Run(c *cc.CommonCtx) error {
 			return errors.Wrapf(errs.ResolveTenantErr, tenantName)
 		}
 
+		token, err := c.Token()
+		if err != nil {
+			return err
+		}
+
 		c.Config.TenantID = tenant[0].Id
+		token.TenantID = tenant[0].Id
+
+		if err := user.SwitchKeyRing(c, token, tenant[0].Id); err != nil {
+			return err
+		}
 	}
 
 	return c.SaveContextConfig(config.DefaultConfigFilePath)

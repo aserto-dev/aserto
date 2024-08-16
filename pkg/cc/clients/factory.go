@@ -18,8 +18,6 @@ import (
 )
 
 type Factory interface {
-	TenantID() string
-
 	TenantClient(ctx context.Context) (*tenant.Client, error)
 	DecisionLogsClient(ctx context.Context) (*dl.Client, error)
 	ControlPlaneClient(ctx context.Context) (*cp.Client, error)
@@ -28,19 +26,13 @@ type Factory interface {
 type OptionsBuilder func() ([]client.ConnectionOption, error)
 
 type AsertoFactory struct {
-	tenantID   string
 	svcOptions map[x.Service]OptionsBuilder
 }
 
-type TenantID string
-
 func NewClientFactory(
 	services *x.Services,
-	tenantID TenantID,
 	token *tok.CachedToken,
 ) (*AsertoFactory, error) {
-	tID := string(tenantID)
-
 	defaultEnv := x.DefaultEnvironment()
 
 	options := map[x.Service]OptionsBuilder{}
@@ -49,7 +41,6 @@ func NewClientFactory(
 			service:     svc,
 			options:     services.Get(svc),
 			defaultAddr: defaultEnv.Get(svc).Address,
-			tenantID:    tID,
 			token:       token,
 		}
 
@@ -57,13 +48,8 @@ func NewClientFactory(
 	}
 
 	return &AsertoFactory{
-		tenantID:   tID,
 		svcOptions: options,
 	}, nil
-}
-
-func (c *AsertoFactory) TenantID() string {
-	return c.tenantID
 }
 
 func (c *AsertoFactory) TenantClient(ctx context.Context) (*tenant.Client, error) {

@@ -73,8 +73,8 @@ github.com/arbovm/levenshtein v0.0.0-20160628152529-48b4e1c0c4d0 h1:jfIu9sQUG6Ig
 github.com/arbovm/levenshtein v0.0.0-20160628152529-48b4e1c0c4d0/go.mod h1:t2tdKJDJF9BV14lnkjHmOQgcvEKgtqs5a1N3LNdJhGE=
 github.com/aserto-dev/aserto-management v0.9.6 h1:c03a106uABQIlY4PshlaABwj2RscqsxRa+XDYLp1HQY=
 github.com/aserto-dev/aserto-management v0.9.6/go.mod h1:Bs2AEKP/JGd01usokqq7C4iI6/0smcE6sjm3k3nOfIA=
-github.com/aserto-dev/azm v0.1.13 h1:YXDdU07zuaKr9ENQeRjVCy/7Q6U6r2HF2vEWIbyEXdc=
-github.com/aserto-dev/azm v0.1.13/go.mod h1:gMdMvXNcdvlzDXjEG3Tt0vLCarTAVeROa2T48FwkOD4=
+github.com/aserto-dev/azm v0.1.14 h1:kIo8xCV7rOJ+NWdDiz5szUm8cyD9LRQqYF2Fu0JQUiM=
+github.com/aserto-dev/azm v0.1.14/go.mod h1:gMdMvXNcdvlzDXjEG3Tt0vLCarTAVeROa2T48FwkOD4=
 github.com/aserto-dev/certs v0.0.7 h1:WsFrHywNE88tgUeDJ2FsV+mgy46QFQvCIYm7c5TNIKE=
 github.com/aserto-dev/certs v0.0.7/go.mod h1:aguR/vIf6cag3O7vaYpJ4Jt1+1DJehBC2Uzto9gxXv8=
 github.com/aserto-dev/errors v0.0.11 h1:CXo+Uwmh09doG2HvL1SC8Fnne8f9VPrGyEQPtogAfyY=
@@ -101,8 +101,8 @@ github.com/aserto-dev/self-decision-logger v0.0.7 h1:Ubv7KDGMJIzWR2jQekAnhb0+HzY
 github.com/aserto-dev/self-decision-logger v0.0.7/go.mod h1:lCuqXg/vr5gt3SvMoZGfOQuKCBP8ar9mih1DOxn0QLI=
 github.com/aserto-dev/service-host v0.0.16 h1:M0Ur9esiFw9gmtiIfW+8mx2wgYOAn4b25G0KLcEKFEE=
 github.com/aserto-dev/service-host v0.0.16/go.mod h1:M3Mn8Zg7zp5U4sK32kclokPX1gi9xoOxJF1EYM67SEY=
-github.com/aserto-dev/topaz v0.32.22 h1:GYAF8JUQ3GZUd9h0RPbg14CnWJjwQNDrQPRjHMaebq4=
-github.com/aserto-dev/topaz v0.32.22/go.mod h1:OZDJmsiyD3SPpg9I0eNtGOZBAkZxnfSSS1hY7IDrGTM=
+github.com/aserto-dev/topaz v0.32.23 h1:VUTlMuw0gFBIY02OGyoGWqF/wphIB6SyQxrT9lJp2Ew=
+github.com/aserto-dev/topaz v0.32.23/go.mod h1:/lmVStEUogcQqHtlNBzYAx46oauOM0aiyvJe1TmSqP8=
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
@@ -496,8 +496,8 @@ github.com/sagikazarmark/locafero v0.4.0 h1:HApY1R9zGo4DBgr7dqsTH/JJxLTTsOt7u6ke
 github.com/sagikazarmark/locafero v0.4.0/go.mod h1:Pe1W6UlPYUk/+wc/6KFhbORCfqzgYEpgQ3O5fPuL3H4=
 github.com/sagikazarmark/slog-shim v0.1.0 h1:diDBnUNK9N/354PgrxMywXnAwEr1QZcOr6gto+ugjYE=
 github.com/sagikazarmark/slog-shim v0.1.0/go.mod h1:SrcSrq8aKtyuqEI1uvTDTK1arOWRIczQRv+GVI1AkeQ=
-github.com/samber/lo v1.46.0 h1:w8G+oaCPgz1PoCJztqymCFaKwXt+5cCXn51uPxExFfQ=
-github.com/samber/lo v1.46.0/go.mod h1:RmDH9Ct32Qy3gduHQuKJ3gW1fMHAnE/fAzQuf6He5cU=
+github.com/samber/lo v1.47.0 h1:z7RynLwP5nbyRscyvcD043DWYoOcYRv3mV8lBeqOCLc=
+github.com/samber/lo v1.47.0/go.mod h1:RmDH9Ct32Qy3gduHQuKJ3gW1fMHAnE/fAzQuf6He5cU=
 github.com/sirupsen/logrus v1.2.0/go.mod h1:LxeOpSwHxABJmUn/MG1IvRgCAasNZTLOkJPxbbu5VWo=
 github.com/sirupsen/logrus v1.4.2/go.mod h1:tLMulIdttU9McNUspp0xgXVQah82FyeX6MwdIuYE2rE=
 github.com/sirupsen/logrus v1.6.0/go.mod h1:7uNnSEd1DgxDLC74fIahvMZmmYsHGZGEOFrfsX/uA88=
@@ -891,8 +891,8 @@ google.golang.org/genproto v0.0.0-20200804131852-c06518451d9c/go.mod h1:FWY/as6D
 google.golang.org/genproto v0.0.0-20200825200019-8632dd797987/go.mod h1:FWY/as6DDZQgahTzZj3fqbO1CbirC29ZNUFHwi0/+no=
 google.golang.org/genproto/googleapis/api v0.0.0-20240812133136-8ffd90a71988 h1:+/tmTy5zAieooKIXfzDm9KiA3Bv6JBwriRN9LY+yayk=
 google.golang.org/genproto/googleapis/api v0.0.0-20240812133136-8ffd90a71988/go.mod h1:4+X6GvPs+25wZKbQq9qyAXrwIRExv7w0Ea6MgZLZiDM=
-google.golang.org/genproto/googleapis/rpc v0.0.0-20240812133136-8ffd90a71988 h1:V71AcdLZr2p8dC9dbOIMCpqi4EmRl8wUwnJzXXLmbmc=
-google.golang.org/genproto/googleapis/rpc v0.0.0-20240812133136-8ffd90a71988/go.mod h1:Ue6ibwXGpU+dqIcODieyLOcgj7z8+IcskoNIgZxtrFY=
+google.golang.org/genproto/googleapis/rpc v0.0.0-20240814211410-ddb44dafa142 h1:e7S5W7MGGLaSu8j3YjdezkZ+m1/Nm0uRVRMEMGk26Xs=
+google.golang.org/genproto/googleapis/rpc v0.0.0-20240814211410-ddb44dafa142/go.mod h1:UqMtugtsSgubUsoxbuAoiCXvqvErP7Gf0so0mK9tHxU=
 google.golang.org/grpc v1.19.0/go.mod h1:mqu4LbDTu4XGKhr4mRzUsmM4RtVoemTSY81AxZiDr8c=
 google.golang.org/grpc v1.20.1/go.mod h1:10oTOabMzJvdu6/UiuZezV6QK5dSlG84ov/aaiqXj38=
 google.golang.org/grpc v1.21.1/go.mod h1:oYelfM1adQP15Ek0mdvEgi9Df8B9CZIaU1084ijfRaM=
