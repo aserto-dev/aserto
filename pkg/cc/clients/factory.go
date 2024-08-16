@@ -26,19 +26,13 @@ type Factory interface {
 type OptionsBuilder func() ([]client.ConnectionOption, error)
 
 type AsertoFactory struct {
-	tenantID   string
 	svcOptions map[x.Service]OptionsBuilder
 }
 
-type TenantID string
-
 func NewClientFactory(
 	services *x.Services,
-	tenantID TenantID,
 	token *tok.CachedToken,
 ) (*AsertoFactory, error) {
-	tID := string(tenantID)
-
 	defaultEnv := x.DefaultEnvironment()
 
 	options := map[x.Service]OptionsBuilder{}
@@ -47,7 +41,6 @@ func NewClientFactory(
 			service:     svc,
 			options:     services.Get(svc),
 			defaultAddr: defaultEnv.Get(svc).Address,
-			tenantID:    tID,
 			token:       token,
 		}
 
@@ -55,7 +48,6 @@ func NewClientFactory(
 	}
 
 	return &AsertoFactory{
-		tenantID:   tID,
 		svcOptions: options,
 	}, nil
 }

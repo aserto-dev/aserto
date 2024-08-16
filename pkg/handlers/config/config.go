@@ -121,7 +121,8 @@ func (cmd *UseConfigCmd) Run(c *cc.CommonCtx) error {
 		if ok {
 			headersMap, ok := serviceMap["headers"].(map[string]interface{})
 			if ok {
-				c.Config.TenantID, ok = headersMap["aserto-tenant-id"].(string)
+				strTenantID, ok := headersMap["aserto-tenant-id"].(string)
+				c.Config.TenantID = strTenantID
 				if !ok {
 					c.Config.TenantID = ""
 				}
