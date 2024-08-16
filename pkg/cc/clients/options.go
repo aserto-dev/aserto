@@ -116,6 +116,10 @@ func (c *optionsBuilder) tenantOption() (client.ConnectionOption, error) {
 		return client.WithTenantID(c.tenantID), nil
 	}
 
+	if c.token.TenantID() != "" {
+		return client.WithTenantID(c.token.TenantID()), nil
+	}
+
 	if !c.isHosted() {
 		return nilOption, nil
 	}
