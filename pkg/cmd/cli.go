@@ -13,6 +13,7 @@ import (
 	"github.com/aserto-dev/aserto/pkg/x"
 
 	topazConfig "github.com/aserto-dev/topaz/pkg/cc/config"
+	certs "github.com/aserto-dev/topaz/pkg/cli/cmd/certs"
 	topaz "github.com/aserto-dev/topaz/pkg/cli/cmd/topaz"
 )
 
@@ -32,6 +33,7 @@ type CLI struct {
 	ControlPlane ControlPlaneCmd    `cmd:"" aliases:"cp" help:"control plane commands"`
 	Tenant       TenantCmd          `cmd:"" aliases:"tn" help:"tenant commands"`
 	User         UserCmd            `cmd:"" help:"user commands"`
+	Certs        certs.CertsCmd     `cmd:"" help:"certificate management"`
 	Install      topaz.InstallCmd   `cmd:"" help:"install topaz"`
 	Uninstall    topaz.UninstallCmd `cmd:"" help:"uninstall topaz, removes all locally installed artifacts"`
 	Update       topaz.UpdateCmd    `cmd:"" help:"update topaz container version"`

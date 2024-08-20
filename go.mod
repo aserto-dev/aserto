@@ -9,7 +9,7 @@ require (
 	github.com/aserto-dev/go-aserto v0.32.0
 	github.com/aserto-dev/go-decision-logs v0.0.4
 	github.com/aserto-dev/go-grpc v0.8.68
-	github.com/aserto-dev/topaz v0.32.23
+	github.com/aserto-dev/topaz v0.32.24-0.20240820201804-df2b5253c307
 	github.com/cli/browser v1.3.0
 	github.com/go-http-utils/headers v0.0.0-20181008091004-fed159eddc2a
 	github.com/hashicorp/go-multierror v1.1.1
