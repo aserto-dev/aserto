@@ -54,11 +54,16 @@ func (cmd *ConfigureCmd) Run(c *cc.CommonCtx) error {
 		c.CommonCtx.Config.Active.ConfigFile = filepath.Join(topazCC.GetTopazCfgDir(), configFile)
 	}
 
+	resource, local := cmd.Resource, cmd.From == topazConfigure.FromLocal
+	if cmd.LocalPolicyImage != "" {
+		resource, local = cmd.LocalPolicyImage, true
+	}
+
 	configGenerator := topazConfig.NewGenerator(cmd.Name.String()).
 		WithVersion(topazConfig.ConfigFileVersion).
-		WithLocalPolicyImage(cmd.LocalPolicyImage).
+		WithLocalPolicy(local).
 		WithPolicyName(cmd.Name.String()).
-		WithResource(cmd.Resource).
+		WithResource(resource).
 		WithEdgeDirectory(cmd.EdgeDirectory).
 		WithTenantID(c.TenantID())
 
