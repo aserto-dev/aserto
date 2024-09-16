@@ -8,7 +8,7 @@ import (
 )
 
 type ConfigCmd struct {
-	Use    config.UseConfigCmd         `cmd:"" help:"use a topaz configuration"`
+	Use    config.UseConfigCmd         `cmd:"" help:"set active configuration"`
 	New    dev.ConfigureCmd            `cmd:"" help:"create new configuration"`
 	List   config.ListConfigCmd        `cmd:"" help:"list configurations"`
 	Rename topazConfig.RenameConfigCmd `cmd:"" help:"rename configuration"`
