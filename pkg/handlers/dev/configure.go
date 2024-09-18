@@ -39,6 +39,7 @@ func (cmd *ConfigureCmd) Validate() error {
 	return nil
 }
 
+// nolint: funlen, gocyclo
 func (cmd *ConfigureCmd) Run(c *cc.CommonCtx) error {
 	c.Con().Info().Msg(">>> configure policy...")
 	c.Con().Msg("tenant id: %s", c.TenantID())
