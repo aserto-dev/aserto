@@ -142,7 +142,7 @@ func (cmd *UseConfigCmd) Run(c *cc.CommonCtx) error {
 		})
 
 		if len(tenant) != 1 {
-			return errors.Wrapf(errs.ResolveTenantErr, tenantName)
+			return errors.Wrapf(errs.ResolveTenantErr, tenantName) //nolint: govet
 		}
 
 		token, err := c.Token()

@@ -40,7 +40,7 @@ func (d *LoginCmd) Run(c *cc.CommonCtx) error {
 
 	if d.Browser {
 		fmt.Printf("Press Enter to open browser %s\n", flow.GetVerificationURI())
-		fmt.Scanln()
+		fmt.Scanln() //nolint: errcheck
 		if err := browser.OpenURL(flow.GetVerificationURI()); err != nil {
 			return err
 		}
