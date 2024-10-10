@@ -1,4 +1,6 @@
 ---
+run:
+  timeout: 5m
 # golangci.com configuration
 # https://github.com/golangci/golangci/wiki/Configuration
 
@@ -41,7 +43,7 @@ linters-settings:
     lines: 100
     statements: 80
   gci:
-    local-prefixes: github.com/golangci/golangci-lint
+    prefix: github.com/golangci/golangci-lint
   goconst:
     min-len: 2
     min-occurrences: 2
@@ -63,18 +65,9 @@ linters-settings:
   goimports:
     local-prefixes: github.com/golangci/golangci-lint
   golint:
-    min-confidence: 0
-  gomnd:
-    settings:
-      mnd:
-        # don't include the "operation" and "assign"
-        checks:
-          - argument
-          - case
-          - condition
-          - return
+    min-confidence: 0  
   govet:
-    check-shadowing: true
+    shadow: true
     settings:
       printf:
         funcs:
@@ -101,7 +94,6 @@ linters:
     # - depguard
     - dogsled
     - errcheck
-    - exportloopref
     - exhaustive
     - funlen
     - gochecknoinits
@@ -109,7 +101,7 @@ linters:
     - gocritic
     - gocyclo
     - godot
-    - goerr113
+    - err113
     - gofmt
     - goimports
     - goprintffuncname

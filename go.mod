@@ -1,15 +1,15 @@
 module github.com/aserto-dev/aserto
 
-go 1.22.0
+go 1.23
 
-toolchain go1.22.5
+toolchain go1.23.2
 
 require (
 	github.com/alecthomas/kong v1.2.1
 	github.com/aserto-dev/go-aserto v0.32.1
 	github.com/aserto-dev/go-decision-logs v0.0.4
 	github.com/aserto-dev/go-grpc v0.8.69
-	github.com/aserto-dev/topaz v0.32.29
+	github.com/aserto-dev/topaz v0.32.30
 	github.com/cli/browser v1.3.0
 	github.com/go-http-utils/headers v0.0.0-20181008091004-fed159eddc2a
 	github.com/hashicorp/go-multierror v1.1.1
@@ -46,7 +46,7 @@ require (
 	github.com/aserto-dev/go-edge-ds v0.32.9 // indirect
 	github.com/aserto-dev/header v0.0.8 // indirect
 	github.com/aserto-dev/logger v0.0.6 // indirect
-	github.com/aserto-dev/runtime v0.69.0 // indirect
+	github.com/aserto-dev/runtime v0.69.1 // indirect
 	github.com/aserto-dev/self-decision-logger v0.0.7 // indirect
 	github.com/aserto-dev/service-host v0.0.16 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
