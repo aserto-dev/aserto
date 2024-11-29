@@ -104,6 +104,9 @@ func (cmd *ConfigureCmd) Run(c *cc.CommonCtx) error {
 	}
 
 	if cmd.EdgeAuthorizer != "" {
+		if policyRef == nil {
+			return errors.New("could not find policy reference")
+		}
 		certFile, keyFile, errCerts := getEdgeAuthorizerCerts(c.Context, client, cmd.EdgeAuthorizer, topazCC.GetTopazCertsDir(), policyRef.Name)
 		if errCerts != nil {
 			return err
