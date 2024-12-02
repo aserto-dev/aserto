@@ -8,9 +8,11 @@ import (
 	"github.com/aserto-dev/aserto/pkg/auth0/api"
 	"github.com/aserto-dev/aserto/pkg/auth0/device"
 	"github.com/aserto-dev/aserto/pkg/cc"
+	"github.com/aserto-dev/aserto/pkg/cc/config"
 	"github.com/aserto-dev/aserto/pkg/clients/tenant"
 	"github.com/aserto-dev/aserto/pkg/keyring"
 	client "github.com/aserto-dev/go-aserto"
+	"github.com/aserto-dev/go-grpc/aserto/tenant/account/v1"
 
 	"github.com/cli/browser"
 	"github.com/pkg/errors"
@@ -72,6 +74,31 @@ func (d *LoginCmd) Run(c *cc.CommonCtx) error {
 	}
 
 	c.Con().Info().Msg("Login successful")
+
+	// Set the config to use the default tenant.
+	tenantClient, err := c.TenantClient(c.Context)
+	if err != nil {
+		return err
+	}
+
+	req := &account.GetAccountRequest{}
+
+	resp, err := tenantClient.Account.GetAccount(c.Context, req)
+	if err != nil {
+		return err
+	}
+	for _, tenant := range resp.Result.Tenants {
+		if tenant.Id != resp.Result.DefaultTenant {
+			continue
+		}
+		c.Config.TenantID = tenant.Id
+		c.Config.ConfigName = tenant.Name + cc.TenantSuffix
+		err = c.SaveContextConfig(config.DefaultConfigFilePath)
+		if err != nil {
+			return err
+		}
+		break
+	}
 
 	return nil
 }
