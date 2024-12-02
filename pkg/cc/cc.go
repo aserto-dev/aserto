@@ -88,6 +88,9 @@ func newAuthSettings(auth *config.Auth) *auth0.Settings {
 }
 
 func (ctx *CommonCtx) TenantID() string {
+	if ctx.Config.TenantID != "" {
+		return ctx.Config.TenantID
+	}
 	tkn, err := ctx.Token()
 	if err != nil {
 		return ""
