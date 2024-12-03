@@ -101,7 +101,9 @@ func UpdateKeyRing(c *cc.CommonCtx, token *api.Token) error {
 	if err != nil {
 		return err
 	}
-
+	if c.TenantID() != "" {
+		token.TenantID = c.TenantID()
+	}
 	if err := kr.SetToken(token); err != nil {
 		return err
 	}
