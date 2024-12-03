@@ -1,11 +1,11 @@
 package user
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/alecthomas/kong"
 	"github.com/aserto-dev/aserto/pkg/cc"
-	"github.com/aserto-dev/topaz/pkg/cli/jsonx"
 	"github.com/pkg/errors"
 )
 
@@ -53,7 +53,12 @@ func (cmd *GetCmd) Run(c *cc.CommonCtx) error {
 		if tokenErr != nil {
 			return tokenErr
 		}
-		return jsonx.OutputJSON(c.StdOut(), token)
+		tokenBytes, err := json.Marshal(token)
+		if err != nil {
+			return err
+		}
+		c.Out().Msg(string(tokenBytes))
+		return nil
 
 	default:
 		return errors.Errorf("unknown property name %s", cmd.Property)
