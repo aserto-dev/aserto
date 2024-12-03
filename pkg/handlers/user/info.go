@@ -16,7 +16,7 @@ func (cmd *InfoCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	infoBytes, err := json.Marshal(info)
+	infoBytes, err := json.MarshalIndent(info, "", " ")
 	if err != nil {
 		return err
 	}

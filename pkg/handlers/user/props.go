@@ -53,7 +53,7 @@ func (cmd *GetCmd) Run(c *cc.CommonCtx) error {
 		if tokenErr != nil {
 			return tokenErr
 		}
-		tokenBytes, err := json.Marshal(token)
+		tokenBytes, err := json.MarshalIndent(token, "", " ")
 		if err != nil {
 			return err
 		}
