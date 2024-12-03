@@ -2,11 +2,11 @@ package decision_logs //nolint // prefer standardizing name over removing _
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
 	dl "github.com/aserto-dev/go-decision-logs/aserto/decision-logs/v2"
 	"github.com/aserto-dev/go-decision-logs/aserto/decision-logs/v2/api"
-	"github.com/aserto-dev/topaz/pkg/cli/jsonx"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -23,8 +23,12 @@ func (cmd ListCmd) Run(c *cc.CommonCtx) error {
 	if err != nil {
 		return err
 	}
-
-	return jsonx.OutputJSONPBArray(c.StdOut(), results)
+	resultsBytes, err := json.Marshal(results)
+	if err != nil {
+		return err
+	}
+	c.Out().Msg(string(resultsBytes))
+	return nil
 }
 
 func listDecisionLogs(ctx context.Context, cli dl.DecisionLogsClient, policies []string) ([]proto.Message, error) {

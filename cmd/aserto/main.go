@@ -121,6 +121,7 @@ func run(ctx context.Context) (exitCode int) {
 			"authorizer_svc":     topazCC.AuthorizerSvc(),
 			"authorizer_key":     topazCC.AuthorizerKey(),
 			"authorizer_token":   topazCC.AuthorizerToken(),
+			"plaintext":          strconv.FormatBool(topazCC.Plaintext()),
 			"tenant_id":          topazCC.TenantID(),
 			"insecure":           strconv.FormatBool(topazCC.Insecure()),
 			"no_check":           strconv.FormatBool(topazCC.NoCheck()),

@@ -10,7 +10,6 @@ import (
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/go-grpc/aserto/api/v1"
 	"github.com/aserto-dev/go-grpc/aserto/tenant/connection/v1"
-	"github.com/aserto-dev/topaz/pkg/cli/jsonx"
 
 	"github.com/pkg/errors"
 )
@@ -63,7 +62,11 @@ func (cmd ClientCertCmd) Run(c *cc.CommonCtx) error {
 	cert := cfg.APICerts[len(cfg.APICerts)-1]
 
 	if cmd.Raw {
-		return jsonx.OutputJSON(c.StdOut(), cert)
+		certBytes, err := json.Marshal(cert)
+		if err != nil {
+			return err
+		}
+		c.Out().Msg(string(certBytes))
 	}
 
 	c.Con().Info().Msg("ID : %s", cert.ID)

@@ -2,6 +2,7 @@ package decision_logs //nolint // prefer standardizing name over removing _
 
 import (
 	"context"
+	"encoding/json"
 	"io/fs"
 	"os"
 	"path"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/aserto-dev/aserto/pkg/cc"
 	dl "github.com/aserto-dev/go-decision-logs/aserto/decision-logs/v2"
-	"github.com/aserto-dev/topaz/pkg/cli/jsonx"
 	"github.com/hashicorp/go-multierror"
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
@@ -64,7 +64,12 @@ func (impl *getImpl) run() error {
 	}
 
 	if impl.info {
-		return jsonx.OutputJSONPBMap(impl.c.StdOut(), items)
+		itemsBytes, err := json.Marshal(items)
+		if err != nil {
+			return err
+		}
+		impl.c.Out().Msg(string(itemsBytes))
+		return nil
 	}
 
 	itemCh := make(chan item)
