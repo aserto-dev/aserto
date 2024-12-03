@@ -66,7 +66,10 @@ func (cmd ClientCertCmd) Run(c *cc.CommonCtx) error {
 		if err != nil {
 			return err
 		}
-		c.Out().Msg(string(certBytes))
+		_, err = c.StdOut().Write(certBytes)
+		if err != nil {
+			return err
+		}
 	}
 
 	c.Con().Info().Msg("ID : %s", cert.ID)
