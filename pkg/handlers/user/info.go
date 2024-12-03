@@ -21,7 +21,10 @@ func (cmd *InfoCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 
-	c.Out().Msg(string(infoBytes))
+	_, err = c.StdOut().Write(infoBytes)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

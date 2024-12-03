@@ -27,7 +27,10 @@ func (cmd ListCmd) Run(c *cc.CommonCtx) error {
 	if err != nil {
 		return err
 	}
-	c.Out().Msg(string(resultsBytes))
+	_, err = c.StdOut().Write(resultsBytes)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

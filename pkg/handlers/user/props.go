@@ -57,7 +57,10 @@ func (cmd *GetCmd) Run(c *cc.CommonCtx) error {
 		if err != nil {
 			return err
 		}
-		c.StdOut().Write(tokenBytes)
+		_, err = c.StdOut().Write(tokenBytes)
+		if err != nil {
+			return err
+		}
 		return nil
 
 	default:

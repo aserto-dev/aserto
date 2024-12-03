@@ -68,7 +68,10 @@ func (impl *getImpl) run() error {
 		if err != nil {
 			return err
 		}
-		impl.c.Out().Msg(string(itemsBytes))
+		_, err = impl.c.StdOut().Write(itemsBytes)
+		if err != nil {
+			return err
+		}
 		return nil
 	}
 
