@@ -127,6 +127,7 @@ func run(ctx context.Context) (exitCode int) {
 			"no_check":           strconv.FormatBool(topazCC.NoCheck()),
 			"no_color":           strconv.FormatBool(topazCC.NoColor()),
 			"cwd":                cwd,
+			"timeout":            topazCC.Timeout().String(),
 		},
 	)
 
