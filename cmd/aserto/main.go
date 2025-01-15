@@ -4,11 +4,10 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"os/signal"
+
 	"path/filepath"
 	"strconv"
 	"sync"
-	"syscall"
 
 	"github.com/aserto-dev/aserto/pkg/cc"
 	"github.com/aserto-dev/aserto/pkg/cc/clients"
@@ -16,6 +15,7 @@ import (
 	"github.com/aserto-dev/aserto/pkg/cmd"
 	"github.com/aserto-dev/aserto/pkg/cmd/conf"
 	"github.com/aserto-dev/aserto/pkg/x"
+	cc_context "github.com/aserto-dev/topaz/pkg/cc/context"
 	topazCC "github.com/aserto-dev/topaz/pkg/cli/cc"
 	topaz "github.com/aserto-dev/topaz/pkg/cli/cmd/common"
 	"github.com/aserto-dev/topaz/pkg/cli/fflag"
@@ -39,28 +39,9 @@ func main() {
 		os.Args = append(os.Args, "--help")
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
+	topazctx := cc_context.NewContext()
 
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, os.Interrupt, syscall.SIGTERM)
-
-	go func() {
-		sig := <-sigs
-		sc, ok := sig.(syscall.Signal)
-		if !ok {
-			sc = 0
-		}
-
-		fmt.Fprintln(os.Stderr)
-		fmt.Fprintf(os.Stderr, "%s request received, canceling...\n", sig.String())
-		fmt.Fprintln(os.Stderr)
-
-		cancel()
-
-		os.Exit(128 + int(sc))
-	}()
-
-	os.Exit(run(ctx))
+	os.Exit(run(topazctx.Ctx))
 }
 
 func run(ctx context.Context) (exitCode int) {
