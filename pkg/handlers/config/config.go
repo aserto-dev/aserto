@@ -37,7 +37,7 @@ func (cmd *ListConfigCmd) Run(c *cc.CommonCtx) error {
 	tab := table.New(c.StdErr()).WithColumns("", "Name", "Config")
 
 	resp, err := getAccountDetails(c)
-	if err != nil && !errors.Is(err, errs.NeedLoginErr) {
+	if err != nil && !errors.Is(err, errs.ErrNeedLogin) {
 		return err
 	}
 	if resp != nil {
@@ -142,7 +142,7 @@ func (cmd *UseConfigCmd) Run(c *cc.CommonCtx) error {
 		})
 
 		if len(tenant) != 1 {
-			return errors.Wrapf(errs.ResolveTenantErr, tenantName) //nolint: govet
+			return errors.Wrapf(errs.ErrResolveTenant, tenantName) //nolint: govet
 		}
 
 		token, err := c.Token()

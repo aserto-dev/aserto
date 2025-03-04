@@ -124,7 +124,7 @@ func (c *optionsBuilder) tenantOption() (client.ConnectionOption, error) {
 		return nilOption, nil
 	}
 
-	return nil, errors.NeedTenantIDErr
+	return nil, errors.ErrNeedTenantID
 }
 
 func (c *optionsBuilder) isHosted() bool {

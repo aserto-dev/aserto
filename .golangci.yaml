@@ -1,49 +1,16 @@
 ---
-run:
-  timeout: 5m
 # golangci.com configuration
 # https://github.com/golangci/golangci/wiki/Configuration
 
+run:
+  timeout: 5m
+
 linters-settings:
-  depguard:
-    # Rules to apply.
-    #
-    # Variables:
-    # - File Variables
-    #   you can still use and exclamation mark ! in front of a variable to say not to use it.
-    #   Example !$test will match any file that is not a go test file.
-    #
-    #   `$all` - matches all go files
-    #   `$test` - matches all go test files
-    #
-    # - Package Variables
-    #
-    #  `$gostd` - matches all of go's standard library (Pulled from `GOROOT`)
-    #
-    # Default: Only allow $gostd in all files.
-    rules:
-      # Name of a rule.
-      main:
-        # List of file globs that will match this list of settings to compare against.
-        files:
-          - $all
-        # List of allowed packages.
-        allow:
-          - $gostd
-          - github.com/aserto-dev
-        # Packages that are not allowed where the value is a suggestion.
-        deny:
-          - pkg: "github.com/sirupsen/logrus"
-            desc: not allowed
-          - pkg: "github.com/pkg/errors"
-            desc: Should be replaced by standard lib errors package
   dupl:
     threshold: 100
   funlen:
     lines: 100
     statements: 80
-  gci:
-    prefix: github.com/golangci/golangci-lint
   goconst:
     min-len: 2
     min-occurrences: 2
@@ -64,10 +31,10 @@ linters-settings:
     min-complexity: 18
   goimports:
     local-prefixes: github.com/golangci/golangci-lint
-  golint:
-    min-confidence: 0  
+  gosec:
+    excludes:
+      - G115 # potential integer overflow when converting between integer types
   govet:
-    shadow: true
     settings:
       printf:
         funcs:
@@ -75,8 +42,6 @@ linters-settings:
           - (github.com/golangci/golangci-lint/pkg/logutils.Log).Warnf
           - (github.com/golangci/golangci-lint/pkg/logutils.Log).Errorf
           - (github.com/golangci/golangci-lint/pkg/logutils.Log).Fatalf
-  maligned:
-    suggest-new: true
   misspell:
     locale: US
   nolintlint:
@@ -91,9 +56,10 @@ linters:
   enable:
     - asciicheck
     - bodyclose
-    # - depguard
+    - copyloopvar
     - dogsled
     - errcheck
+    - errname
     - exhaustive
     - funlen
     - gochecknoinits
@@ -101,6 +67,7 @@ linters:
     - gocritic
     - gocyclo
     - godot
+    - gosimple
     - err113
     - gofmt
     - goimports
@@ -108,6 +75,7 @@ linters:
     - gosec
     - gosimple
     - govet
+    - importas
     - ineffassign
     - misspell
     - nakedret
@@ -115,13 +83,16 @@ linters:
     - rowserrcheck
     - staticcheck
     - stylecheck
+    - testifylint
     - testpackage
     - typecheck
     - unconvert
     - unparam
     - unused
+    - wastedassign
 
   # don't enable:
+    # - depguard
     # - dupl
     # - gochecknoglobals
     # - gocognit
@@ -170,3 +141,10 @@ issues:
     - text: "G404"
       linters:
       - gosec
+    - text: "SA1019: \\S+ is deprecated"
+      linters:
+      - staticcheck
+    - path: internal/pkg/xdg/.*\.go
+      linters:
+      - gochecknoinits
+      - gocritic

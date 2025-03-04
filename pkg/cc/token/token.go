@@ -32,11 +32,11 @@ func (t *CachedToken) Get() (*api.Token, error) {
 
 func (t *CachedToken) Verify() error {
 	if t.token == nil || t.token.Access == "" {
-		return errors.NeedLoginErr
+		return errors.ErrNeedLogin
 	}
 
 	if t.token.IsExpired() {
-		return errors.TokenExpiredErr
+		return errors.ErrTokenExpired
 	}
 
 	return nil
