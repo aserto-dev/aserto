@@ -15,7 +15,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-var EnvironmentErr = errors.New("unknown environment")
+var ErrEnvironment = errors.New("unknown environment")
 
 var DefaultConfigFilePath = filepath.Join(os.Getenv("HOME"), ".config", "aserto", "config.json")
 

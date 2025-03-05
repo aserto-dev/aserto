@@ -41,7 +41,7 @@ func (cmd *AuthorizerCmd) AfterApply(context *kong.Context, c *topazCC.CommonCtx
 	}
 
 	token, err := getTenantToken((cfg.Auth))
-	if err != nil && !errors.Is(err, errs.NeedLoginErr) {
+	if err != nil && !errors.Is(err, errs.ErrNeedLogin) {
 		return err
 	}
 

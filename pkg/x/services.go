@@ -20,7 +20,7 @@ const (
 )
 
 var (
-	UnknownSvcErr = errors.New("unknown service")
+	ErrUnknownSvc = errors.New("unknown service")
 
 	serviceNames = map[Service]string{
 		AuthorizerService:      "authorizer",
@@ -108,7 +108,7 @@ func (s *Services) SetAddress(svc Service, address string) error {
 	case DirectoryModelService:
 		s.DirectoryModelService.Address = address
 	default:
-		return errors.Wrapf(UnknownSvcErr, "[%d]", svc)
+		return errors.Wrapf(ErrUnknownSvc, "[%d]", svc)
 	}
 
 	return nil

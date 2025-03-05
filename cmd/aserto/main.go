@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-
 	"path/filepath"
 	"strconv"
 	"sync"
@@ -151,7 +150,7 @@ func ConfigResolver() kong.Resolver {
 			return resolved, err
 		}
 
-		var svcOptions *x.ServiceOptions = nil
+		var svcOptions *x.ServiceOptions
 
 		// Only the authorizer and decision logs services have CLI flags to override service options.
 		switch flag.Tag.EnvPrefix {
