@@ -50,6 +50,7 @@ type ServiceOptions struct {
 	APIKey     string `json:"api_key,omitempty" yaml:"api_key,omitempty"`
 	Anonymous  bool   `json:"anonymous,omitempty" yaml:"anonymous,omitempty"`
 	Insecure   bool   `json:"insecure,omitempty" yaml:"insecure,omitempty"`
+	Plaintext  bool   `json:"plaintext,omitempty" yaml:"plaintext,omitempty"`
 	CACertPath string `json:"ca_cert_path,omitempty" yaml:"ca_cert_path,omitempty"`
 }
 

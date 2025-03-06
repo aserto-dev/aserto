@@ -40,11 +40,13 @@ func (cmd *DirectoryCmd) AfterApply(context *kong.Context, c *topazCC.CommonCtx)
 	}
 
 	dirConfig := dsClient.Config{
-		Host:     cfg.Services.DirectoryReaderService.Address,
-		APIKey:   cfg.Services.DirectoryReaderService.APIKey,
-		Token:    lo.Ternary(isTopazConfig, "", token.Access), // only send access token to hosted services.
-		Insecure: cfg.Services.DirectoryReaderService.Insecure,
-		TenantID: lo.Ternary(isTopazConfig, "", cfg.TenantID),
+		Host:      cfg.Services.DirectoryReaderService.Address,
+		APIKey:    cfg.Services.DirectoryReaderService.APIKey,
+		Token:     lo.Ternary(isTopazConfig, "", token.Access), // only send access token to hosted services.
+		Insecure:  cfg.Services.DirectoryReaderService.Insecure,
+		Plaintext: cfg.Services.DirectoryReaderService.Plaintext,
+		TenantID:  lo.Ternary(isTopazConfig, "", cfg.TenantID),
+		Timeout:   topazCC.Timeout(),
 	}
 
 	if !isTopazConfig {

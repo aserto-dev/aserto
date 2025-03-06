@@ -46,11 +46,13 @@ func (cmd *AuthorizerCmd) AfterApply(context *kong.Context, c *topazCC.CommonCtx
 	}
 
 	authorizerConfig := azClient.Config{
-		Host:     cfg.Services.AuthorizerService.Address,
-		APIKey:   cfg.Services.AuthorizerService.APIKey,
-		Token:    lo.Ternary(isTopazConfig, "", token.Access), // only send access token to hosted services.
-		Insecure: cfg.Services.AuthorizerService.Insecure,
-		TenantID: lo.Ternary(isTopazConfig, "", cfg.TenantID),
+		Host:      cfg.Services.AuthorizerService.Address,
+		APIKey:    cfg.Services.AuthorizerService.APIKey,
+		Token:     lo.Ternary(isTopazConfig, "", token.Access), // only send access token to hosted services.
+		Insecure:  cfg.Services.AuthorizerService.Insecure,
+		Plaintext: cfg.Services.AuthorizerService.Plaintext,
+		TenantID:  lo.Ternary(isTopazConfig, "", cfg.TenantID),
+		Timeout:   topazCC.Timeout(),
 	}
 
 	if !isTopazConfig {
