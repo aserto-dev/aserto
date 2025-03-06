@@ -1,6 +1,6 @@
 module github.com/aserto-dev/aserto
 
-go 1.23.6
+go 1.23.7
 
 require (
 	github.com/alecthomas/kong v1.8.1
