@@ -4,7 +4,7 @@ go 1.23.6
 
 require (
 	github.com/alecthomas/kong v1.8.1
-	github.com/aserto-dev/go-aserto v0.33.6
+	github.com/aserto-dev/go-aserto v0.33.7
 	github.com/aserto-dev/go-decision-logs v0.1.4
 	github.com/aserto-dev/go-grpc v0.9.5
 	github.com/aserto-dev/topaz v0.32.55
@@ -145,10 +145,10 @@ require (
 	golang.org/x/exp v0.0.0-20250228200357-dead58393ab7 // indirect
 	golang.org/x/mod v0.23.0 // indirect
 	golang.org/x/net v0.36.0 // indirect
-	golang.org/x/sync v0.11.0 // indirect
-	golang.org/x/sys v0.30.0 // indirect
+	golang.org/x/sync v0.12.0 // indirect
+	golang.org/x/sys v0.31.0 // indirect
 	golang.org/x/term v0.29.0 // indirect
-	golang.org/x/text v0.22.0 // indirect
+	golang.org/x/text v0.23.0 // indirect
 	golang.org/x/time v0.9.0 // indirect
 	golang.org/x/tools v0.30.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250303144028-a0af3efb3deb // indirect
