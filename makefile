@@ -11,7 +11,7 @@ GOARCH             := $(shell go env GOARCH)
 GOPRIVATE          := "github.com/aserto-dev"
 DOCKER_BUILDKIT    := 1
 
-EXT_DIR            := ./.ext
+EXT_DIR            := ${PWD}/.ext
 EXT_BIN_DIR        := ${EXT_DIR}/bin
 EXT_TMP_DIR        := ${EXT_DIR}/tmp
 
@@ -41,7 +41,6 @@ gover:
 .PHONY: build
 build: gover
 	@echo -e "$(ATTN_COLOR)==> $@ $(NO_COLOR)"
-	@(go env GOVERSION | grep "go${GO_VER}") || (echo "go version check failed expected go${GO_VER} got $$(go env GOVERSION)"; exit 1)
 	@${EXT_BIN_DIR}/goreleaser build --clean --snapshot --single-target
 
 .PHONY: dev-release
@@ -62,7 +61,7 @@ snapshot:
 .PHONY: generate
 generate:
 	@echo -e "$(ATTN_COLOR)==> $@ $(NO_COLOR)"
-	@GOBIN=${PWD}/${EXT_BIN_DIR} go generate ./...
+	@GOBIN=${EXT_BIN_DIR} go generate ./...
 
 .PHONY: lint
 lint: gover
@@ -86,7 +85,6 @@ vault-login:
 	@echo -e "$(ATTN_COLOR)==> $@ $(NO_COLOR)"
 	@vault login -method=github token=$$(gh auth token)
 
-
 .PHONY: info
 info:
 	@echo -e "$(ATTN_COLOR)==> $@ $(NO_COLOR)"
@@ -103,25 +101,15 @@ install-vault: ${EXT_BIN_DIR} ${EXT_TMP_DIR}
 	@curl -s -o ${EXT_TMP_DIR}/vault.zip https://releases.hashicorp.com/vault/${VAULT_VER}/vault_${VAULT_VER}_${GOOS}_${GOARCH}.zip
 	@unzip -o ${EXT_TMP_DIR}/vault.zip vault -d ${EXT_BIN_DIR}/  &> /dev/null
 	@chmod +x ${EXT_BIN_DIR}/vault
-	@${EXT_BIN_DIR}/vault --version 
+	@${EXT_BIN_DIR}/vault --version
 
 .PHONY: install-svu
-install-svu: install-svu-${GOOS}
+install-svu: ${EXT_BIN_DIR} ${EXT_TMP_DIR}
 	@echo -e "$(ATTN_COLOR)==> $@ $(NO_COLOR)"
+	@gh release download v${SVU_VER} --repo https://github.com/caarlos0/svu --pattern "*${GOOS}_all.tar.gz" --output "${EXT_TMP_DIR}/svu.tar.gz" --clobber
+	@tar -xvf ${EXT_TMP_DIR}/svu.tar.gz --directory ${EXT_BIN_DIR} svu &> /dev/null
 	@chmod +x ${EXT_BIN_DIR}/svu
 	@${EXT_BIN_DIR}/svu --version
-
-.PHONY: install-svu-darwin
-install-svu-darwin: ${EXT_TMP_DIR} ${EXT_BIN_DIR}
-	@echo -e "$(ATTN_COLOR)==> $@ $(NO_COLOR)"
-	@gh release download v${SVU_VER} --repo https://github.com/caarlos0/svu --pattern "*darwin_all.tar.gz" --output "${EXT_TMP_DIR}/svu.tar.gz" --clobber
-	@tar -xvf ${EXT_TMP_DIR}/svu.tar.gz --directory ${EXT_BIN_DIR} svu &> /dev/null
-
-.PHONY: install-svu-linux
-install-svu-linux: ${EXT_TMP_DIR} ${EXT_BIN_DIR}
-	@echo -e "$(ATTN_COLOR)==> $@ $(NO_COLOR)"
-	@gh release download v${SVU_VER} --repo https://github.com/caarlos0/svu --pattern "*linux_${GOARCH}.tar.gz" --output "${EXT_TMP_DIR}/svu.tar.gz" --clobber
-	@tar -xvf ${EXT_TMP_DIR}/svu.tar.gz --directory ${EXT_BIN_DIR} svu &> /dev/null
 
 .PHONY: install-gotestsum
 install-gotestsum: ${EXT_TMP_DIR} ${EXT_BIN_DIR}
@@ -151,7 +139,7 @@ install-goreleaser: ${EXT_TMP_DIR} ${EXT_BIN_DIR}
 .PHONY: install-wire
 install-wire: ${EXT_TMP_DIR} ${EXT_BIN_DIR}
 	@echo -e "$(ATTN_COLOR)==> $@ $(NO_COLOR)"
-	@GOBIN=${PWD}/${EXT_BIN_DIR} go install github.com/google/wire/cmd/wire@v${WIRE_VER}
+	@GOBIN=${EXT_BIN_DIR} go install github.com/google/wire/cmd/wire@v${WIRE_VER}
 
 .PHONY: install-check2decision
 install-check2decision: ${EXT_TMP_DIR} ${EXT_BIN_DIR}
