@@ -17,10 +17,16 @@ import (
 )
 
 type LoginCmd struct {
-	Browser bool `flag:"browser" negatable:"" default:"true" help:"do not open browser"`
+	Browser   bool   `flag:"browser" negatable:"" default:"true" help:"do not open browser"`
+	TenantID  string `flag:"tenant-id" hidden:""`
+	TenantKey string `flag:"tenant-key" hidden:""`
 }
 
 func (d *LoginCmd) Run(c *cc.CommonCtx) error {
+	if d.TenantID != "" && d.TenantKey != "" {
+		return d.run(c)
+	}
+
 	settings := c.Auth
 
 	flow := device.New(
@@ -140,6 +146,49 @@ func SwitchKeyRing(c *cc.CommonCtx, token *api.Token, tenantID string) error {
 	if err := kr.SetToken(token); err != nil {
 		return err
 	}
+
+	c.Con().Info().Msg("Switched to tenant-id %q", c.TenantID())
+
+	return nil
+}
+
+func (d *LoginCmd) run(c *cc.CommonCtx) error {
+	ctx, cancel := context.WithTimeout(c.Context, time.Second*10)
+	defer cancel()
+
+	conn, err := tenant.NewClient(
+		ctx,
+		client.WithAddr(c.Environment.TenantService.Address),
+		client.WithAPIKeyAuth(d.TenantKey),
+	)
+	if err != nil {
+		return err
+	}
+
+	tok := api.Token{
+		Type:      "basic",
+		Scope:     "scope",
+		Identity:  "identity token",
+		Access:    "access token",
+		ExpiresIn: 3600,
+		ExpiresAt: time.Now().Add(3600 * time.Second),
+		TenantID:  d.TenantID,
+	}
+
+	if err := GetConnectionKeys(ctx, conn, &tok); err != nil {
+		return err
+	}
+
+	kr, err := keyring.NewKeyRing(c.Auth.Issuer)
+	if err != nil {
+		return err
+	}
+
+	if err := kr.SetToken(&tok); err != nil {
+		return err
+	}
+
+	c.Config.TenantID = d.TenantID
 
 	c.Con().Info().Msg("Switched to tenant-id %q", c.TenantID())
 
