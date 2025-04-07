@@ -27,6 +27,7 @@ import (
 
 type ConfigureCmd struct {
 	topazConfigure.NewConfigCmd
+	PolicyInstance  string `optional:"" help:"name of the policy instance for witch to configure an edge authorizer"`
 	EdgeAuthorizer  string `optional:"" help:"id of edge authorizer connection used to register with the Aserto control plane"`
 	DecisionLogging bool   `optional:"" help:"enable decision logging"`
 }
@@ -46,7 +47,7 @@ func (cmd *ConfigureCmd) Run(c *cc.CommonCtx) error {
 
 	if cmd.Name == "" && cmd.Resource == "" {
 		if cmd.LocalPolicyImage == "" {
-			return errors.New("you either need to provide a local policy image or the resource and the policy name for the configuration")
+			return errors.New("you either need to provide a local policy image, the resource and the config name or policy instance name and config name for the configuration")
 		}
 	}
 	configFile := cmd.Name.String() + ".yaml"
@@ -63,7 +64,7 @@ func (cmd *ConfigureCmd) Run(c *cc.CommonCtx) error {
 	configGenerator := topazConfig.NewGenerator(cmd.Name.String()).
 		WithVersion(topazConfig.ConfigFileVersion).
 		WithLocalPolicy(local).
-		WithPolicyName(cmd.Name.String()).
+		WithPolicyName(cmd.PolicyInstance).
 		WithResource(resource).
 		WithEdgeDirectory(cmd.EdgeDirectory).
 		WithTenantID(c.TenantID())
@@ -90,7 +91,7 @@ func (cmd *ConfigureCmd) Run(c *cc.CommonCtx) error {
 		return err
 	}
 	getDiscovery := true
-	policyRef, err := findPolicyRef(c.Context, client, cmd.Name.String())
+	policyRef, err := findPolicyRef(c.Context, client, cmd.PolicyInstance)
 	if err != nil {
 		// policy name not found
 		getDiscovery = false
@@ -104,6 +105,9 @@ func (cmd *ConfigureCmd) Run(c *cc.CommonCtx) error {
 	}
 
 	if cmd.EdgeAuthorizer != "" {
+		if cmd.PolicyInstance == "" {
+			return errors.New("policy instance parameter must be set to configure an edge authorizer")
+		}
 		if policyRef == nil {
 			return errors.New("could not find policy reference")
 		}
@@ -122,7 +126,7 @@ func (cmd *ConfigureCmd) Run(c *cc.CommonCtx) error {
 			)
 	}
 
-	c.Con().Msg("policy name: %s", cmd.Name)
+	c.Con().Msg("config name %s with policy instance name: %s", cmd.Name, cmd.PolicyInstance)
 
 	var w io.Writer
 
